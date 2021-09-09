@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <math.h>
 #include <stdlib.h>
-
-//Functions
-#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 
 //Constants
 #define MAX_ATTEMPTS 10
@@ -24,20 +20,25 @@ int main(){
         while (true) {
             fflush(stdin);
             printf("Attenpt #%d: ", attempt);
-            scanf("%d", &guess);
-            if (guess >= 0 && guess <= 99)
-                break;
-            printf("Out of range, try again.\n");
+            if (!scanf("%d", &guess)) {
+                printf("Not a number, try again.\n");
+                continue;
+            }
+            if (guess < 0 || guess > 99) {
+                printf("%d is out of range, try again.\n", guess);
+                continue;
+            }    
+            break;   
         }
         if (guess < number) 
-            printf("Too small, try again.\n");
+            printf("%d is too small, try again.\n", guess);
         else if (guess > number)
-            printf("Too big, try again.\n");
+            printf("%d is too big, try again.\n", guess);
         else {
-            printf("Correct!");
+            printf("Correct!"); 
             correct = true;
             break;    
-        }  
+        }   
         
     }
     if (!correct){
@@ -49,7 +50,6 @@ int main(){
             goto start;
     }
     
-  
     return 0;
 } 
 
