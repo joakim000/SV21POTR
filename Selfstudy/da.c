@@ -3,13 +3,19 @@
 #include <math.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <stdarg.h>
 
 
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 
-
+/* TODOs
 // return # of elements or -1 (error)
 // union för att tillåta olika typer?
+// nytt försök med typedef
+// va_list: Compact med/utan reserve
+            Get/GetRange
+            Remove/RemoveRange      
+*/      
 
 struct DynArr {
    double *p;
@@ -22,12 +28,15 @@ int daInit(struct DynArr* a, int reserve);  //
 int daCreate(struct DynArr* a, double values[], int len);
 int daAdd(struct DynArr* a, int index, double value);  //index -1 == end
 int daCompactRemove(struct DynArr* a, int index);
-//int daRemove(struct DynArr* a, int index);
-//int daSnip(struct DynArr* a, int startIndex, int endIndex);
+int daCompactRemoveRange(struct DynArr* a, int startIndex, int endIndex);
 double daGet(struct DynArr* a, int index);
-double* daGetRange(int start, int end);
-int daCompact(int reserve);
+double* daGetRange(struct DynArr* a, int start, int end);
+int daCompact(struct DynArr* a, int reserve);
+int daCount(struct DynArr* a);
+int daAlloc(struct DynArr* a);
 
+
+//int daRemove(struct DynArr* a, int index);
 
 int main(){
     struct DynArr test;
@@ -52,7 +61,6 @@ int main(){
     printf("Dump: ");
     for (i = 0; i < test.elements; i++){
         printf("%f ", *(test.p+i));
-        //printf("%f ", daGet(&test, i));
     }
     printf("\n");
 
@@ -60,15 +68,22 @@ int main(){
     printf("Dump: ");
     for (i = 0; i < test.elements; i++){
         printf("%f ", *(test.p+i));
-        //printf("%f ", daGet(&test, i));
     }
     printf("\n");
 
+/*
     printf("CompactRemove exit:%d\n", daCompactRemove(&test, 2));
     printf("Dump: ");
     for (i = 0; i < test.elements; i++){
         printf("%f ", *(test.p+i));
-        //printf("%f ", daGet(&test, i));
+    }
+    printf("\n");
+*/
+
+    printf("CompactRemoveRange exit:%d\n", daCompactRemoveRange(&test, 2, 2));
+    printf("Dump: ");
+    for (i = 0; i < test.elements; i++){
+        printf("%f ", *(test.p+i));
     }
     printf("\n");
 
@@ -159,6 +174,34 @@ int daCompactRemove(struct DynArr* a, int index) {
     return 0;
 }
 
+int daCompactRemoveRange(struct DynArr* a, int startIndex, int endIndex) {
+    if (startIndex >= a->elements ||
+        endIndex >= a->elements ||
+        startIndex > endIndex ) {
+        //Illegal remove
+        return -1;
+    }
+
+    int blockSize = endIndex - startIndex + 1;
+    int i;
+    for (i = startIndex + blockSize; i < a->elements; i++ ) {
+            *(a->p + i - blockSize) = *(a->p + i);
+        }
+    a->elements -= blockSize;
+    
+    return 0;
+
+}
+
+int daCount(struct DynArr* a) {
+    return a->elements;
+}
+
+int daAlloc(struct DynArr* a){
+    return a->slots;
+}
+
+
 //int daRemove(struct DynArr* a, int index){}
-//int daSnip(struct DynArr* a, int startIndex, int endIndex){}
+
 
