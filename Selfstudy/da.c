@@ -19,7 +19,7 @@ struct DynArr {
 
 int daInit(struct DynArr* a, int slots);
 int daCreate(struct DynArr* a, double values[], int len);
-//int daAdd(struct DynArr* a, int index, double value);  //index -1 == end
+int daAdd(struct DynArr* a, int index, double value);  //index -1 == end
 //int daRemove(struct DynArr* a, int index);
 //int daSnip(struct DynArr* a, int startIndex, int endIndex);
 double daGet(struct DynArr* a, int index);
@@ -35,7 +35,24 @@ int main(){
     
     printf("\nCreate exit:%d\n", daCreate(&test, v, COUNT_OF(v)));
     
-    printf("%f\n", daGet(&test, 2));
+    //printf("%f\n", daGet(&test, 2));
+
+    int i;
+    printf("Dump: ");
+    for (i = 0; i < test.elements; i++){
+        printf("%f ", *(test.p+i));
+        //printf("%f ", daGet(&test, i));
+    }
+    printf("\n");
+
+    printf("Add exit:%d\n", daAdd(&test, 2, 10.123));
+
+    printf("Dump: ");
+    for (i = 0; i < test.elements; i++){
+        printf("%f ", *(test.p+i));
+        //printf("%f ", daGet(&test, i));
+    }
+    printf("\n");
 
     return 0;
 }
@@ -55,8 +72,7 @@ int daCreate(struct DynArr* a, double values[], int len) {
     if (len > a->slots) {
         //Needs realloc
         return -1;
-    }
-    else {
+    } else {
         int i;
         for (i = 0; i < len; i++) {
             *(a->p+i) = values[i];
@@ -70,7 +86,29 @@ double daGet(struct DynArr* a, int index) {
     return *(a->p + index);
 }
 
-//int daAdd(struct DynArr* a, int index, double value){}  //index -1 == end
+int daAdd(struct DynArr* a, int index, double value) {  //index -1 == end
+    int i;
+    if (a->elements == a->slots){
+        //Needs realloc
+        return -1;
+    }
+    if (index == -1) { //Add to end
+        *(a->p + a->elements) = value;
+        a->elements++;
+    } else if (index > a->elements - 1 || index < 0) {
+        // Illegal insert
+        return -1;
+    } else {
+        for (i = a->elements - 1; i >= index; i-- ) {
+            *(a->p + i + 1) = *(a->p + i);
+        }
+        *(a->p + index) = value;
+        a->elements++;
+    }
+    return 0;
+}  
+
+
 //int daRemove(struct DynArr* a, int index){}
 //int daSnip(struct DynArr* a, int startIndex, int endIndex){}
 
