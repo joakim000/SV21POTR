@@ -70,7 +70,7 @@ int main(){
 
 
     //daCreate(test, v);
-    printf("\nCreate:%d\n", daCreate(&test, v));
+    printf("\nCreate:%d\n", daCreate(&test, v, COUNT_OF(v)));
     
     printf("%f\n", daGet(&test, 2));
 
