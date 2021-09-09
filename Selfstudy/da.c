@@ -15,11 +15,13 @@ struct DynArr {
    double *p;
    int elements;
    int slots;
+   int reserve;
 };
 
-int daInit(struct DynArr* a, int slots);
+int daInit(struct DynArr* a, int reserve);  //
 int daCreate(struct DynArr* a, double values[], int len);
 int daAdd(struct DynArr* a, int index, double value);  //index -1 == end
+int daCompactRemove(struct DynArr* a, int index);
 //int daRemove(struct DynArr* a, int index);
 //int daSnip(struct DynArr* a, int startIndex, int endIndex);
 double daGet(struct DynArr* a, int index);
@@ -29,10 +31,11 @@ int daCompact(int reserve);
 
 int main(){
     struct DynArr test;
-    printf("Init exit:%d\n", daInit(&test, 10));
+    printf("Init exit:%d\n", daInit(&test, 5));
 
-    double v[] = {0, 1, 2, 3, 4};
-    
+    double v[] = {0, 1, 2, 3, 4, 5, 6};
+    //double v[] = {0, 1, 2, 3};
+
     printf("\nCreate exit:%d\n", daCreate(&test, v, COUNT_OF(v)));
     
     //printf("%f\n", daGet(&test, 2));
@@ -46,7 +49,22 @@ int main(){
     printf("\n");
 
     printf("Add exit:%d\n", daAdd(&test, 2, 10.123));
+    printf("Dump: ");
+    for (i = 0; i < test.elements; i++){
+        printf("%f ", *(test.p+i));
+        //printf("%f ", daGet(&test, i));
+    }
+    printf("\n");
 
+    printf("Add exit:%d\n", daAdd(&test, -1, 11.123));
+    printf("Dump: ");
+    for (i = 0; i < test.elements; i++){
+        printf("%f ", *(test.p+i));
+        //printf("%f ", daGet(&test, i));
+    }
+    printf("\n");
+
+    printf("CompactRemove exit:%d\n", daCompactRemove(&test, 2));
     printf("Dump: ");
     for (i = 0; i < test.elements; i++){
         printf("%f ", *(test.p+i));
@@ -58,27 +76,39 @@ int main(){
 }
 
 
-int daInit(struct DynArr* a, int slots) {
-    //free(a.p);
-    a->p = calloc(slots, sizeof(double)); // Add test successful alloc
-    a->slots = slots;
+int daInit(struct DynArr* a, int reserve) {
+    free(a->p);
+    a->p = calloc(reserve, sizeof(double));
+    if(a->p == NULL ) {
+        fprintf(stderr, "Unable to allocate memory.\n");
+        return -1;
+    } 
+    a->slots = reserve;
     a->elements = 0;
+    a->reserve = reserve;
     return 0;
 }
 
 int daCreate(struct DynArr* a, double values[], int len) {   
-    printf("Create - slots:%d len:%d", a->slots, len);
+    printf("Create - slots:%d len:%d\n", a->slots, len);
 
     if (len > a->slots) {
         //Needs realloc
-        return -1;
-    } else {
-        int i;
-        for (i = 0; i < len; i++) {
-            *(a->p+i) = values[i];
+        a->p = realloc(a->p, len + a->reserve * sizeof(double)); 
+        if(a->p == NULL ) {
+            fprintf(stderr, "Unable to allocate memory.\n");
+            return -1;
         }
-        a->elements = len;
+        a->slots = len + a->reserve;
+        printf("Realloc done, slots: %d\n", a->slots);
+    } 
+    
+    int i;
+    for (i = 0; i < len; i++) {
+        *(a->p+i) = values[i];
     }
+    a->elements = len;
+    
     return 0;
 }
 
@@ -88,9 +118,15 @@ double daGet(struct DynArr* a, int index) {
 
 int daAdd(struct DynArr* a, int index, double value) {  //index -1 == end
     int i;
-    if (a->elements == a->slots){
+    if (a->elements == a->slots) {
         //Needs realloc
-        return -1;
+        a->p = realloc(a->p, a->slots + 1 + a->reserve * sizeof(double)); 
+        if(a->p == NULL ) {
+            fprintf(stderr, "Unable to allocate memory.\n");
+            return -1;
+        }
+        a->slots = a->slots + 1 + a->reserve;
+        printf("Realloc done, slots: %d\n", a->slots);
     }
     if (index == -1) { //Add to end
         *(a->p + a->elements) = value;
@@ -108,6 +144,20 @@ int daAdd(struct DynArr* a, int index, double value) {  //index -1 == end
     return 0;
 }  
 
+int daCompactRemove(struct DynArr* a, int index) {
+    if (index >= a->elements){
+        //Illegal remove
+        return -1;
+    }
+    
+    int i;
+    for (i = index + 1; i < a->elements; i++ ) {
+            *(a->p + i - 1) = *(a->p + i);
+        }
+    a->elements--;
+    
+    return 0;
+}
 
 //int daRemove(struct DynArr* a, int index){}
 //int daSnip(struct DynArr* a, int startIndex, int endIndex){}
