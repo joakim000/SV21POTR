@@ -29,6 +29,7 @@ int daCreate(struct DynArr* a, double values[], int len);
 int daAdd(struct DynArr* a, int index, double value);  //index -1 == end
 int daCompactRemove(struct DynArr* a, int index);
 int daCompactRemoveRange(struct DynArr* a, int startIndex, int endIndex);
+int daCompactRemoveRange2(int num,...);
 double daGet(struct DynArr* a, int index);
 double* daGetRange(struct DynArr* a, int start, int end);
 int daCompact(struct DynArr* a, int reserve);
@@ -80,12 +81,20 @@ int main(){
     printf("\n");
 */
 
-    printf("CompactRemoveRange exit:%d\n", daCompactRemoveRange(&test, 2, 2));
+    printf("CompactRemoveRange exit:%d\n", daCompactRemoveRange2(2, &test, 2));
     printf("Dump: ");
     for (i = 0; i < test.elements; i++){
         printf("%f ", *(test.p+i));
     }
     printf("\n");
+
+    printf("CompactRemoveRange exit:%d\n", daCompactRemoveRange2(3, &test, 2, 4));
+    printf("Dump: ");
+    for (i = 0; i < test.elements; i++){
+        printf("%f ", *(test.p+i));
+    }
+    printf("\n");
+
 
     return 0;
 }
@@ -175,6 +184,48 @@ int daCompactRemove(struct DynArr* a, int index) {
 }
 
 int daCompactRemoveRange(struct DynArr* a, int startIndex, int endIndex) {
+    if (startIndex >= a->elements ||
+        endIndex >= a->elements ||
+        startIndex > endIndex ) {
+        //Illegal remove
+        return -1;
+    }
+
+    int blockSize = endIndex - startIndex + 1;
+    int i;
+    for (i = startIndex + blockSize; i < a->elements; i++ ) {
+            *(a->p + i - blockSize) = *(a->p + i);
+        }
+    a->elements -= blockSize;
+    
+    return 0;
+
+}
+
+
+int daCompactRemoveRange2(int num,...) {
+    va_list args;
+    va_start(args, num);
+
+    int startIndex, endIndex;
+    struct DynArr* a;
+
+    switch (num){
+        case 1:
+            return -1; //Too few args
+        case 2:
+            a = va_arg(args, struct DynArr*);
+            startIndex = va_arg(args, int);
+            endIndex = startIndex;
+            break;
+        default:
+            a = va_arg(args, struct DynArr*);
+            startIndex = va_arg(args, int);
+            endIndex = va_arg(args, int);
+            break;
+    }
+    va_end(args);
+
     if (startIndex >= a->elements ||
         endIndex >= a->elements ||
         startIndex > endIndex ) {
