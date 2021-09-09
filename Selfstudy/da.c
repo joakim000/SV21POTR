@@ -12,9 +12,7 @@
 // return # of elements or -1 (error)
 // union för att tillåta olika typer?
 // nytt försök med typedef
-// va_list: Compact med/utan reserve
-            Get/GetRange
-            Remove/RemoveRange      
+   
 */      
 
 struct DynArr {
@@ -27,9 +25,7 @@ struct DynArr {
 int daInit(struct DynArr* a, int reserve);  //
 int daCreate(struct DynArr* a, double values[], int len);
 int daAdd(struct DynArr* a, int index, double value);  //index -1 == end
-int daCompactRemove(struct DynArr* a, int index);
-int daCompactRemoveRange(struct DynArr* a, int startIndex, int endIndex);
-int daCompactRemoveRange2(int num,...);
+int daCompactRemove(struct DynArr* a, int startIndex, int endIndex);
 double daGet(struct DynArr* a, int index);
 double* daGetRange(struct DynArr* a, int start, int end);
 int daCompact(struct DynArr* a, int reserve);
@@ -72,23 +68,15 @@ int main(){
     }
     printf("\n");
 
-/*
-    printf("CompactRemove exit:%d\n", daCompactRemove(&test, 2));
-    printf("Dump: ");
-    for (i = 0; i < test.elements; i++){
-        printf("%f ", *(test.p+i));
-    }
-    printf("\n");
-*/
 
-    printf("CompactRemoveRange exit:%d\n", daCompactRemoveRange2(2, &test, 2));
+    printf("CompactRemove exit:%d\n", daCompactRemove(&test, 2, 2));
     printf("Dump: ");
     for (i = 0; i < test.elements; i++){
         printf("%f ", *(test.p+i));
     }
     printf("\n");
 
-    printf("CompactRemoveRange exit:%d\n", daCompactRemoveRange2(3, &test, 2, 4));
+    printf("CompactRemove exit:%d\n", daCompactRemove(&test, 2, 4));
     printf("Dump: ");
     for (i = 0; i < test.elements; i++){
         printf("%f ", *(test.p+i));
@@ -168,22 +156,8 @@ int daAdd(struct DynArr* a, int index, double value) {  //index -1 == end
     return 0;
 }  
 
-int daCompactRemove(struct DynArr* a, int index) {
-    if (index >= a->elements){
-        //Illegal remove
-        return -1;
-    }
-    
-    int i;
-    for (i = index + 1; i < a->elements; i++ ) {
-            *(a->p + i - 1) = *(a->p + i);
-        }
-    a->elements--;
-    
-    return 0;
-}
 
-int daCompactRemoveRange(struct DynArr* a, int startIndex, int endIndex) {
+int daCompactRemove(struct DynArr* a, int startIndex, int endIndex) {
     if (startIndex >= a->elements ||
         endIndex >= a->elements ||
         startIndex > endIndex ) {
@@ -199,49 +173,6 @@ int daCompactRemoveRange(struct DynArr* a, int startIndex, int endIndex) {
     a->elements -= blockSize;
     
     return 0;
-
-}
-
-
-int daCompactRemoveRange2(int num,...) {
-    va_list args;
-    va_start(args, num);
-
-    int startIndex, endIndex;
-    struct DynArr* a;
-
-    switch (num){
-        case 1:
-            return -1; //Too few args
-        case 2:
-            a = va_arg(args, struct DynArr*);
-            startIndex = va_arg(args, int);
-            endIndex = startIndex;
-            break;
-        default:
-            a = va_arg(args, struct DynArr*);
-            startIndex = va_arg(args, int);
-            endIndex = va_arg(args, int);
-            break;
-    }
-    va_end(args);
-
-    if (startIndex >= a->elements ||
-        endIndex >= a->elements ||
-        startIndex > endIndex ) {
-        //Illegal remove
-        return -1;
-    }
-
-    int blockSize = endIndex - startIndex + 1;
-    int i;
-    for (i = startIndex + blockSize; i < a->elements; i++ ) {
-            *(a->p + i - blockSize) = *(a->p + i);
-        }
-    a->elements -= blockSize;
-    
-    return 0;
-
 }
 
 int daCount(struct DynArr* a) {
