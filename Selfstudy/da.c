@@ -5,6 +5,10 @@
 #include <errno.h>
 #include <stdarg.h>
 
+#define INT 1
+#define DOUBLE 2
+#define BOOL 3
+#define CHAR 4
 
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 
@@ -13,31 +17,41 @@
 // union för att tillåta olika typer?
 // nytt försök med typedef
    
-*/      
+*/    
+
+union Data {
+    int d;
+    double dbl;
+    bool b;
+    char c;
+};
 
 struct DynArr {
-   double *p;
+   //double *p;
+   union Data *p;
    int elements;
    int slots;
    int reserve;
+   int datatype;
 };
 
-int daInit(struct DynArr* a, int reserve);  //
-int daCreate(struct DynArr* a, double values[], int len);
-int daAdd(struct DynArr* a, int index, double value);  //index -1 == end
+int daInit(struct DynArr* a, int reserve, int datatype);  //
+//int daCreate(struct DynArr* a, double values[], int len);
+int daCreate(struct DynArr* a, union Data values[], int len);
+//int daAdd(struct DynArr* a, int index, double value);  //index -1 == end
+int daAdd(struct DynArr* a, int index, union Data value);  //index -1 == end
 int daCompactRemove(struct DynArr* a, int startIndex, int endIndex);
 double daGet(struct DynArr* a, int index);
-double* daGetRange(struct DynArr* a, int start, int end);
+//double* daGetRange(struct DynArr* a, int start, int end);
 int daCompact(struct DynArr* a, int reserve);
 int daCount(struct DynArr* a);
 int daAlloc(struct DynArr* a);
-
 
 //int daRemove(struct DynArr* a, int index);
 
 int main(){
     struct DynArr test;
-    printf("Init exit:%d\n", daInit(&test, 5));
+    printf("Init exit:%d\n", daInit(&test, 5, DOUBLE));
 
     double v[] = {0, 1, 2, 3, 4, 5, 6};
     //double v[] = {0, 1, 2, 3};
@@ -88,7 +102,7 @@ int main(){
 }
 
 
-int daInit(struct DynArr* a, int reserve) {
+int daInit(struct DynArr* a, int reserve, int datatype) {
     free(a->p);
     a->p = calloc(reserve, sizeof(double));
     if(a->p == NULL ) {
@@ -98,10 +112,12 @@ int daInit(struct DynArr* a, int reserve) {
     a->slots = reserve;
     a->elements = 0;
     a->reserve = reserve;
+    a->datatype = datatype;
     return 0;
 }
 
-int daCreate(struct DynArr* a, double values[], int len) {   
+//int daCreate(struct DynArr* a, double values[], int len) {   
+int daCreate(struct DynArr* a, union Data values[], int len) {   
     printf("Create - slots:%d len:%d\n", a->slots, len);
 
     if (len > a->slots) {
@@ -128,7 +144,8 @@ double daGet(struct DynArr* a, int index) {
     return *(a->p + index);
 }
 
-int daAdd(struct DynArr* a, int index, double value) {  //index -1 == end
+//int daAdd(struct DynArr* a, int index, double value) {  //index -1 == end
+int daAdd(struct DynArr* a, int index, union Data value) {  //index -1 == end
     int i;
     if (a->elements == a->slots) {
         //Needs realloc
