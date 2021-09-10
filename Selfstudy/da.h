@@ -15,30 +15,71 @@
    
 */      
 
-struct DynArr {
+typedef struct DynArr {
    double *p;
    int elements;
    int slots;
    int reserve;
-};
+} da;
 
-int daInit(struct DynArr* a, int reserve);  //
-int daCreate(struct DynArr* a, double values[], int len);
-int daAdd(struct DynArr* a, int index, double value);  //index -1 == end
-int daCompactRemove(struct DynArr* a, int startIndex, int endIndex);
-double daGet(struct DynArr* a, int index);
-double* daGetRange(struct DynArr* a, int start, int end);
-int daCompact(struct DynArr* a, int reserve);
-int daCount(struct DynArr* a);
-int daAlloc(struct DynArr* a);
+// Init array
+// Args: da* a, int reserve, int datatype
+// Return: exit code
+int daInit(da* a, int reserve);  //
+
+// Load starting values
+// Args: da* a, datatype values[], int len
+// Return: exit code
+int daCreate(da* a, double values[], int len);
+
+// Insert or add (index -1)
+// Args: da* a, int index, double value
+// Return: exit code  
+int daAdd(da* a, int index, double value);  
+
+// Remove element or range
+// Args: da* a, int startIndex, int endIndex
+// Return: exit code
+int daCompactRemove(da* a, int startIndex, int endIndex);
+
+// Get value
+// Args: da* a, int index
+// Return: union
+// Args: da* a, int index, datatype &target
+// Return: exit code
+double daGet(da* a, int index);
+
+// Set value
+// Args: da* a, int index, datatype value 
+// Return: exit code
+int daSet(da* a, int index, double value);
+
+// Get range 
+// Args: da* a, int start, int end 
+// Return: union?
+double* daGetRange(da* a, int start, int end);
+
+// Compact allocation, set reserve
+// Args: da* a, int reserve
+int daCompact(da* a, int reserve);
+
+// Return element count
+// Args: da* a
+int daCount(da* a);
+
+// Return allocated slots
+// Args: da* a 
+int daAlloc(da* a);
+
+// Quick remove - amortized O(1)
+// Args: da* a, int index
+int daRemove(da* a, int index);
 
 
-//int daRemove(struct DynArr* a, int index);
 
 
 
-
-int daInit(struct DynArr* a, int reserve) {
+int daInit(da* a, int reserve) {
     free(a->p);
     a->p = calloc(reserve, sizeof(double));
     if(a->p == NULL ) {
@@ -51,7 +92,7 @@ int daInit(struct DynArr* a, int reserve) {
     return 0;
 }
 
-int daCreate(struct DynArr* a, double values[], int len) {   
+int daCreate(da* a, double values[], int len) {   
     printf("Create - slots:%d len:%d\n", a->slots, len);
 
     if (len > a->slots) {
@@ -74,11 +115,11 @@ int daCreate(struct DynArr* a, double values[], int len) {
     return 0;
 }
 
-double daGet(struct DynArr* a, int index) {
+double daGet(da* a, int index) {
     return *(a->p + index);
 }
 
-int daAdd(struct DynArr* a, int index, double value) {  //index -1 == end
+int daAdd(da* a, int index, double value) {  //index -1 == end
     int i;
     if (a->elements == a->slots) {
         //Needs realloc
@@ -107,7 +148,7 @@ int daAdd(struct DynArr* a, int index, double value) {  //index -1 == end
 }  
 
 
-int daCompactRemove(struct DynArr* a, int startIndex, int endIndex) {
+int daCompactRemove(da* a, int startIndex, int endIndex) {
     if (startIndex >= a->elements ||
         endIndex >= a->elements ||
         startIndex > endIndex ) {
@@ -125,15 +166,15 @@ int daCompactRemove(struct DynArr* a, int startIndex, int endIndex) {
     return 0;
 }
 
-int daCount(struct DynArr* a) {
+int daCount(da* a) {
     return a->elements;
 }
 
-int daAlloc(struct DynArr* a){
+int daAlloc(da* a){
     return a->slots;
 }
 
 
-//int daRemove(struct DynArr* a, int index){}
+int daRemove(da* a, int index){}
 
 
