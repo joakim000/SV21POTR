@@ -5,8 +5,14 @@
 #include <errno.h>
 #include <stdarg.h>
 
-
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
+
+#define CHAR 1
+#define INT 2
+#define LONG 3
+#define FLOAT 4
+#define DOUBLE 5
+#define BOOL 6
 
 /* TODOs
 // return # of elements or -1 (error)
@@ -17,15 +23,24 @@
 
 typedef struct DynArr {
    double *p;
+
+   char *c; 
+   int *d;
+   long *l;
+   float *f;
+   double *dbl;
+   bool *b;
+
    int elements;
    int slots;
    int reserve;
+   int type;
 } da;
 
 // Init array
 // Args: da* a, int reserve, int datatype
 // Return: exit code
-int daInit(da* a, int reserve);  //
+int daInit(da* a, int reserve, int datatype);  
 
 // Load starting values
 // Args: da* a, datatype values[], int len
@@ -33,9 +48,9 @@ int daInit(da* a, int reserve);  //
 int daCreate(da* a, double values[], int len);
 
 // Insert or add (index -1)
-// Args: da* a, int index, double value
+// Args: da* a, int index, datatype value
 // Return: exit code  
-int daAdd(da* a, int index, double value);  
+int daAdd(da* a,...);  
 
 // Remove element or range
 // Args: da* a, int startIndex, int endIndex
@@ -79,9 +94,26 @@ int daRemove(da* a, int index);
 
 
 
-int daInit(da* a, int reserve) {
+int daInit(da* a, int reserve, int datatype) {
     free(a->p);
-    a->p = calloc(reserve, sizeof(double));
+    switch (datatype){
+        case CHAR:
+            a->c = calloc(reserve, sizeof(char)); break;
+        case INT:
+            a->d = calloc(reserve, sizeof(int)); break;
+        case LONG:
+            a->l = calloc(reserve, sizeof(long)); break;
+        case FLOAT:
+            a->f = calloc(reserve, sizeof(float)); break;
+        case DOUBLE:
+            a->dbl = calloc(reserve, sizeof(double)); break;
+        case BOOL:
+            a->b = calloc(reserve, sizeof(bool)); break;
+        default:
+            printf("\nUnknown datatype.\n");
+            //fprintf(stderr, "\nUnknown datatype.\n");
+            return -1;
+    }
     if(a->p == NULL ) {
         fprintf(stderr, "Unable to allocate memory.\n");
         return -1;
@@ -89,6 +121,7 @@ int daInit(da* a, int reserve) {
     a->slots = reserve;
     a->elements = 0;
     a->reserve = reserve;
+    a->type = datatype;
     return 0;
 }
 
@@ -119,8 +152,14 @@ double daGet(da* a, int index) {
     return *(a->p + index);
 }
 
-int daAdd(da* a, int index, double value) {  //index -1 == end
-    int i;
+int daAdd(da* a,...) {  //index -1 == end
+    int index;
+    double value;
+
+    int x;
+    
+    typeof (*x) y;
+
     if (a->elements == a->slots) {
         //Needs realloc
         a->p = realloc(a->p, a->slots + 1 + a->reserve * sizeof(double)); 
@@ -138,6 +177,7 @@ int daAdd(da* a, int index, double value) {  //index -1 == end
         // Illegal insert
         return -1;
     } else {
+        int i;
         for (i = a->elements - 1; i >= index; i-- ) {
             *(a->p + i + 1) = *(a->p + i);
         }
