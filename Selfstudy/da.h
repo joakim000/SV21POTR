@@ -7,22 +7,23 @@
 
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 
-#define CHAR 1
-#define INT 2
-#define LONG 3
-#define FLOAT 4
-#define DOUBLE 5
-#define BOOL 6
-
 /* TODOs
 // return # of elements or -1 (error)
 // union för att tillåta olika typer?
-// nytt försök med typedef
-   
+  
 */      
 
+typedef enum datatypes { 
+_char,
+_int,
+_long,
+_float,
+_double,
+_bool
+} datatype; 
+
 typedef struct DynArr {
-   double *p;
+   void *p;
 
    char *c; 
    int *d;
@@ -34,13 +35,14 @@ typedef struct DynArr {
    int elements;
    int slots;
    int reserve;
-   int type;
+   datatype type;
+   unsigned long long typesize;
 } da;
 
 // Init array
 // Args: da* a, int reserve, int datatype
 // Return: exit code
-int daInit(da* a, int reserve, int datatype);  
+int daInit(da* a, int reserve, datatype type);  
 
 // Load starting values
 // Args: da* a, datatype values[], int len
@@ -50,7 +52,8 @@ int daCreate(da* a, double values[], int len);
 // Insert or add (index -1)
 // Args: da* a, int index, datatype value
 // Return: exit code  
-int daAdd(da* a,...);  
+int daAdd(da* a, int index, void *value);  
+//int daAdd(da* a,...);  
 
 // Remove element or range
 // Args: da* a, int startIndex, int endIndex
@@ -94,20 +97,22 @@ int daRemove(da* a, int index);
 
 
 
-int daInit(da* a, int reserve, int datatype) {
-    free(a->p);
-    switch (datatype){
-        case CHAR:
+int daInit(da* a, int reserve, datatype type) {
+    //free(a->p);
+    switch (type){
+        case _char:
             a->c = calloc(reserve, sizeof(char)); break;
-        case INT:
+        case _int:
             a->d = calloc(reserve, sizeof(int)); break;
-        case LONG:
+        case _long:
             a->l = calloc(reserve, sizeof(long)); break;
-        case FLOAT:
+        case _float:
             a->f = calloc(reserve, sizeof(float)); break;
-        case DOUBLE:
-            a->dbl = calloc(reserve, sizeof(double)); break;
-        case BOOL:
+        case _double:
+            a->typesize = sizeof(double);
+            a->p = (double*)a->p;
+            a->p = calloc(reserve, a->typesize); break;
+        case _bool:
             a->b = calloc(reserve, sizeof(bool)); break;
         default:
             printf("\nUnknown datatype.\n");
@@ -121,7 +126,7 @@ int daInit(da* a, int reserve, int datatype) {
     a->slots = reserve;
     a->elements = 0;
     a->reserve = reserve;
-    a->type = datatype;
+    a->type = type;
     return 0;
 }
 
@@ -149,17 +154,24 @@ int daCreate(da* a, double values[], int len) {
 }
 
 double daGet(da* a, int index) {
-    return *(a->p + index);
+     double* dp;
+     switch (a->type){
+        case _double:
+            //a->p = (double*)a->p;
+            //double *r = *(double*)(a->p + index); 
+            dp = (double*)(a->p + index);
+            return *(double*)(a->p + index);
+        default:
+            printf("\nUnknown datatype.\n");
+            //fprintf(stderr, "\nUnknown datatype.\n");
+            return -1;
+    
+    //return *(a->p + index);
 }
 
-int daAdd(da* a,...) {  //index -1 == end
-    int index;
-    double value;
-
-    int x;
+//int daAdd(da* a,...) {
+int daAdd(da* a, int index, void *value) {    
     
-    typeof (*x) y;
-
     if (a->elements == a->slots) {
         //Needs realloc
         a->p = realloc(a->p, a->slots + 1 + a->reserve * sizeof(double)); 
