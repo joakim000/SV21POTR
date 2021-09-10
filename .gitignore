@@ -1,3 +1,5 @@
 
 .vscode
 **/*.exe
+/.vs/slnx.sqlite
+/.vs
