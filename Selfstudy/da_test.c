@@ -8,6 +8,7 @@
 
 int main(){
     da test;
+    printf("Start init\n");
     printf("Init exit:%d\n", daInit(&test, 5));
 
     double v[] = {0, 1, 2, 3, 4, 5, 6};
