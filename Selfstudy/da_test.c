@@ -7,7 +7,7 @@
 #include "da.h"
 
 int main(){
-    struct DynArr test;
+    da test;
     printf("Init exit:%d\n", daInit(&test, 5));
 
     double v[] = {0, 1, 2, 3, 4, 5, 6};
