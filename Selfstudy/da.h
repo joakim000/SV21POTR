@@ -11,7 +11,7 @@
 /* TODOs
 // return # of elements or -1 (error)
 // union för att tillåta olika typer?
-// nytt försök med typedef
+
    
 */      
 
@@ -28,15 +28,21 @@ typedef struct DynArr {
    double *p;
    int elements;
    int slots;
-   int reserve;
-   bool *vacant; 
+   float growthFactor;
+
+   //bool *vacant;
+   int sparseTotal;
+   int sparseFirst;
+   int sparseLast;
+   int* sparse;
+
 
 } da;
 
 // Init array
 // Args: da* a, int reserve, int datatype
 // Return: exit code
-int daInit(da* a, int reserve);  //
+int daInit(da* a, int initSlots, float growthFactor);  //
 
 // Load starting values
 // Args: da* a, datatype values[], int len
@@ -84,32 +90,30 @@ int daAlloc(da* a);
 
 // Quick remove - amortized O(1)
 // Args: da* a, int index
-int daRemove(da* a, int index);
+int daSparseRemove(da* a, int startIndex, int endIndex);
 
 
 
 
 
-int daInit(da* a, int reserve) {
+int daInit(da* a, int initSlots, float growthFactor) {
     //free(a->p);
-    a->vacant = calloc(reserve, sizeof(bool));
-    if(a->vacant == NULL ) {
-        fprintf(stderr, "Unable to allocate memory.\n");
-        return -1;
-    }
-    int i;
-    for (i = 0; i < reserve; i++){
-        *(a->vacant+i) = true;
-    }
+    
+    // Init vars for sparse functionality
+    a->sparseTotal = 0;
+    //a->sparseFirst;
+    //a->sparseLast;
+    a->sparse = calloc(initSlots, sizeof(int)); //För många!
+    
 
-    a->p = calloc(reserve, sizeof(double));
+    a->p = calloc(initSlots, sizeof(double));
     if(a->p == NULL ) {
         fprintf(stderr, "Unable to allocate memory.\n");
         return -1;
     } 
-    a->slots = reserve;
+    a->slots = initSlots;
     a->elements = 0;
-    a->reserve = reserve;
+    a->growthFactor = growthFactor;
     return 0;
 }
 
@@ -118,18 +122,19 @@ int daCreate(da* a, double values[], int len) {
 
     if (len > a->slots) {
         //Needs realloc
-        a->p = realloc(a->p, len + a->reserve * sizeof(double)); 
+        int newSize = (int)((a->slots + len) * a->growthFactor);
+        a->p = realloc(a->p, newSize * sizeof(double)); 
         if(a->p == NULL ) {
             fprintf(stderr, "Unable to allocate memory.\n");
             return -1;
         }
-        a->slots = len + a->reserve;
+        a->slots = newSize;
 
-        a->vacant = realloc(a->vacant, a->slots * sizeof(bool)); 
+        /* a->vacant = realloc(a->vacant, a->slots * sizeof(bool)); 
         if(a->vacant == NULL ) {
             fprintf(stderr, "Unable to allocate memory.\n");
             return -1;
-        }
+        } */
         
         printf("Realloc done, slots: %d\n", a->slots);
     } 
@@ -137,7 +142,7 @@ int daCreate(da* a, double values[], int len) {
     int i;
     for (i = 0; i < len; i++) {
         *(a->p+i) = values[i];
-        *(a->vacant+i) = false;
+        //*(a->vacant+i) = false;
     }
     a->elements = len;
     
@@ -152,29 +157,30 @@ int daAdd(da* a, int index, double value) {  //index -1 == end
     int i;
     if (a->elements == a->slots) {
         //Needs realloc
-        a->p = realloc(a->p, a->slots + 1 + a->reserve * sizeof(double)); 
+        int newSize = (int)(a->slots * a->growthFactor);
+        a->p = realloc(a->p, newSize * sizeof(double)); 
         if(a->p == NULL ) {
             fprintf(stderr, "Unable to allocate memory.\n");
             return -1;
         }
-        a->slots = a->slots + 1 + a->reserve;
+        a->slots = newSize;
         
-        a->vacant = realloc(a->vacant, a->slots * sizeof(bool)); 
+        /* a->vacant = realloc(a->vacant, a->slots * sizeof(bool)); 
         if(a->vacant == NULL ) {
             fprintf(stderr, "Unable to allocate memory.\n");
             return -1;
-        }
+        } */
         printf("Realloc done, slots: %d\n", a->slots);
     }
     if (index == -1) { //Add to end
         *(a->p + a->elements) = value;
-        *(a->vacant + a->elements) = false;
+        //*(a->vacant + a->elements) = false;
         a->elements++;
     } else if (index > a->elements - 1 || index < 0) {
         // Illegal insert
         return -1;
     } else {
-        *(a->vacant + a->elements) = false; // Ska vara true om 
+        //*(a->vacant + a->elements) = false; // Ska vara true om 
                                             // sista uppflyttade slot var vakant?
 
         // Flytta alla element ett steg upp, start vid index
@@ -185,7 +191,7 @@ int daAdd(da* a, int index, double value) {  //index -1 == end
         *(a->p + index) = value;
 
         // Denna är iaf inte tom?
-        *(a->vacant + index) = false;
+        //*(a->vacant + index) = false;
         
         // Vi har nu ett fler element
         a->elements++;
@@ -221,7 +227,7 @@ int daAlloc(da* a){
 }
 
 
-int daRemove(da* a, int startIndex, int endIndex){
+int daSparseRemove(da* a, int startIndex, int endIndex){
      if (startIndex >= a->elements ||
         endIndex >= a->elements ||
         startIndex > endIndex ) {
