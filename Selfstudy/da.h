@@ -31,12 +31,16 @@ typedef struct DynArr {
    int elements;
    int slots;
    float growthFactor;
+   
+   // Generic
+   datatype type;
+   unsigned long long typesize;
 
+   // Sparse
    bool *vacant;  
    int vacantTotal;
    int vacantFirst;
    int vacantLast;
-
 } da;
 
 // Init array
@@ -72,10 +76,11 @@ int daSparseRemove(da* a, int startIndex, int endIndex);
 double daGet(da* a, int index);
 double daSparseGet(da* a, int index);
 
-// Set value - NOT IMPLEMENTED
+// Set value
 // Args: da* a, int index, datatype value 
 // Return: exit code
 int daSet(da* a, int index, double value);
+int daSparseSet(da* a, int index, double value);
 
 // Get range - NOT IMPLEMENTED
 // Args: da* a, int start, int end 
@@ -96,7 +101,7 @@ int daCount(da* a);
 int daAlloc(da* a);
 
 /* Helpers */
-int daVacs(da* a, int index);   // Vacancy counter
+int daVacs(da* a, int index);                   // Vacancy counter
 int daRealloc(da* a, int extraSlots);           // Realloc routine
 
 /* Declarations end */
