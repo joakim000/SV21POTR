@@ -21,7 +21,8 @@ int main(){
     // printf("Int size:%d  Bool size:%d \n", sizeof(int), sizeof(bool));
 
     printf("Start init\n");
-    printf("Init exit:%d\n", daInit(&test, 5, 1.5, _double));
+    // printf("Init exit:%d\n", daInit(&test, 5, 1.5, _double));
+    printf("Init exit:%d\n", daInit(&test, 5, 1.5));
 
     double v[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
     //double v[] = {0, 1, 2, 3};

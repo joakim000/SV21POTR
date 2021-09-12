@@ -9,35 +9,15 @@
 //Google's apparantly clever array size macro
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 
-
-
-
-/* TODOs
-// return # of elements or -1 (error)
-// union för att tillåta olika typer?
-// Allocation for that one array in sparseDelete
-
-   
-*/      
-
-typedef enum datatypes { 
-_char,
-_int,
-_long,
-_float,
-_double,
-_bool
-} datatype; 
+#ifndef DA_TYPE
+#define DA_TYPE double
+#endif
 
 typedef struct DynArr {
    DA_TYPE *p;
    int elements;
    int slots;
    float growthFactor;
-   
-   // Generic
-   datatype type;
-   unsigned long long typesize;
 
    // Sparse
    bool *vacant;  
@@ -49,7 +29,7 @@ typedef struct DynArr {
 // Init array
 // Args: da* a, int reserve, int datatype
 // Return: exit code
-int daInit(da* a, int initSlots, float growthFactor, datatype type);  
+int daInit(da* a, int initSlots, float growthFactor);  
 
 // Clear allocations when done
 // Return: exit code
@@ -110,7 +90,7 @@ int daRealloc(da* a, int extraSlots);           // Realloc routine
 /* Declarations end */
 
 
-int daInit(da* a, int initSlots, float growthFactor, datatype type) {
+int daInit(da* a, int initSlots, float growthFactor) {
     
     // Init vars for sparse functionality
     a->vacantTotal = 0;
@@ -124,22 +104,6 @@ int daInit(da* a, int initSlots, float growthFactor, datatype type) {
         *(a->vacant + i) = false;
     // End sparse vars
     
-    /* Generic support */
-    // a->type = type;
-
-    // //Let's start with DA_TYPEs
-    // switch (type)
-    // {
-    // case _DA_TYPE:
-    //     a->typesize = sizeof(DA_TYPE);
-          
-    //     break;
-    
-    // default:
-    //     break;
-    // }
-    /* End generic support */
-
     /* Main init */
     a->p = calloc(initSlots, sizeof(DA_TYPE));
     if(a->p == NULL ) {
@@ -151,8 +115,6 @@ int daInit(da* a, int initSlots, float growthFactor, datatype type) {
     a->growthFactor = growthFactor;
     return 0;
 }
-
-// int CastPointer()
 
 int daClear(da* a){
     free(a->p);
@@ -202,7 +164,7 @@ int daRealloc(da* a, int extraSlots){
         fprintf(stderr, "Unable to allocate memory.\n");
         return -1;
     } 
-    // Init added slots on vacant
+    // Init added slots
     int i;
     for (i = oldSize; i < newSize; i++)
         *(a->vacant + i) = false;
@@ -229,8 +191,6 @@ int daAdd(da* a, int index, DA_TYPE value) {  //index -1 == end
         bool regularInsert = true;
         
         // Sparse insert
-        //bool useSparseInsert = true; // For dev        
-        //if (useSparseInsert && a->vacantTotal > 0) {
         if (a->vacantTotal > 0) {    
             // correction for virtual insert index
             int iVac = daVacs(a, index); 
@@ -253,12 +213,7 @@ int daAdd(da* a, int index, DA_TYPE value) {  //index -1 == end
                 // we'd have to move a lot of values in vacant.
                 daCompact(a);
             }
-        }   
-
-        // if (a->vacantTotal > 0 && !useSparseInsert) {
-        //     // Cannot (yet) insert on sparse array
-        //     daCompact(a);
-        // }      
+        }    
 
         // Regular insert
         if (regularInsert){
@@ -276,21 +231,6 @@ int daAdd(da* a, int index, DA_TYPE value) {  //index -1 == end
     }
     return 0;
 }  
-
-// "private" function, not to be called directly
-int daMoveAndInsert(da* a, int index, DA_TYPE value) {  
-    // Flytta alla element ett steg upp, start vid index
-    int i;
-    for (i = a->elements - 1; i >= index; i-- ) {
-        *(a->p + i + 1) = *(a->p + i);
-    }
-    // Sätt in värdet på angivet index        
-    *(a->p + index) = value;
-    
-    return 0;
-}  
-
-
 
 int daRemove(da* a, int startIndex, int endIndex) {
     if (startIndex >= a->elements ||
@@ -393,18 +333,6 @@ int daSparseSet(da* a, int index, DA_TYPE value) {
     return 0;
 }
 
-/* Status daSparseRemove:
-    compact array remove 1 beginning/middle/end - ok
-    compact array remove 3 beginning/middle/end - ok
-    remove 1 before vac - ok
-    remove 3 before vac - ok
-    remove 1 after vac - verkar ok nu, mer test behövs
-    remove 3 after vac - verkar ok nu, mer test behövs
-    remove 1 between vacs -
-    remove 3 between vacs - 
-
-*/ 
-
 int daSparseRemove(da* a, int startIndex, int endIndex){
      if (startIndex >= a->elements ||
         endIndex >= a->elements ||
@@ -417,7 +345,13 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
     int i;
    
     /* Find vac-counts for block */ 
-    int blockVacs[1000]; // FIGURE OUT C99 VLAs /
+    int* blockVacs;
+    blockVacs = calloc(blockSize, sizeof(int)); 
+    if(blockVacs == NULL ) {
+        fprintf(stderr, "Unable to allocate memory.\n");
+        return -1;
+    } 
+
     // Optimering: först kolla för 0 på vacs för endIndex 
     int vacEnd = daVacs(a, endIndex);
     if (vacEnd == 0){
@@ -427,8 +361,7 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
         int vacStart = daVacs(a, startIndex);
         blockVacs[0] = vacStart;
     
-        // Denna optimerade version har något problem
-        // Ok nu?
+        // Based on vacancy compensation for startIndex, calc others
         for (i = 1; i < blockSize; i++){
             if (*(a->vacant + i + startIndex + vacStart))
                 blockVacs[i] = ++vacStart;
@@ -464,19 +397,16 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
         a->vacantFirst = startIndex;
         a->vacantLast = endIndex;
     } else {
-        // printf("\nstartIndex:%d vacantFirst:%d\n", startIndex, a->vacantFirst);  
         if (startIndex < a->vacantFirst)
             a->vacantFirst = startIndex;
-        // printf("\nstartIndex:%d vacantFirst:%d\n", startIndex, a->vacantFirst);  
-        // printf("\nendIndex:%d vacantLast:%d\n", endIndex, a->vacantLast);    
         if (endIndex > a->vacantLast)
             a->vacantLast = endIndex;
-        // printf("\nendIndex:%d vacantLast:%d\n", endIndex, a->vacantLast);  
     }
     // Update totals
     a->elements -= blockSize;
     a->vacantTotal += blockSize;
 
+    free(blockVacs);
     return 0;    
 }
 

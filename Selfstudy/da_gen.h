@@ -8,14 +8,7 @@
 
 
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
-
-/* TODOs
-// return # of elements or -1 (error)
-// union för att tillåta olika typer?
-// Insert on sparse array
-
    
-*/      
 
 typedef enum datatypes { 
 _char,
@@ -46,7 +39,7 @@ typedef struct DynArr {
 // Init array
 // Args: da* a, int reserve, int datatype
 // Return: exit code
-int daInit(da* a, int initSlots, float growthFactor);  
+int daInit(da* a, int initSlots, float growthFactor, datatype type);  
 
 // Clear allocations when done
 // Return: exit code
@@ -108,7 +101,7 @@ int daRealloc(da* a, int extraSlots);           // Realloc routine
 /* Declarations end */
 
 
-int daInit(da* a, int initSlots, float growthFactor) {
+int daInit(da* a, int initSlots, float growthFactor, datatype type) {
     
     // Init vars for sparse functionality
     a->vacantTotal = 0;
@@ -122,6 +115,23 @@ int daInit(da* a, int initSlots, float growthFactor) {
         *(a->vacant + i) = false;
     // End sparse vars
     
+    /* Generic support */
+    a->type = type;
+
+    //Let's start with DA_TYPEs
+    switch (type)
+    {
+        case _double:
+            a->typesize = sizeof(double);
+
+            break;
+    
+        default:
+            break;
+    }
+    /* End generic support */
+
+
     a->p = calloc(initSlots, sizeof(double));
     if(a->p == NULL ) {
         fprintf(stderr, "Unable to allocate memory.\n");
@@ -181,7 +191,7 @@ int daRealloc(da* a, int extraSlots){
         fprintf(stderr, "Unable to allocate memory.\n");
         return -1;
     } 
-    // Init added slots on vacant
+    // Init added slots 
     int i;
     for (i = oldSize; i < newSize; i++)
         *(a->vacant + i) = false;
@@ -208,8 +218,6 @@ int daAdd(da* a, int index, double value) {  //index -1 == end
         bool regularInsert = true;
         
         // Sparse insert
-        //bool useSparseInsert = true; // For dev        
-        //if (useSparseInsert && a->vacantTotal > 0) {
         if (a->vacantTotal > 0) {    
             // correction for virtual insert index
             int iVac = daVacs(a, index); 
@@ -234,11 +242,6 @@ int daAdd(da* a, int index, double value) {  //index -1 == end
             }
         }   
 
-        // if (a->vacantTotal > 0 && !useSparseInsert) {
-        //     // Cannot (yet) insert on sparse array
-        //     daCompact(a);
-        // }      
-
         // Regular insert
         if (regularInsert){
             // Flytta alla element ett steg upp, start vid index
@@ -255,21 +258,6 @@ int daAdd(da* a, int index, double value) {  //index -1 == end
     }
     return 0;
 }  
-
-// "private" function, not to be called directly
-int daMoveAndInsert(da* a, int index, double value) {  
-    // Flytta alla element ett steg upp, start vid index
-    int i;
-    for (i = a->elements - 1; i >= index; i-- ) {
-        *(a->p + i + 1) = *(a->p + i);
-    }
-    // Sätt in värdet på angivet index        
-    *(a->p + index) = value;
-    
-    return 0;
-}  
-
-
 
 int daRemove(da* a, int startIndex, int endIndex) {
     if (startIndex >= a->elements ||
@@ -385,14 +373,12 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
     int i;
    
     /* Find vac-counts for block */ 
-    //int blockVacs[1000]; // FIGURE OUT C99 VLAs /
     int* blockVacs;
     blockVacs = calloc(blockSize, sizeof(int)); 
     if(blockVacs == NULL ) {
         fprintf(stderr, "Unable to allocate memory.\n");
         return -1;
     } 
-
 
     // Optimering: först kolla för 0 på vacs för endIndex 
     int vacEnd = daVacs(a, endIndex);

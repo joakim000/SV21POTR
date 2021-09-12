@@ -25,7 +25,7 @@ int main(){
     // printf("Int size:%d  Bool size:%d \n", sizeof(int), sizeof(bool));
 
     printf("Start init\n");
-    printf("Init exit:%d\n", daInit(&test, 5, 1.5, _double));
+    printf("Init exit:%d\n", daInit(&test, 5, 1.5));
 
     DA_TYPE v[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
     // DA_TYPE v[] = {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, x, y, z};
