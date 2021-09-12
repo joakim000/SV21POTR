@@ -91,7 +91,7 @@ int daAlloc(da* a);
 
 /* Helpers */
 int daVacs(da* a, int index);   // Vacancy counter
-int daRealloc(da* a);           // Realloc routine
+int daRealloc(da* a, int extraSlots);           // Realloc routine
 
 /* Declarations end */
 
@@ -127,20 +127,8 @@ int daCreate(da* a, double values[], int len) {
 
     if (len > a->slots) {
         //Needs realloc
-        int newSize = (int)((a->slots + len) * a->growthFactor);
-        a->p = realloc(a->p, newSize * sizeof(double)); 
-        if(a->p == NULL ) {
-            fprintf(stderr, "Unable to allocate memory.\n");
-            return -1;
-        }
-        a->slots = newSize;
-
-        a->vacant = realloc(a->vacant, a->slots * sizeof(bool)); 
-        if(a->vacant == NULL ) {
-            fprintf(stderr, "Unable to allocate memory.\n");
-            return -1;
-        }         
-        printf("Realloc done, slots: %d\n", a->slots);
+        int extraSlots = len - a->slots;
+        daRealloc(a, extraSlots);
     } 
     
     int i;
@@ -156,34 +144,49 @@ double daGet(da* a, int index) {
     return *(a->p + index);
 }
 
+int daRealloc(da* a, int extraSlots){
+    int newSize = (int)((a->slots * a->growthFactor) + extraSlots);
+    a->p = realloc(a->p, newSize * sizeof(double)); 
+    if(a->p == NULL ) {
+        fprintf(stderr, "Unable to allocate memory.\n");
+        return -1;
+    }
+    int oldSize = a->slots;
+    a->slots = newSize;
+    
+    a->vacant = realloc(a->vacant, a->slots * sizeof(bool)); 
+    if(a->vacant == NULL ) {
+        fprintf(stderr, "Unable to allocate memory.\n");
+        return -1;
+    } 
+    // Init added slots on vacant
+    int i;
+    for (i = oldSize; i < newSize; i++)
+        *(a->vacant + i) = false;
+
+    printf("Realloc function done, slots: %d\n", a->slots);
+}
+
 
 int daAdd(da* a, int index, double value) {  //index -1 == end
     int i;
     if (a->elements == a->slots) {
         //Needs realloc
-        int newSize = (int)(a->slots * a->growthFactor);
-        a->p = realloc(a->p, newSize * sizeof(double)); 
-        if(a->p == NULL ) {
-            fprintf(stderr, "Unable to allocate memory.\n");
-            return -1;
-        }
-        a->slots = newSize;
-        
-        a->vacant = realloc(a->vacant, a->slots * sizeof(bool)); 
-        if(a->vacant == NULL ) {
-            fprintf(stderr, "Unable to allocate memory.\n");
-            return -1;
-        } 
-        printf("Realloc done, slots: %d\n", a->slots);
+        daRealloc(a, 0);
     }
+
     if (index == -1) { //Add to end
-        *(a->p + a->elements) = value;
+        *(a->p + a->elements + a->vacantTotal) = value;
         a->elements++;
     } else if (index > a->elements - 1 || index < 0) {
         // Illegal insert
         return -1;
     } else {
         // Insert
+
+        // Cannot (yet) insert on sparse array
+        daCompact(a);
+
         // Flytta alla element ett steg upp, start vid index
         for (i = a->elements - 1; i >= index; i-- ) {
             *(a->p + i + 1) = *(a->p + i);
@@ -255,7 +258,7 @@ int daCompact(da* a){
                 // Look for next vacancy
                 findVac = true;
                 // Start looking after previous vacancy
-                i = nextVacToFill; 
+                i = nextVacToFill; // will ++ at beginning of loop
             }
         }
     }
@@ -274,25 +277,35 @@ int daVacs(da* a, int index) {
     if (a->vacantTotal == 0 || index < a->vacantFirst)
         v == 0;
     else {
-        //for (i = a->vacantFirst; i <= a->vacantLast && i <= index && v < a->vacantTotal; i++){
+        // OBS sök till (i <= index + v) för att hitta ev. vakanser mellan slotindex och virtuellt index
+        for (i = a->vacantFirst; i <= a->vacantLast && i <= index + v && v < a->vacantTotal; i++){
         // Mindre optimerad, utan first/last
-        for (i = 0; i <= index + v && v < a->vacantTotal; i++){    
+        //for (i = 0; i <= index + v && v < a->vacantTotal; i++){    
             if (*(a->vacant + i))
                 v++;
         }
     }
-    //printf("vac counter: return v:%d", v);
     return v;
 }
 
 double daSparseGet(da* a, int index) {
     int v = daVacs(a, index);
-
-    //printf("daGet: vacs:%d  getVacs:%d\n", w, v);
-    printf("daGet:  getVacs:%d  ", v);
+    printf("Vacs:%d  ", v);
 
     return *(a->p + index + v);
 }
+
+/* Status daSparseRemove:
+    compact array remove 1 beginning/middle/end - ok
+    compact array remove 3 beginning/middle/end - ok
+    remove 1 before vac - ok
+    remove 3 before vac - ok
+    remove 1 after vac - verkar ok nu, mer test behövs
+    remove 3 after vac - verkar ok nu, mer test behövs
+    remove 1 between vacs -
+    remove 3 between vacs - 
+
+*/ 
 
 int daSparseRemove(da* a, int startIndex, int endIndex){
      if (startIndex >= a->elements ||
@@ -304,71 +317,66 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
 
     const int blockSize = endIndex - startIndex + 1;
     int i;
-    //for (i = startIndex + blockSize; i < a->elements; i++ ) {
-    //        *(a->p + i - blockSize) = *(a->p + i);
-    //    }
-    
-    // Find vac-counts for block 
-    // int foundVacs = kompensation under räkningen?
+   
+    /* Find vac-counts for block */ 
+    int blockVacs[1000]; // FIGURE OUT C99 VLAs /
     // Optimering: först kolla för 0 på vacs för endIndex 
     int vacEnd = daVacs(a, endIndex);
+    if (vacEnd == 0){
+        for (i = 0; i < blockSize; i++)
+            blockVacs[i] = 0;
+    } else {
+        int vacStart = daVacs(a, startIndex);
+        blockVacs[0] = vacStart;
     
-    int vacStart = daVacs(a, startIndex);
-    int blockVacs[1000]; // FIGURE OUT C99 VLAs ///
-    blockVacs[0] = vacStart;
-   
-    for (i = 1; i < blockSize; i++){
-        if (*(a->vacant + i + startIndex))
-            blockVacs[i] = ++vacStart;
-        else
-            blockVacs[i] = vacStart;
-    }
+        // Denna optimerade version har något problem
+        // Ok nu?
+        for (i = 1; i < blockSize; i++){
+            if (*(a->vacant + i + startIndex + vacStart))
+                blockVacs[i] = ++vacStart;
+            else
+                blockVacs[i] = vacStart;
+        }
+        printf("\nblockVacs:\n");
+        for (i = 0; i < blockSize; i++)
+            printf("%d ", blockVacs[i]);
+        printf("\n");
 
-    printf("\nblockVacs:\n");
-    for (i = 0; i < blockSize; i++)
-        printf("%d ", blockVacs[i]);
-    printf("\n");
+        /* Slower option in case above should exhibit wierdness */
+        // for (i = 1; i < blockSize; i++){
+        //         blockVacs[i] = daVacs(a, startIndex+i);
+        // }
+            
+        // for (i = 0; i < blockSize; i++)
+        //     printf("%d ", blockVacs[i]);
+        // printf("\n");
+    } /* End find vac-counts */
 
-    for (i = 1; i < blockSize; i++){
-            blockVacs[i] = daVacs(a, startIndex+i);
-
-    }
-    
-    
-    for (i = 0; i < blockSize; i++)
-        printf("%d ", blockVacs[i]);
-    printf("\n");
-    
-    
-    // Save uncorrected startIndex for updating vacantFirst
-    int uncorrStartIndex = startIndex;
-
-    // Set vacant on vac-corrected indices
-    startIndex += blockVacs[0];
-    endIndex += blockVacs[blockSize - 1];
+    // Set vacant on vac-corrected slot indices
     int blockIter = 0;
-
-
-    // for (i = startIndex; i <= endIndex; i=i+1+blockVacs[blockIter]) {
     for (i = startIndex; i <= endIndex; i++) {
         *(a->vacant + i + blockVacs[blockIter]) = true;
         blockIter++;
     }
     
-    a->elements -= blockSize;
+    // Set vacantLast to endIndex + vacs before endIndex
+    endIndex += blockVacs[blockSize - 1];
     if (a->vacantTotal == 0){
+        // First sparseRemove after init or compact
         a->vacantFirst = startIndex;
         a->vacantLast = endIndex;
     } else {
         // printf("\nstartIndex:%d vacantFirst:%d\n", startIndex, a->vacantFirst);  
-        if (uncorrStartIndex < a->vacantFirst)
-            a->vacantFirst = uncorrStartIndex;
+        if (startIndex < a->vacantFirst)
+            a->vacantFirst = startIndex;
         // printf("\nstartIndex:%d vacantFirst:%d\n", startIndex, a->vacantFirst);  
         // printf("\nendIndex:%d vacantLast:%d\n", endIndex, a->vacantLast);    
         if (endIndex > a->vacantLast)
             a->vacantLast = endIndex;
         // printf("\nendIndex:%d vacantLast:%d\n", endIndex, a->vacantLast);  
     }
+    // Update totals
+    a->elements -= blockSize;
     a->vacantTotal += blockSize;
 
     return 0;    
