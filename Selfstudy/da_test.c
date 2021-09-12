@@ -8,9 +8,14 @@
 
 int main() {
     da test;
+<<<<<<< HEAD
     
     
     printf("Init exit:%d\n", daInit(&test, 5, _double));
+=======
+    printf("Start init\n");
+    printf("Init exit:%d\n", daInit(&test, 5, 1.5));
+>>>>>>> sparse
 
     double v[] = {0, 1, 2, 3, 4, 5, 6};
     //double v[] = {0, 1, 2, 3};
