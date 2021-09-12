@@ -118,12 +118,11 @@ int daInit(da* a, int initSlots, float growthFactor, datatype type) {
     /* Generic support */
     a->type = type;
 
-    //Let's start with DA_TYPEs
+    //Let's start with doubles
     switch (type)
     {
         case _double:
             a->typesize = sizeof(double);
-
             break;
     
         default:
@@ -132,7 +131,7 @@ int daInit(da* a, int initSlots, float growthFactor, datatype type) {
     /* End generic support */
 
 
-    a->p = calloc(initSlots, sizeof(double));
+    a->p = calloc(initSlots, a->typesize);
     if(a->p == NULL ) {
         fprintf(stderr, "Unable to allocate memory.\n");
         return -1;
@@ -150,8 +149,6 @@ int daClear(da* a){
 }
 
 int daCreate(da* a, double values[], int len) {   
-    printf("Create - slots:%d len:%d\n", a->slots, len);
-
     if (len > a->slots) {
         //Needs realloc
         int extraSlots = len - a->slots;
@@ -160,7 +157,7 @@ int daCreate(da* a, double values[], int len) {
     
     int i;
     for (i = 0; i < len; i++) {
-        *(a->p+i) = values[i];
+        *(a->p + i) = values[i];
     }
     a->elements = len;
     
