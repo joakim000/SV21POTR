@@ -11,6 +11,7 @@
 /* TODOs
 // return # of elements or -1 (error)
 // union för att tillåta olika typer?
+// Insert on sparse array
 
    
 */      
@@ -40,7 +41,11 @@ typedef struct DynArr {
 // Init array
 // Args: da* a, int reserve, int datatype
 // Return: exit code
-int daInit(da* a, int initSlots, float growthFactor);  //
+int daInit(da* a, int initSlots, float growthFactor);  
+
+// Clear allocations when done
+// Return: exit code
+int daClear(da* a);
 
 // Load starting values
 // Args: da* a, datatype values[], int len
@@ -97,8 +102,7 @@ int daRealloc(da* a, int extraSlots);           // Realloc routine
 
 
 int daInit(da* a, int initSlots, float growthFactor) {
-    //free(a->p);
-
+    
     // Init vars for sparse functionality
     a->vacantTotal = 0;
     a->vacant = calloc(initSlots, sizeof(bool)); 
@@ -119,6 +123,12 @@ int daInit(da* a, int initSlots, float growthFactor) {
     a->slots = initSlots;
     a->elements = 0;
     a->growthFactor = growthFactor;
+    return 0;
+}
+
+int daClear(da* a){
+    free(a->p);
+    free(a->vacant);
     return 0;
 }
 
