@@ -97,7 +97,9 @@ int main(){
     printf("SparseRemove exit:%d\n", daSparseRemove(&test, 1, 1));
     printf("SparseRemove exit:%d\n", daSparseRemove(&test, 6, 7));
     printf("Add exit:%d\n", daAdd(&test, -1, 19.123));
-    // printf("Add exit:%d\n", daAdd(&test, 4, 10.5));
+    //printf("Add exit:%d\n", daAdd(&test, 4, 10.5));
+    printf("Add exit:%d\n", daAdd(&test, 6, 15.5));
+    printf("Set exit:%d\n", daSparseSet(&test, 8, 16.123));
 
     printf("Vacant: ");
     for (i = 0; i < test.slots; i++){

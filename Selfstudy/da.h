@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
@@ -198,22 +199,70 @@ int daAdd(da* a, int index, double value) {  //index -1 == end
         return -1;
     } else {
         // Insert
-
-        // Cannot (yet) insert on sparse array
-        daCompact(a);
-
-        // Flytta alla element ett steg upp, start vid index
-        for (i = a->elements - 1; i >= index; i-- ) {
-            *(a->p + i + 1) = *(a->p + i);
-        }
-        // Sätt in värdet på angivet index        
-        *(a->p + index) = value;
+        bool regularInsert = true;
         
+        // Sparse insert
+        //bool useSparseInsert = true; // For dev        
+        //if (useSparseInsert && a->vacantTotal > 0) {
+        if (a->vacantTotal > 0) {    
+            // correction for virtual insert index
+            int iVac = daVacs(a, index); 
+            
+            // Check for vacant space
+            if (iVac != daVacs(a, index - 1)){
+                // Find slotindex before virtual insert index
+                int si = index + iVac - 1;
+                // This slotindex should be vacant
+                assert(*(a->vacant + si));
+                // Set value
+                *(a->p + si) = value;
+                // No longer vacant
+                *(a->vacant + si) = false;
+                // Don't do regular insert
+                regularInsert = false;
+            } else {
+                // For now; if there's no vacant space we'll 
+                // compact the array and do regular insert, else
+                // we'd have to move a lot of values in vacant.
+                daCompact(a);
+            }
+        }   
+
+        // if (a->vacantTotal > 0 && !useSparseInsert) {
+        //     // Cannot (yet) insert on sparse array
+        //     daCompact(a);
+        // }      
+
+        // Regular insert
+        if (regularInsert){
+            // Flytta alla element ett steg upp, start vid index
+            for (i = a->elements - 1; i >= index; i-- ) {
+                *(a->p + i + 1) = *(a->p + i);
+            }
+
+            // Sätt in värdet på angivet index        
+            *(a->p + index) = value;
+        }
+
         // Vi har nu ett fler element
         a->elements++;
     }
     return 0;
 }  
+
+// "private" function, not to be called directly
+int daMoveAndInsert(da* a, int index, double value) {  
+    // Flytta alla element ett steg upp, start vid index
+    int i;
+    for (i = a->elements - 1; i >= index; i-- ) {
+        *(a->p + i + 1) = *(a->p + i);
+    }
+    // Sätt in värdet på angivet index        
+    *(a->p + index) = value;
+    
+    return 0;
+}  
+
 
 
 int daRemove(da* a, int startIndex, int endIndex) {
