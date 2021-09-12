@@ -31,7 +31,7 @@ typedef struct DynArr {
    int slots;
    float growthFactor;
 
-   bool *vacant;  // Use bit field :1 if possible
+   bool *vacant;  
    int vacantTotal;
    int vacantFirst;
    int vacantLast;
@@ -152,6 +152,11 @@ int daCreate(da* a, double values[], int len) {
 
 double daGet(da* a, int index) {
     return *(a->p + index);
+}
+
+int daSet(da* a, int index, double value) {
+    *(a->p + index) = value;
+    return 0;
 }
 
 int daRealloc(da* a, int extraSlots){
@@ -300,9 +305,16 @@ int daVacs(da* a, int index) {
 
 double daSparseGet(da* a, int index) {
     int v = daVacs(a, index);
-    printf("Vacs:%d  ", v);
+    //printf("Vacs:%d  ", v);
 
     return *(a->p + index + v);
+}
+
+int daSparseSet(da* a, int index, double value) {
+    int v = daVacs(a, index);
+    *(a->p + index + v) = value;
+    
+    return 0;
 }
 
 /* Status daSparseRemove:
