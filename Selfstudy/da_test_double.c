@@ -6,43 +6,100 @@
 #include <stdarg.h>
 #include <time.h>
 #include <assert.h>
+// #include <windows.h>
 
-
-
-#define DA_TYPE char
+#define DA_TYPE int
 #include "da_def.h"
 
+
+#define TESTSIZE 100000
+#define     PART 30000
+
 int main(){
+    int i;
+    clock_t start;
+    clock_t end;
+    
     // Timestamp
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
     char s[64];
     assert(strftime(s, sizeof(s), "%c", tm));
-    printf("Test started %s\n", s);
+    printf("Test started %s\n", s);  
+
+    DA_TYPE v[TESTSIZE];
+    for (i = 0; i < TESTSIZE; i++) v[i] = i;
    
-    da test;
+/* Remove test 1 */
+    da test1;
+    daInit(&test1, TESTSIZE, 1.5);
+    if(daCreate(&test1, v, COUNT_OF(v)) != 0) printf("Create error\n");
+    printf("\nElements:%d", test1.elements);
+    start = clock();
+    daRemove(&test1, 0, PART);
+    end = clock();
+    printf("\nElements:%d", test1.elements);
+    printf("\nTotal:%d First:%d Last:%d   ", test1.vacantTotal, test1.vacantFirst, test1.vacantLast);
+    printf("\nRemove %d of %d\n    Clocks:%ld  Secs:%f\n", PART, TESTSIZE, end-start, (float)(end - start) / CLOCKS_PER_SEC);    
+    daClear(&test1);
 
-    // printf("Int size:%d  Bool size:%d \n", sizeof(int), sizeof(bool));
+/* Remove test 2 */
+    da test2;
+    daInit(&test2, TESTSIZE, 1.5);
+    if(daCreate(&test1, v, COUNT_OF(v)) != 0) printf("Create error\n");
+    printf("\nElements:%d", test2.elements);
+    start = clock();
+    daSparseRemove(&test2, 0, PART);
+    end = clock();
+    printf("\nElements:%d", test2.elements);
+    printf("\nTotal:%d First:%d Last:%d   ", test2.vacantTotal, test2.vacantFirst, test2.vacantLast);
+    printf("\nSparse remove %d of %d\n    Clocks:%ld  Secs:%f\n", PART, TESTSIZE, end-start, (float)(end - start) / CLOCKS_PER_SEC);    
+    daClear(&test2);
 
-    printf("Start init\n");
-    printf("Init exit:%d\n", daInit(&test, 5, 1.5));
+/* Remove test 3 */
+    da test3;
+    daInit(&test3, TESTSIZE, 1.5);
+    daCreate(&test3, v, COUNT_OF(v));
+    printf("\nElements:%d", test3.elements);
+    start = clock();
+    for (i = 0; i < PART; i+=1)
+        daRemove(&test3, i, i);
+    end = clock();
+    printf("\nElements:%d", test3.elements);
+    printf("\nTotal:%d First:%d Last:%d   ", test3.vacantTotal, test3.vacantFirst, test3.vacantLast);
+    printf("\nRemove 1by1 %d of %d\n    Clocks:%ld  Secs:%f\n", PART, TESTSIZE, end-start, (float)(end - start) / CLOCKS_PER_SEC);  
+    daClear(&test3);
 
-    DA_TYPE v[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
-    // DA_TYPE v[] = {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, x, y, z};
-    //double v[] = {0, 1, 2, 3};
+/* Remove test 4 */
+    da test4;
+    daInit(&test4, TESTSIZE, 1.5);
+    daCreate(&test4, v, COUNT_OF(v));
+    printf("\nElements:%d", test4.elements);
+    start = clock();
+    for (i = 0; i < PART; i+=1)
+        daSparseRemove(&test4, i, i);
+    end = clock();
+    printf("\nElements:%d", test4.elements);
+    printf("\nTotal:%d First:%d Last:%d   ", test4.vacantTotal, test4.vacantFirst, test4.vacantLast);
+    printf("\nSparse remove 1by1 %d of %d\n    Clocks:%ld  Secs:%f\n", PART, TESTSIZE, end-start, (float)(end - start) / CLOCKS_PER_SEC);  
+    daClear(&test4);
 
-    printf("\nCreate exit:%d\n", daCreate(&test, v, COUNT_OF(v)));
-    
-    //printf("%f\n", daGet(&test, 2));
 
-    int i;
-    printf("Dump: ");
-    for (i = 0; i < test.elements; i++){
-        printf("%f ", *(test.p+i));
-        //printf("%f ", daGet(&test, i));
-    }
-    printf("\n");
+/* Remove test 3 */
+    // da test3;
+    // daInit(&test3, TESTSIZE, 1.5);
+    // daCreate(&test3, v, COUNT_OF(v));
+    // printf("\nElements:%d", test3.elements);
+    // start = clock();
+    // daSparseRemove(&test3, 0, TESTSIZE/2-1);
+    // daCompact(&test3);
+    // end = clock();
+    // printf("\nElements:%d", test3.elements);
+    // printf("\nTotal:%d First:%d Last:%d   ", test3.vacantTotal, test3.vacantFirst, test3.vacantLast);
+    // printf("\nSparse remove + compact %d of %d\n    Clocks:%ld  Secs:%f\n", TESTSIZE/2, TESTSIZE, end-start, (float)(end - start) / CLOCKS_PER_SEC);  
+    // daClear(&test3);
 
+/* Add test 1 */
     // printf("Add exit:%d\n", daAdd(&test, 2, 10.123));
     // printf("Dump: ");
     // for (i = 0; i < test.elements; i++){
@@ -50,101 +107,7 @@ int main(){
     // }
     // printf("\n");
 
-    printf("Add exit:%d\n", daAdd(&test, -1, 18.123));
-    printf("Dump: ");
-    for (i = 0; i < test.elements; i++){
-        printf("%f ", *(test.p+i));
-    }
-    printf("\n");
 
-/* Remove test 1 */
-    //printf("Remove exit:%d\n", daCompactRemove(&test, 0, 0));
-    printf("SparseRemove exit:%d\n", daSparseRemove(&test, 0, 2));
-    printf("Vacant: ");
-    for (i = 0; i < test.slots; i++){
-        printf("%d ", *(test.vacant + i));
-    }
-     printf("\n");
-
-    for (i = 0; i < test.elements; i++){
-        //printf("%4.3f:", *(test.p+i));
-        printf("%4.3f i:%d slot:%d\n", daSparseGet(&test, i), i, i+daVacs(&test, i));
-    }
-    printf("\n");
-
-    printf("Total:%d First:%d Last:%d   ", test.vacantTotal, test.vacantFirst, test.vacantLast);
-    for (i = 0; i < test.slots; i++){
-        printf("%d ", daVacs(&test, i));
-    }
-    printf("\n");
-
-/* Remove test 2 */
-    printf("SparseRemove exit:%d\n", daSparseRemove(&test, 0, 2));
-    printf("Vacant: ");
-    for (i = 0; i < test.slots; i++){
-        printf("%d ", *(test.vacant + i));
-    }
-     printf("\n");
-
-    for (i = 0; i < test.elements; i++){
-        printf("%4.3f i:%d slot:%d\n", daSparseGet(&test, i), i, i+daVacs(&test, i));
-    }
-    printf("\n");
-
-    printf("Total:%d First:%d Last:%d   ", test.vacantTotal, test.vacantFirst, test.vacantLast);
-    for (i = 0; i < test.slots; i++){
-        printf("%d ", daVacs(&test, i));
-    }
-    printf("\n");
-
-/* Remove test 3 */
-    //printf("Remove exit:%d\n", daCompactRemove(&test, 2, 4));
-    printf("SparseRemove exit:%d\n", daSparseRemove(&test, 1, 1));
-    printf("SparseRemove exit:%d\n", daSparseRemove(&test, 6, 7));
-    printf("Add exit:%d\n", daAdd(&test, -1, 19.123));
-    //printf("Add exit:%d\n", daAdd(&test, 4, 10.5));
-    printf("Add exit:%d\n", daAdd(&test, 6, 15.5));
-    printf("Set exit:%d\n", daSparseSet(&test, 8, 16.123));
-
-    printf("Vacant: ");
-    for (i = 0; i < test.slots; i++){
-        printf("%d ", *(test.vacant + i));
-    }
-     printf("\n");
-    
-    for (i = 0; i < test.elements; i++){
-        printf("%4.3f i:%d slot:%d\n", daSparseGet(&test, i), i, i+daVacs(&test, i));
-    }
-    printf("\n");
-
-    printf("Total:%d First:%d Last:%d    ", test.vacantTotal, test.vacantFirst, test.vacantLast);
-    for (i = 0; i < test.elements; i++){
-        printf("%d ", daVacs(&test, i));
-    }
-    printf("\n");
-
-
-/* Compacting test 1 */
-   /*  printf("Compact exit:%d\n", daCompact(&test));
-    
-    printf("Vacant: ");
-    for (i = 0; i < test.slots; i++){
-        printf("%d ", *(test.vacant + i));
-    }
-     printf("\n");
-    
-    for (i = 0; i < test.elements; i++){
-        printf("%4.3f i:%d slot:%d\n", daSparseGet(&test, i), i, i+daVacs(&test, i));
-    }
-    printf("\n");
-
-    printf("Total:%d First:%d Last:%d    ", test.vacantTotal, test.vacantFirst, test.vacantLast);
-    for (i = 0; i < test.elements; i++){
-        printf("%d ", daVacs(&test, i));
-    }
-    printf("\n"); */
-
-    daClear(&test);
     return 0;
 }
 

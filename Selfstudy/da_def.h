@@ -123,7 +123,7 @@ int daClear(da* a){
 }
 
 int daCreate(da* a, DA_TYPE values[], int len) {   
-    printf("Create - slots:%d len:%d\n", a->slots, len);
+    // printf("Create - slots:%d len:%d\n", a->slots, len);
 
     if (len > a->slots) {
         //Needs realloc
@@ -362,21 +362,22 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
         blockVacs[0] = vacStart;
     
         // Based on vacancy compensation for startIndex, calc others
-        for (i = 1; i < blockSize; i++){
-            if (*(a->vacant + i + startIndex + vacStart))
-                blockVacs[i] = ++vacStart;
-            else
-                blockVacs[i] = vacStart;
-        }
-        printf("\nblockVacs:\n");
-        for (i = 0; i < blockSize; i++)
-            printf("%d ", blockVacs[i]);
-        printf("\n");
+        // for (i = 1; i < blockSize; i++){
+        //     if (*(a->vacant + i + startIndex + vacStart))
+        //         blockVacs[i] = ++vacStart;
+        //     else
+        //         blockVacs[i] = vacStart;
+        // }
+        
+        // printf("\nblockVacs:\n");
+        // for (i = 0; i < blockSize; i++)
+        //     printf("%d ", blockVacs[i]);
+        // printf("\n");
 
         /* Slower option in case above should exhibit wierdness */
-        // for (i = 1; i < blockSize; i++){
-        //         blockVacs[i] = daVacs(a, startIndex+i);
-        // }
+        for (i = 1; i < blockSize; i++){
+                blockVacs[i] = daVacs(a, startIndex+i);
+        }
             
         // for (i = 0; i < blockSize; i++)
         //     printf("%d ", blockVacs[i]);
