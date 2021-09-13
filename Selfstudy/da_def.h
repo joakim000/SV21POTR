@@ -266,7 +266,8 @@ int daCompact(da* a){
     bool findVac = true;
     int nextVacToFill; 
 
-    for (i = 0; i < a->elements + a->vacantTotal; i++) {
+    // for (i = 0; i < a->elements + a->vacantTotal; i++) {
+    for (i = a->vacantFirst; i < a->elements + a->vacantTotal && i < a->vacantLast; i++) {
         if (*(a->vacant + i)) {
             if (findVac) {
             // Looking for vacancy and found one    
@@ -305,9 +306,7 @@ int daVacs(da* a, int index) {
     //Count vacancies
     int v = 0;
     int i;
-    if (a->vacantTotal == 0 || index < a->vacantFirst)
-        v == 0;
-    else {
+    if (!(a->vacantTotal == 0 || index < a->vacantFirst)) {
         // OBS sök till (i <= index + v) för att hitta ev. vakanser mellan slotindex och virtuellt index
         for (i = a->vacantFirst; i <= a->vacantLast && i <= index + v && v < a->vacantTotal; i++){
         // Mindre optimerad, utan first/last
@@ -340,10 +339,12 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
         //Illegal remove
         return -1;
     }
+    int i;
+
+    // Shortend routine for single special case
+    if (startIndex == endIndex) goto single;
 
     const int blockSize = endIndex - startIndex + 1;
-    int i;
-   
     /* Find vac-counts for block */ 
     int* blockVacs;
     blockVacs = calloc(blockSize, sizeof(int)); 
@@ -362,12 +363,12 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
         blockVacs[0] = vacStart;
     
         // Based on vacancy compensation for startIndex, calc others
-        // for (i = 1; i < blockSize; i++){
-        //     if (*(a->vacant + i + startIndex + vacStart))
-        //         blockVacs[i] = ++vacStart;
-        //     else
-        //         blockVacs[i] = vacStart;
-        // }
+        for (i = 1; i < blockSize; i++){
+            if (*(a->vacant + i + startIndex + vacStart))
+                blockVacs[i] = ++vacStart;
+            else
+                blockVacs[i] = vacStart;
+        }
         
         // printf("\nblockVacs:\n");
         // for (i = 0; i < blockSize; i++)
@@ -375,9 +376,9 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
         // printf("\n");
 
         /* Slower option in case above should exhibit wierdness */
-        for (i = 1; i < blockSize; i++){
-                blockVacs[i] = daVacs(a, startIndex+i);
-        }
+        // for (i = 1; i < blockSize; i++){
+        //         blockVacs[i] = daVacs(a, startIndex+i);
+        // }
             
         // for (i = 0; i < blockSize; i++)
         //     printf("%d ", blockVacs[i]);
@@ -408,6 +409,32 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
     a->vacantTotal += blockSize;
 
     free(blockVacs);
+    goto end;
+
+    single:;
+    int vacSingle = daVacs(a, startIndex);
+    // int vacSingle = 0;
+
+    // corrected index
+    int ci = startIndex + vacSingle;
+    *(a->vacant + ci) = true;
+  
+    // Set vacantLast to endIndex + vacs before endIndex  
+    if (a->vacantTotal == 0){
+        // First sparseRemove after init or compact
+        a->vacantFirst = startIndex;
+        a->vacantLast = ci;
+    } else {
+        if (startIndex < a->vacantFirst)
+            a->vacantFirst = startIndex;
+        if (ci > a->vacantLast)
+            a->vacantLast = ci;
+    }
+    // Update totals
+    a->elements -= 1;
+    a->vacantTotal += 1;
+
+    end:
     return 0;    
 }
 
