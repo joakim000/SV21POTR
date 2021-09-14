@@ -97,7 +97,7 @@ int daRealloc(da* a, int extraSlots);           // Realloc routine
 int daInit(da* a, int initSlots, float growthFactor) {
     
     // Init vars for sparse functionality
-    a->compactFreq = 500;
+    a->compactFreq = 512;
     a->vacantTotal = 0;
     a->vacant = calloc(initSlots, sizeof(bool)); 
     if(a->vacant == NULL ) {
@@ -364,7 +364,8 @@ int daVacs(da* a, int index) {
     int i;
     if (!(a->vacantTotal == 0 || index < a->vacantFirst)) {
         // OBS sök till (i <= index + v) för att hitta ev. vakanser mellan slotindex och virtuellt index
-        for (i = a->vacantFirst; i <= a->vacantLast && i <= index + v && v < a->vacantTotal; i++) {
+        for (i = a->vacantFirst;  i <= index + v && v < a->vacantTotal; i++) {
+        // for (i = a->vacantFirst; i <= a->vacantLast && i <= index + v && v < a->vacantTotal; i++) {
         //for (i = 0; i <= index + v && v < a->vacantTotal; i++) {    // Mindre optimerad, utan first/last
             if (*(a->vacant + i))
                 v++;
@@ -393,19 +394,18 @@ int buildLookup(da* a) {
         for (int i = a->vacantFirst; i <= a->elements + a->vacantTotal; i++) {
             // i <= a->vacantLast;
             if (*(a->vacant + i)) {
-                
-                *(a->lookup + i) = ++v;
-                // printf("v%u ", v);
+                v++;
             }
-            else { 
-                *(a->lookup + i) = v;
-                // printf("d%u  ", v);
+            int w = v;
+            int extra = 0;
+            for (int j = i+1; j <= i + w; j++) {
+                if (*(a->vacant + j)) {
+                    w++;
+                    extra++;
+                }
             }
+            *(a->lookup + i) = v + extra;
         }
-    }
-    printf("\n");
-    for (int i = 0; i < a->elements; i++){
-        // printf("%d:%u  ", i, *(a->lookup + i));
     }
     a->lookupCurrent = true;
     return 0;
@@ -431,8 +431,8 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
     // printf("vacantTotal:%d", a->vacantTotal);
     
     // if (a->vacantTotal > a->compactFreq)
-    //     printf("\nRemove calling compact\n");
-    //     daCompact(a);
+    //      printf("\nRemove calling compact\n");
+    //      daCompact(a);
 
     // case of single 
     if (startIndex == endIndex) goto single;
@@ -506,7 +506,7 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
 
     single:;
     int vacSingle = daVacs(a, startIndex);
-    // int vacSingle = 0;
+    // int vacSingle = *(a->lookup + startIndex);
 
     // corrected index
     int ci = startIndex + vacSingle;
@@ -528,6 +528,10 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
     // Update totals
     a->elements -= 1;
     a->vacantTotal += 1;
+
+    // Update lookup
+    // for (int i = ci; i < a->elements + a->vacantTotal; i++)
+        // *(a->lookup + i) = *(a->lookup + i) + 1;
 
     end:
     return 0;    
