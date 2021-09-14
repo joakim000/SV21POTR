@@ -15,15 +15,15 @@
 
 typedef struct DynArr {
    DA_TYPE *p;
-   int elements;
-   int slots;
+   long elements;
+   long slots;
    float growthFactor;
 
    // Sparse
    bool *vacant;  
-   int vacantTotal;
-   int vacantFirst;
-   int vacantLast;
+   long vacantTotal;
+   long vacantFirst;
+   long vacantLast;
 } da;
 
 // Init array
@@ -261,7 +261,7 @@ int daAlloc(da* a){
 
 /* Functions for sparse functionality */
 
-int daCompact(da* a){
+int daCompact_old(da* a){
     int i;
     bool findVac = true;
     int nextVacToFill; 
@@ -284,6 +284,7 @@ int daCompact(da* a){
                 continue;
             } else {
             // Looking for data and found some
+                // Move data
                 *(a->p + nextVacToFill) = *(a->p + i);
                 // This slot now vacant
                 *(a->vacant + i) = true;
@@ -301,6 +302,41 @@ int daCompact(da* a){
 
     return 0;
 }
+
+int daCompact(da* a){
+    if (a->vacantTotal > 0) {
+        int dataIter = 0;
+        // int haveData[a->elements]; // Funkar fint upp till 518087 element, kraschar med fler. Max för VLA?
+        int* haveData = calloc(a->elements, sizeof(int));
+        if(haveData == NULL ) {
+            fprintf(stderr, "Unable to allocate memory.\n");
+            return -1;
+        } 
+
+        for (int i=0; i < a->elements+a->vacantTotal; i++) {
+            if (*(a->vacant + i) == false) {
+                haveData[dataIter] = i;
+                dataIter++;
+            }
+            else
+                *(a->vacant + i) = false;  // Reset vacancy data
+        }
+
+        // printf("\nHavedata: (%d) ", COUNT_OF(haveData));
+        // printf("\nHavedata: (%d) ", a->elements);
+        // for (int i=0; i < a->elements; i++)
+            // printf("%d ", haveData[i]);
+
+
+        for (int i=0; i < a->elements; i++)
+            *(a->p + i) = *(a->p + haveData[i]);
+        
+        a->vacantTotal = 0; // Reset vacancy data
+        free(haveData);
+    }
+    return 0;
+}
+
 
 int daVacs(da* a, int index) {
     //Count vacancies
