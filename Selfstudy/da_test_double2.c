@@ -19,13 +19,14 @@
 
 
 // Performance testing
-#define TESTSIZE   50000000
-#define REPS_RM      1000
-#define REPS_GET   10000000
+#define TESTSIZE   5000000
+#define REPS_RM      10000
+#define REPS_GET   40000000
 #define REPS_INS      100
 #define REPS_ADD      100
 #define JUMP           10
 #define BY              1
+#define STARTINDEX      0
 
 // int REPS_RM     = 100;
 // int REPS_GET    = 100;
@@ -68,7 +69,7 @@ void init() {
     int i;
     totalTime = 0;
     srand((unsigned) time(&t));   
-    for (i = 0; i < TESTSIZE; i++) v[i] = i;
+    for (i = 0; i < TESTSIZE; i++) { v[i] = i; }
     daInit(&test, TESTSIZE, 1.5);
     if(daCreate(&test, v, COUNT_OF(v)) != 0) printf("Create error\n");
     printf("\nElements before:%d", test.elements);
@@ -85,7 +86,7 @@ void rm_message(char s[]) {
 
 void get_message(char s[]) {
     stopwatch = (float)(end - start) / CLOCKS_PER_SEC;
-    printf("\n%s %d of %d \n    Secs:%4.3f\n", s, REPS_GET, TESTSIZE, stopwatch);    
+    printf("\n%s %d of %d \n    Secs:%4.3f\n", s, REPS_GET, TESTSIZE-REPS_RM+BY-1, stopwatch);    
     totalTime += stopwatch;
 }
 
@@ -98,7 +99,7 @@ void compact_message(char s[]) {
 }
 
 void cleanup() {
-    printf("\n                                      Combined time: %4.3f\n", totalTime);
+    printf("\n                                      Combined time: %4.3f\n\n", totalTime);
     daClear(&test);
 }
 
@@ -122,7 +123,7 @@ void extraInfo() {
 
 
 
-/* Combined test 1 */
+/* Combined test 1 Random */
 void combined1_rnd() {
     init();
     start = clock();
@@ -140,7 +141,7 @@ void combined1_rnd() {
     cleanup();
 }
 
-/* Combined test 2 */
+/* Combined test 2 Random */
 void combined2_rnd() {
     init();
     start = clock();
@@ -148,8 +149,13 @@ void combined2_rnd() {
         daSparseRemove(&test, randRm[i], randRm[i]+BY-1);
     }
     end = clock();
-    rm_message("Sparse remove");
+    rm_message("Random Sparse remove");
     
+    // start = clock();
+    // for (i = 0; i < REPS_GET; i++) daSparseGet(&test, randGet[i]);
+    // end = clock(); 
+    // get_message("Sparse get");
+
     start = clock();
     daCompact(&test);
     end = clock();    
@@ -158,7 +164,7 @@ void combined2_rnd() {
     start = clock();
     for (i = 0; i < REPS_GET; i++) daSparseGet(&test, randGet[i]);
     end = clock(); 
-    get_message("Sparse get");
+    get_message("Random Sparse get");
 
 
     cleanup();
@@ -166,7 +172,7 @@ void combined2_rnd() {
 
 void combined1() {
     init();
-    startIndex = 10000000;
+    startIndex = STARTINDEX;
     start = clock();
     for (i = 0; i < REPS_RM; i++) {
         daRemove(&test, startIndex, startIndex+BY-1);
@@ -187,7 +193,7 @@ void combined1() {
 
 void combined2() {
     init();
-    startIndex = 10000000;
+    startIndex = STARTINDEX;
     start = clock();
     for (i = 0; i < REPS_RM; i++) {
         daSparseRemove(&test, startIndex, startIndex+BY-1);
@@ -214,6 +220,147 @@ void combined2() {
     cleanup();
 }
 
+void unit_buildLookup() {
+    int startstep = 0;
+    int steps = 50;
+    bool failed = false;
+    
+    init();
+
+    // start = clock();
+    // buildLookup(&test);
+    // end = clock();
+    // get_message("Build lookup: ");
+
+    start = clock();
+    for (int i = 0; i < REPS_RM; i++) {
+        daSparseRemove(&test, randRm[i], randRm[i]+BY-1);
+    }
+    end = clock();
+    rm_message("Sparse remove");
+
+    // for (i = 0; i < test.slots; i++){
+    //     printf("%d ", *(test.vacant + i));
+    // }
+    // printf("\n");
+    
+    // start = clock();
+    // buildLookup(&test);
+    // end = clock();
+    // get_message("Build lookup: ");
+
+    // start = clock();
+    // buildLookupDebug(&test);
+    // end = clock();
+    // get_message("Build lookup debug: ");
+
+    printf("\nVacs:\n");
+    for (int i = startstep; i < startstep + steps; i++){
+    // for (int i = 0; i < test.elements; i++){
+        printf("%4.3f i:%d slot:%d daVacs:%d lookup:%u lookupDebug:%u\n", 
+        daSparseGet(&test, i), i, i+daVacs(&test, i), daVacs(&test, i), test.lookup[i], test.lookupDebug[i] );
+    }
+    printf("\n");
+
+}
+
+void unit_Compact() {
+    init();
+    start = clock();
+    for (int i = 0; i < REPS_RM; i++) {
+        daSparseRemove(&test, randRm[i], randRm[i]+BY-1);
+    }
+    // daSparseRemove(&test, 1, 3);
+    // daSparseRemove(&test, 7, 7);
+    // daSparseRemove(&test, 9, 9);
+    // daSparseRemove(&test, 12, 13);
+
+    end = clock();
+    rm_message("Sparse remove");
+    for (i = 0; i < test.slots; i++){
+        printf("%d ", *(test.vacant + i));
+    }
+    printf("\n");
+    
+    for (int i = 0; i < test.elements; i++){
+        printf("%4.3f i:%d slot:%d\n", daSparseGet(&test, i), i, i+daVacs(&test, i));
+    }
+    printf("\n");
+
+
+    start = clock();
+    daCompact(&test);
+    end = clock();    
+    compact_message("Compact");
+    for (i = 0; i < test.slots; i++) {
+        printf("%d ", *(test.vacant + i));
+    }
+    printf("\n");
+    
+    for (int i = 0; i < test.elements; i++){
+        printf("%4.3f i:%d slot:%d\n", daSparseGet(&test, i), i, i+daVacs(&test, i));
+    }
+    printf("\n");
+
+}
+
+void unit_Get() {
+    init();
+    printf("\n");
+    int start = 0;
+    int steps = 1000000;
+    bool failed = false;
+
+    // for (int i = start; i < start+steps; i++) {
+    //     printf("%4.3f ", v[i]);
+    // }
+    // printf("\n");
+    
+    // for (int i = start; i < start+steps; i++) {
+    //     printf("%4.3f ", daGet(&test, i));
+    // }
+
+    for (int i = start; i < start+steps; i++) {
+        if (v[i] != daGet(&test, i)) {
+            printf("\nError on step %d, %f != %f", i, v[i], daGet(&test, i));
+            failed = true;
+        }
+    }
+    if (!failed) printf("\ndaGet passed.\n");
+
+}
+
+void unit_SparseGet() {
+    init();
+    printf("\n");
+    int start = 0;
+    int steps = 1000000;
+    bool failed = false;
+
+    // for (int i = start; i < start+steps; i++) {
+    //     printf("%4.3f ", v[i]);
+    // }
+    // printf("\n");
+    
+    // for (int i = start; i < start+steps; i++) {
+    //     printf("%4.3f ", daGet(&test, i));
+    // }
+
+    for (int i = start; i < start+steps; i++) {
+        if (v[i] != daSparseGet(&test, i)) {
+            printf("\nError on step %d, %f != %f", i, v[i], daSparseGet(&test, i));
+            failed = true;
+        }
+    }
+    if (!failed) printf("\ndaSparseGet passed with no vacants.\n");
+
+
+    daSparseRemove(&test, 2, 3); //Expected: index 1 = 1.0, index 2 = 4.0
+    printf("\nExpected: index 1 = 1.0, index 2 = 4.0. Index 1:%f   index 2:%f\n", daSparseGet(&test, 1), daSparseGet(&test, 2));
+    printf("\nNonsparse get to compare. Index 1:%f   index 2:%f\n", daGet(&test, 1), daGet(&test, 2));
+
+}
+
 void main(){
     // int i;
     
@@ -224,6 +371,15 @@ void main(){
 
     combined1_rnd();
     combined2_rnd();
+    
+    // unit_Compact();
+    // unit_buildLookup();
+
+    // combined1();
+    // combined2();
+
+    // unit_Get();
+    // unit_SparseGet();
 
 /* Remove test 1 */
     // init();
