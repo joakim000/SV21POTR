@@ -18,6 +18,10 @@ typedef struct DynArr {
    long elements;
    long slots;
    float growthFactor;
+   unsigned short compactFreq;
+   unsigned short* lookup;
+   unsigned short* lookupDebug;
+   bool lookupCurrent;
 
    // Sparse
    bool *vacant;  
@@ -93,15 +97,32 @@ int daRealloc(da* a, int extraSlots);           // Realloc routine
 int daInit(da* a, int initSlots, float growthFactor) {
     
     // Init vars for sparse functionality
+    a->compactFreq = 500;
     a->vacantTotal = 0;
     a->vacant = calloc(initSlots, sizeof(bool)); 
     if(a->vacant == NULL ) {
         fprintf(stderr, "Unable to allocate memory.\n");
         return -1;
     } 
-    int i;
-    for (i = 0; i < initSlots; i++)
+    for (int i = 0; i < initSlots; i++)
         *(a->vacant + i) = false;
+    a->lookup = calloc(initSlots, sizeof(unsigned short)); 
+    if(a->lookup == NULL ) {
+        fprintf(stderr, "Unable to allocate memory.\n");
+        return -1;
+    } 
+    for (int i = 0; i < initSlots; i++)
+        *(a->lookup + i) = 0;
+
+    a->lookupDebug = calloc(initSlots, sizeof(unsigned short)); 
+    if(a->lookupDebug == NULL ) {
+        fprintf(stderr, "Unable to allocate memory.\n");
+        return -1;
+    } 
+    for (int i = 0; i < initSlots; i++)
+        *(a->lookupDebug + i) = 0;
+    
+    a->lookupCurrent = false;
     // End sparse vars
     
     /* Main init */
@@ -169,7 +190,7 @@ int daRealloc(da* a, int extraSlots){
     for (i = oldSize; i < newSize; i++)
         *(a->vacant + i) = false;
 
-    printf("Realloc function done, slots: %d\n", a->slots);
+    // printf("Realloc function done, slots: %d\n", a->slots);
 }
 
 
@@ -322,7 +343,6 @@ int daCompact(da* a){
                 *(a->vacant + i) = false;  // Reset vacancy data
         }
 
-        // printf("\nHavedata: (%d) ", COUNT_OF(haveData));
         // printf("\nHavedata: (%d) ", a->elements);
         // for (int i=0; i < a->elements; i++)
             // printf("%d ", haveData[i]);
@@ -344,9 +364,8 @@ int daVacs(da* a, int index) {
     int i;
     if (!(a->vacantTotal == 0 || index < a->vacantFirst)) {
         // OBS sök till (i <= index + v) för att hitta ev. vakanser mellan slotindex och virtuellt index
-        for (i = a->vacantFirst; i <= a->vacantLast && i <= index + v && v < a->vacantTotal; i++){
-        // Mindre optimerad, utan first/last
-        //for (i = 0; i <= index + v && v < a->vacantTotal; i++){    
+        for (i = a->vacantFirst; i <= a->vacantLast && i <= index + v && v < a->vacantTotal; i++) {
+        //for (i = 0; i <= index + v && v < a->vacantTotal; i++) {    // Mindre optimerad, utan first/last
             if (*(a->vacant + i))
                 v++;
         }
@@ -368,6 +387,38 @@ int daSparseSet(da* a, int index, DA_TYPE value) {
     return 0;
 }
 
+int buildLookup(da* a) {  
+    if (a->vacantTotal > 0) {
+    unsigned short v = 0;
+        for (int i = a->vacantFirst; i <= a->elements + a->vacantTotal; i++) {
+            // i <= a->vacantLast;
+            if (*(a->vacant + i)) {
+                
+                *(a->lookup + i) = ++v;
+                // printf("v%u ", v);
+            }
+            else { 
+                *(a->lookup + i) = v;
+                // printf("d%u  ", v);
+            }
+        }
+    }
+    printf("\n");
+    for (int i = 0; i < a->elements; i++){
+        // printf("%d:%u  ", i, *(a->lookup + i));
+    }
+    a->lookupCurrent = true;
+    return 0;
+}
+
+int buildLookupDebug(da* a) {  
+    if (a->vacantTotal > 0) {
+        for (int i = a->vacantFirst; i <= a->elements + a->vacantTotal; i++) 
+            *(a->lookupDebug + i) = daVacs(a, i);
+    }
+    return 0;
+}
+
 int daSparseRemove(da* a, int startIndex, int endIndex){
      if (startIndex >= a->elements ||
         endIndex >= a->elements ||
@@ -377,7 +428,13 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
     }
     int i;
 
-    // Shortend routine for single special case
+    // printf("vacantTotal:%d", a->vacantTotal);
+    
+    // if (a->vacantTotal > a->compactFreq)
+    //     printf("\nRemove calling compact\n");
+    //     daCompact(a);
+
+    // case of single 
     if (startIndex == endIndex) goto single;
 
     const int blockSize = endIndex - startIndex + 1;
@@ -453,6 +510,8 @@ int daSparseRemove(da* a, int startIndex, int endIndex){
 
     // corrected index
     int ci = startIndex + vacSingle;
+    
+    // set vacant
     *(a->vacant + ci) = true;
   
     // Set vacantLast to endIndex + vacs before endIndex  
