@@ -51,28 +51,35 @@ unsigned long randGet[REPS_GET];
 */
 
 
+void init() {  
+    totalTime = 0;
+    srand((unsigned) time(&t));   
+    for (int i = 0; i < TESTSIZE; i++) { v[i] = i; }
+    daInit(&test, TESTSIZE, 1.5);
+    if(daCreate(&test, v, COUNT_OF(v)) != 0) printf("Create error\n");
+    printf("\nElements before:%d", test.elements);
+}
+
+void cleanup() {
+    printf("\n                                      Combined time: %4.3f\n\n", totalTime);
+    daClear(&test);
+}
+
 void genRand() {
    int j;
    long ceil = TESTSIZE;
-   for (int j = 0; j < COUNT_OF(randRm); j++) {
+   int size;
+   size = COUNT_OF(randRm) < TESTSIZE ? COUNT_OF(randRm) : TESTSIZE;
+   for (int j = 0; j < size; j++) {
         randRm[j] = ((rand() << 16) | rand()) % ceil;
         ceil -= BY;
     }
     ceil = TESTSIZE-REPS_RM*BY;
+    size = COUNT_OF(randGet) < TESTSIZE ? COUNT_OF(randGet) : TESTSIZE;
     for (j = 0; j < COUNT_OF(randGet); j++) {
         randGet[j] = ((rand() << 16) | rand()) % ceil;
     }
     
-}
-
-void init() {  
-    int i;
-    totalTime = 0;
-    srand((unsigned) time(&t));   
-    for (i = 0; i < TESTSIZE; i++) { v[i] = i; }
-    daInit(&test, TESTSIZE, 1.5);
-    if(daCreate(&test, v, COUNT_OF(v)) != 0) printf("Create error\n");
-    printf("\nElements before:%d", test.elements);
 }
 
 void rm_message(char s[]) {
@@ -98,11 +105,14 @@ void compact_message(char s[]) {
     totalTime += stopwatch;
 }
 
-void cleanup() {
-    printf("\n                                      Combined time: %4.3f\n\n", totalTime);
-    daClear(&test);
+void add_message(char s[]) {
+    printf("\n Elements after:%d", test.elements);
+    printf("\nVacants    Total:%d First:%d Last:%d", test.vacantTotal, test.vacantFirst, test.vacantLast);
+    // printf("\n"); for (i = 0; i < test.slots; i++) printf("%d ", *(test.vacant + i));
+    stopwatch = (float)(end - start) / CLOCKS_PER_SEC;
+    printf("\n%s %d of %d (Jump:%d)\n    Secs:%4.3f\n", s, REPS_ADD, TESTSIZE, 0, stopwatch);    
+    totalTime += stopwatch;
 }
-
 
 void extraInfo() {
     printf("\nVacant: ");
