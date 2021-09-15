@@ -11,35 +11,25 @@
 #define DA_TYPE double
 #include "da.h"
 
-
-// #define TESTSIZE 50000000
-// // #define     REPS 45000000
-// #define     REPS 100
-// #define       BY      10
-
-
-// Performance testing
-#define TESTSIZE   5000000
-#define REPS_RM      10000
-#define REPS_GET   40000000
-#define REPS_INS      100
-#define REPS_ADD      100
+// Small scale tests
+#define TESTSIZE      100
+#define REPS_RM        10
+#define REPS_GET       50
+#define REPS_INS       10
+#define REPS_ADD       10
 #define JUMP           10
 #define BY              1
 #define STARTINDEX      0
 
-// int REPS_RM     = 100;
-// int REPS_GET    = 100;
-// int REPS_INS    = 100;
-// int REPS_ADD    = 100;
-// int JUMP        = 10;
-// int BY          = 10;
 
-// Feature testing
-// #define TESTSIZE 100
-// int REPS        = 10;
-// int JUMP        = 1;
-// int BY          = 1;
+// Define helpers implemented in da_test.h
+void genRand();
+void init();
+void rm_message(char s[]);
+void get_message(char s[]);
+void compact_message(char s[]);
+void cleanup();       
+void extraInfo();
 
 int i;
 da test;
@@ -51,174 +41,6 @@ int startIndex;
 unsigned long randRm[REPS_RM];
 unsigned long randGet[REPS_GET];
 
-void genRand() {
-   int j;
-   long ceil = TESTSIZE;
-   for (j = 0; j < COUNT_OF(randRm); j++) {
-        randRm[j] = ((rand() << 16) | rand()) % ceil;
-        ceil -= BY;
-    }
-    ceil = TESTSIZE-REPS_RM*BY;
-    for (j = 0; j < COUNT_OF(randGet); j++) {
-        randGet[j] = ((rand() << 16) | rand()) % ceil;
-    }
-    
-}
-
-void init() {  
-    int i;
-    totalTime = 0;
-    srand((unsigned) time(&t));   
-    for (i = 0; i < TESTSIZE; i++) { v[i] = i; }
-    daInit(&test, TESTSIZE, 1.5);
-    if(daCreate(&test, v, COUNT_OF(v)) != 0) printf("Create error\n");
-    printf("\nElements before:%d", test.elements);
-}
-
-void rm_message(char s[]) {
-    printf("\n Elements after:%d", test.elements);
-    printf("\nVacants    Total:%d First:%d Last:%d", test.vacantTotal, test.vacantFirst, test.vacantLast);
-    // printf("\n"); for (i = 0; i < test.slots; i++) printf("%d ", *(test.vacant + i));
-    stopwatch = (float)(end - start) / CLOCKS_PER_SEC;
-    printf("\n%s %d of %d (by %d)\n    Secs:%4.3f\n", s, REPS_RM*BY, TESTSIZE, BY, stopwatch);    
-    totalTime += stopwatch;
-}
-
-void get_message(char s[]) {
-    stopwatch = (float)(end - start) / CLOCKS_PER_SEC;
-    printf("\n%s %d of %d \n    Secs:%4.3f\n", s, REPS_GET, TESTSIZE-REPS_RM+BY-1, stopwatch);    
-    totalTime += stopwatch;
-}
-
-void compact_message(char s[]) {
-    printf("\nVacants    Total:%d First:%d Last:%d", test.vacantTotal, test.vacantFirst, test.vacantLast);
-    // printf("\n"); for (i = 0; i < test.slots; i++) printf("%d ", *(test.vacant + i));
-    stopwatch = (float)(end - start) / CLOCKS_PER_SEC;
-    printf("\n%s %d of %d\n    Secs:%4.3f\n", s, REPS_RM*BY, TESTSIZE, stopwatch);    
-    totalTime += stopwatch;
-}
-
-void cleanup() {
-    printf("\n                                      Combined time: %4.3f\n\n", totalTime);
-    daClear(&test);
-}
-
-
-void extraInfo() {
-    // int i;
-    printf("\nVacant: ");
-    for (i = 0; i < test.slots; i++){
-        printf("%d ", *(test.vacant + i));
-    }
-    printf("\n");
-    for (i = 0; i < test.elements; i++){
-        printf("%4.3f i:%d slot:%d\n", daSparseGet(&test, i), i, i+daVacs(&test, i));
-    }
-    printf("\n");
-}
-
-// unsigned long long r(long ceil) {
-//     return ((rand() << 16) | rand()) % ceil;
-// }
-
-
-
-/* Combined test 1 Random */
-void combined1_rnd() {
-    init();
-    start = clock();
-    for (i = 0; i < REPS_RM; i++) {
-        daRemove(&test, randRm[i], randRm[i]+BY-1);
-    }
-    end = clock(); 
-    rm_message("Random Remove");
-    
-    start = clock();
-    for (i = 0; i < REPS_GET; i++) daGet(&test, randGet[i]);
-    end = clock(); 
-    get_message("Random Get");
-    
-    cleanup();
-}
-
-/* Combined test 2 Random */
-void combined2_rnd() {
-    init();
-    start = clock();
-    for (i = 0; i < REPS_RM; i++) {
-        daSparseRemove(&test, randRm[i], randRm[i]+BY-1);
-    }
-    end = clock();
-    rm_message("Random Sparse remove");
-    
-    // start = clock();
-    // for (i = 0; i < REPS_GET; i++) daSparseGet(&test, randGet[i]);
-    // end = clock(); 
-    // get_message("Sparse get");
-
-    start = clock();
-    daCompact(&test);
-    end = clock();    
-    compact_message("Compact");
-
-    start = clock();
-    for (i = 0; i < REPS_GET; i++) daSparseGet(&test, randGet[i]);
-    end = clock(); 
-    get_message("Random Sparse get");
-
-
-    cleanup();
-}
-
-void combined1() {
-    init();
-    startIndex = STARTINDEX;
-    start = clock();
-    for (i = 0; i < REPS_RM; i++) {
-        daRemove(&test, startIndex, startIndex+BY-1);
-        startIndex += JUMP;
-    }
-    end = clock(); 
-    rm_message("Remove");
-    
-    start = clock();
-    for (i = 0; i < REPS_GET; i++) daGet(&test, i);
-    end = clock(); 
-    get_message("Get");
-    
-    cleanup();
-}
-
-
-
-void combined2() {
-    init();
-    startIndex = STARTINDEX;
-    start = clock();
-    for (i = 0; i < REPS_RM; i++) {
-        daSparseRemove(&test, startIndex, startIndex+BY-1);
-        startIndex += JUMP;
-    }
-    end = clock();
-    rm_message("Sparse remove");
-    
-    // start = clock();
-    // for (i = 0; i < REPS_GET; i++) daSparseGet(&test, i);
-    // end = clock(); 
-    // get_message("Sparse get");
-
-    start = clock();
-    daCompact(&test);
-    end = clock();    
-    compact_message("Compact");
-
-    start = clock();
-    for (i = 0; i < REPS_GET; i++) daSparseGet(&test, i);
-    end = clock(); 
-    get_message("Sparse get");
-
-    cleanup();
-}
 
 void unit_buildLookup() {
     int startstep = 0;
@@ -362,24 +184,17 @@ void unit_SparseGet() {
 }
 
 void main(){
-    // int i;
-    
 // Timestamp
     time_t t = time(NULL); struct tm *tm = localtime(&t); char s[64]; assert(strftime(s, sizeof(s), "%c", tm)); printf("Test started %s\n", s);  
 
-    genRand();
+    // genRand();
 
-    combined1_rnd();
-    combined2_rnd();
-    
     // unit_Compact();
     // unit_buildLookup();
-
-    // combined1();
-    // combined2();
-
     // unit_Get();
     // unit_SparseGet();
+}
+
 
 /* Remove test 1 */
     // init();
@@ -459,6 +274,5 @@ void main(){
 
 
 
-
-}
+#include "da_test.h"
 
