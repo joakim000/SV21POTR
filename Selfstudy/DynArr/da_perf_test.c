@@ -1,23 +1,15 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <math.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <time.h>
-#include <assert.h>
-// #include <windows.h>
+#include "devheaders.h"
 
 #define DA_TYPE double
 #include "da.h"
 
 
 // Performance testing
-#define TESTSIZE   5000000
-#define REPS_RM      10000
-#define REPS_GET   40000000
-#define REPS_INS      100
-#define REPS_ADD      100
+#define TESTSIZE   120000
+#define REPS_RM      20000
+#define REPS_GET   40000
+#define REPS_INS      10000
+#define REPS_ADD      10000
 #define JUMP           10
 #define BY              1
 #define STARTINDEX      0
@@ -28,6 +20,7 @@ void init();
 void rm_message(char s[]);
 void get_message(char s[]);
 void compact_message(char s[]);
+void add_message(char s[]);
 void cleanup();       
 void extraInfo();
 
@@ -51,6 +44,7 @@ void combined1_rnd() {
     }
     end = clock(); 
     rm_message("Random Remove");
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
     
     start = clock();
     for (i = 0; i < REPS_GET; i++) daGet(&test, randGet[i]);
@@ -69,7 +63,8 @@ void combined2_rnd() {
     }
     end = clock();
     rm_message("Random Sparse remove");
-    
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+
     // start = clock();
     // for (i = 0; i < REPS_GET; i++) daSparseGet(&test, randGet[i]);
     // end = clock(); 
@@ -99,6 +94,7 @@ void combined1() {
     }
     end = clock(); 
     rm_message("Remove");
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
     
     start = clock();
     for (i = 0; i < REPS_GET; i++) daGet(&test, i);
@@ -120,6 +116,7 @@ void combined2() {
     }
     end = clock();
     rm_message("Sparse remove");
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
     
     // start = clock();
     // for (i = 0; i < REPS_GET; i++) daSparseGet(&test, i);
@@ -139,6 +136,59 @@ void combined2() {
     cleanup();
 }
 
+void add() {
+    init();
+    // printf("Init successful\n");
+    startIndex = 10;
+    int jump = 0;
+
+    daRealloc(&test, (int)TESTSIZE); 
+
+    // start = clock();
+    // for (int i = 0; i < REPS_ADD; i++) {
+    //     daAdd(&test, -1, (DA_TYPE)i);
+    // }
+    // end = clock();
+    // add_message("Add");
+    // printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+
+     start = clock();
+    for (i = 0; i < REPS_RM; i++) {
+        daSparseRemove(&test, startIndex, startIndex+BY-1);
+        startIndex += jump;
+    }
+    end = clock();
+    rm_message("Sparse remove");
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+
+    
+    start = clock();
+    for (int i = 0; i < REPS_INS; i++) {
+        daAdd(&test, startIndex, (DA_TYPE)i);
+        startIndex += jump;
+    }
+    end = clock();
+    add_message("Insert");
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+
+    start = clock();
+    for (int i = 0; i < REPS_INS; i++) {
+        daAdd(&test, randRm[i], (DA_TYPE)i);
+    }
+    end = clock();
+    add_message("Random Insert");
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+
+
+    // start = clock();
+    // daCompact(&test);
+    // end = clock();    
+    // compact_message("Compact");
+
+    cleanup();
+}
+
+
 
 void main(){
     
@@ -147,8 +197,10 @@ void main(){
 
     genRand();
 
-    combined1_rnd();
-    combined2_rnd();
+    add();
+
+    //combined1_rnd();
+    // combined2_rnd();
     
     // combined1();
     // combined2();
