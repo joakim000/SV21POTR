@@ -1,12 +1,4 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <math.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <time.h>
-#include <assert.h>
-// #include <windows.h>
+#include "devheaders.h"
 
 #define DA_TYPE double
 #include "da.h"
@@ -28,6 +20,7 @@ void init();
 void rm_message(char s[]);
 void get_message(char s[]);
 void compact_message(char s[]);
+void add_message(char s[]);
 void cleanup();       
 void extraInfo();
 
@@ -79,8 +72,8 @@ void unit_buildLookup() {
     printf("\nVacs:\n");
     for (int i = startstep; i < startstep + steps; i++){
     // for (int i = 0; i < test.elements; i++){
-        printf("%4.3f i:%d slot:%d daVacs:%d lookup:%u lookupDebug:%u\n", 
-        daSparseGet(&test, i), i, i+daVacs(&test, i), daVacs(&test, i), test.lookup[i], test.lookupDebug[i] );
+        printf("%4.3f i:%d slot:%d daVacs:%d lookup:%u \n", 
+        daSparseGet(&test, i), i, i+daVacs(&test, i), daVacs(&test, i), test.lookup[i] );
     }
     printf("\n");
 
