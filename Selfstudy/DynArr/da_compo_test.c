@@ -4,11 +4,11 @@
 #include "da.h"
 
 // Small scale tests
-#define TESTSIZE      100
-#define REPS_RM        10
+#define TESTSIZE       10
+#define REPS_RM        5
 #define REPS_GET       50
-#define REPS_INS       10
-#define REPS_ADD       10
+#define REPS_INS       2
+#define REPS_ADD       2
 #define JUMP           10
 #define BY              1
 #define STARTINDEX      0
@@ -33,6 +33,26 @@ float totalTime;
 int startIndex;
 unsigned long randRm[REPS_RM];
 unsigned long randGet[REPS_GET];
+unsigned long randIns[REPS_INS];
+
+void printVacants() {
+    for (int i = 0; i < test.slots; i++) {
+        printf("%3d ", i);
+    }
+    printf("\n");
+     for (int i = 0; i < test.slots; i++) {
+        printf("%3d ", *(test.vacant + i));
+    }
+    printf("\n");
+
+}
+void printValues() {    
+    for (int i = 0; i < test.elements; i++){
+        printf("%-7.3f i:%-6d slot:%-10d\n", daSparseGet(&test, i), i, i+daVacs(&test, i));
+    }
+    printf("\n");
+}
+
 
 
 void unit_buildLookup() {
@@ -107,7 +127,7 @@ void unit_Compact() {
     daCompact(&test);
     end = clock();    
     compact_message("Compact");
-    for (i = 0; i < test.slots; i++) {
+    for (int i = 0; i < test.slots; i++) {
         printf("%d ", *(test.vacant + i));
     }
     printf("\n");
@@ -176,16 +196,113 @@ void unit_SparseGet() {
 
 }
 
+void unit_add() {
+    init();
+    startIndex = 2;
+    int jump = 0;
+
+    daRealloc(&test, (int)TESTSIZE); 
+
+    /* Add to end */
+    // start = clock();
+    // for (int i = 0; i < REPS_ADD; i++) {
+    //     daAdd(&test, -1, (DA_TYPE)i);
+    // }
+    // end = clock();
+    // add_message("Add");
+    // printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+    // printVacants(); printValues();
+    
+
+    /* Nonsparse insert */
+    // start = clock();
+    // for (int i = 0; i < REPS_INS; i++) {
+    //     daAdd(&test, startIndex, (DA_TYPE)i+100);
+    //     startIndex += jump;
+    // }
+    // daAdd(&test, 2, (DA_TYPE)102);
+    // daAdd(&test, 2, (DA_TYPE)1022);
+    // daAdd(&test, 3, (DA_TYPE)103);
+    // daAdd(&test, 7, (DA_TYPE)107);
+
+    // end = clock();
+    // add_message("Insert @ 2 2 3 7");
+    // printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+    // printVacants(); printValues();
+
+    // /* Random Nonsparse insert */
+    // start = clock();
+    // for (int i = 0; i < REPS_INS; i++) {
+    //     daAdd(&test, randRm[i], (DA_TYPE)i+200);
+    // }
+    // end = clock();
+    // add_message("Random Insert");
+    // printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+    // printVacants(); printValues();
+
+    /* Removal for sparse testing */
+    start = clock();
+    daSparseRemove(&test, 2, 7);
+    end = clock();
+    rm_message("Sparse remove 2-7");
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+    printVacants(); printValues();
+
+    /* sparse insert */
+    // Innan vacants
+    start = clock();
+    daAdd(&test, 0, (DA_TYPE)300);
+    end = clock();
+    add_message("Insert 0. Innan.  ");
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+    printVacants(); printValues();
+
+    // Efter vacants
+    start = clock();
+    daAdd(&test, 4, (DA_TYPE)304);
+    end = clock();
+    add_message("Insert 4. Efter. ");
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+    printVacants(); printValues();
+
+    // Vid första vacant
+    start = clock();
+    daAdd(&test, 2, (DA_TYPE)302);
+    end = clock();
+    add_message("Insert 2. Vid första.   ");
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+    printVacants(); printValues();
+
+    // Vid sista vacant
+    start = clock();
+    daAdd(&test, 4, (DA_TYPE)3042);
+    end = clock();
+    add_message("Insert 4:2. Vid sista. ");
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+    printVacants(); printValues();
+
+    
+
+
+
+    cleanup();
+}
+
+
+
 void main(){
 // Timestamp
     time_t t = time(NULL); struct tm *tm = localtime(&t); char s[64]; assert(strftime(s, sizeof(s), "%c", tm)); printf("Test started %s\n", s);  
 
-    // genRand();
+     genRand();
 
+    unit_add();
     // unit_Compact();
     // unit_buildLookup();
     // unit_Get();
     // unit_SparseGet();
+
+
 }
 
 

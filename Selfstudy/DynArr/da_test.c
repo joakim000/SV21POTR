@@ -74,10 +74,19 @@ void genRand() {
         randRm[j] = ((rand() << 16) | rand()) % ceil;
         ceil -= BY;
     }
+
     ceil = TESTSIZE-REPS_RM*BY;
+    ceil = 50000;
     size = COUNT_OF(randGet) < TESTSIZE ? COUNT_OF(randGet) : TESTSIZE;
-    for (j = 0; j < COUNT_OF(randGet); j++) {
+    for (j = 0; j < size; j++) {
         randGet[j] = ((rand() << 16) | rand()) % ceil;
+    }
+
+    ceil = TESTSIZE-REPS_RM*BY;
+    ceil = 50000;
+    size = COUNT_OF(randIns) < TESTSIZE ? COUNT_OF(randIns) : TESTSIZE;
+    for (j = 0; j < size; j++) {
+        randIns[j] = ((rand() << 16) | rand()) % ceil;
     }
     
 }

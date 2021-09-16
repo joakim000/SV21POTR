@@ -5,11 +5,11 @@
 
 
 // Performance testing
-#define TESTSIZE   120000
-#define REPS_RM      20000
-#define REPS_GET   40000
-#define REPS_INS      10000
-#define REPS_ADD      10000
+#define TESTSIZE   75000
+#define REPS_RM    25000
+#define REPS_GET   20000
+#define REPS_INS      25000
+#define REPS_ADD      25000
 #define JUMP           10
 #define BY              1
 #define STARTINDEX      0
@@ -33,6 +33,7 @@ float totalTime;
 int startIndex;
 unsigned long randRm[REPS_RM];
 unsigned long randGet[REPS_GET];
+unsigned long randIns[REPS_INS];
 
 
 /* Combined test 1 Random */
@@ -138,12 +139,12 @@ void combined2() {
 
 void add() {
     init();
-    // printf("Init successful\n");
-    startIndex = 10;
-    int jump = 0;
+    startIndex = 40000;
+    int jump = 1;
 
     daRealloc(&test, (int)TESTSIZE); 
 
+    /* Add to end */
     // start = clock();
     // for (int i = 0; i < REPS_ADD; i++) {
     //     daAdd(&test, -1, (DA_TYPE)i);
@@ -152,31 +153,62 @@ void add() {
     // add_message("Add");
     // printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
 
-     start = clock();
-    for (i = 0; i < REPS_RM; i++) {
-        daSparseRemove(&test, startIndex, startIndex+BY-1);
-        startIndex += jump;
-    }
-    end = clock();
-    rm_message("Sparse remove");
-    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
-
+    /* Nonsparse insert */
+    // start = clock();
+    // for (int i = 0; i < REPS_INS; i++) {
+    //     daAdd(&test, startIndex, (DA_TYPE)i);
+    //     startIndex += jump;
+    // }
+    // end = clock();
+    // add_message("Nonsparse Linear Insert start@ 40k         ");
+    // printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+   
     
-    start = clock();
-    for (int i = 0; i < REPS_INS; i++) {
-        daAdd(&test, startIndex, (DA_TYPE)i);
-        startIndex += jump;
-    }
-    end = clock();
-    add_message("Insert");
-    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+    /* Nonsparse random insert */
+    // start = clock();
+    // for (int i = 0; i < REPS_INS; i++) {
+    //     daAdd(&test, randIns[i], (DA_TYPE)i);
+    // }
+    // end = clock();
+    // add_message("Nonsparse Random Insert");
+    // printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+    
 
+    /* Removal for sparse testing */
     start = clock();
-    for (int i = 0; i < REPS_INS; i++) {
-        daAdd(&test, randRm[i], (DA_TYPE)i);
+    for (i = 0; i < REPS_RM; i++) {
+        daSparseRemove(&test, randRm[i], randRm[i]+BY-1);
+        // startIndex += jump;
     }
     end = clock();
-    add_message("Random Insert");
+    rm_message("Random Sparse remove");
+    printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+    
+
+    /* Linear sparse insert */
+    // startIndex = 10000;
+    // printf("First insert at index:%d slot:%d", startIndex, startIndex+daVacs(&test, startIndex));
+    // start = clock();
+    // for (i = 0; i < REPS_INS; i++) {
+    //     daAdd(&test, startIndex, (DA_TYPE)i);
+    //     // daAdd(&test, randGet[i], (DA_TYPE)i);
+    //     startIndex +=1;
+    // }
+    // end = clock();
+    //   printf("               Last insert at index:%d slot:%d", startIndex, startIndex+daVacs(&test, startIndex));
+    // add_message("Linear Sparse Insert on Random Sparse Remove, start @ 10000");
+    // printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
+
+    // goto end;
+    /* Random sparse insert */
+    printf("First insert at index:%d slot:%d", randGet[0], randGet[0]+daVacs(&test, randGet[0]));
+    start = clock();
+    for (i = 0; i < REPS_INS; i++) {
+        daAdd(&test, randGet[i], (DA_TYPE)i);
+    }
+    end = clock();
+      printf("               Last insert at index:%d slot:%d", randGet[REPS_INS-1], randGet[REPS_INS-1]+daVacs(&test, randGet[REPS_INS-1]));
+    add_message("Random Sparse Insert on Random Sparse Remove");
     printf("\nElements:%ld  Slots:%ld\n", test.elements, test.slots);
 
 
@@ -185,9 +217,9 @@ void add() {
     // end = clock();    
     // compact_message("Compact");
 
+    end:
     cleanup();
 }
-
 
 
 void main(){

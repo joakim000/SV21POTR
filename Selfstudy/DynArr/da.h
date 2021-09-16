@@ -245,6 +245,7 @@ int daAdd(da* a, int index, DA_TYPE value) {  //index -1 == end
     } else if (index > a->elements - 1 || index < 0) {
         // Illegal insert
         a->error = 2;
+        printf("\nInsert out of range:%d", index);
         return 2;
     } else {
         // Insert
@@ -263,7 +264,7 @@ int daAdd(da* a, int index, DA_TYPE value) {  //index -1 == end
             int insVac = daVacs(a, index); 
             
             // Check for vacant space
-            if (insVac != daVacs(a, index - 1)){
+            if (insVac > daVacs(a, index - 1)){
                 // Find slotindex before virtual insert index
                 int si = index + insVac - 1;
                 // This slotindex should be vacant
@@ -272,18 +273,42 @@ int daAdd(da* a, int index, DA_TYPE value) {  //index -1 == end
                 *(a->p + si) = value;
                 // No longer vacant
                 *(a->vacant + si) = false;
+                a->vacantTotal--;
+                // if si was lastIndex, no longer
+                if (si == a->vacantLast)
+                    a->vacantLast--; 
+
             } else {
+                // Slotindex for virtual insert index 
+                // printf("sparse, no vac on slotindex before this virtual index's slotindex");
+
+                int si = index + insVac;
                 // Flytta alla element ett steg upp, start vid index
-                for (int i = a->elements + a->vacantTotal - 1; i >= index; i-- ) {
+                for (int i = a->elements + a->vacantTotal - 1; i >= si; i-- ) {
                     *(a->p + i + 1) = *(a->p + i);
                 }
-                 // Sätt in värdet på angivet index        
-                 *(a->p + index) = value;
+                 // Sätt in värdet på angivet virtuellt index  
+                // printf("\ninput at index:%d slot:%d", index, si);
+                *(a->p + si) = value;
 
                 // Flytta upp vacant-flaggor
-                for (int i = a->elements + a->vacantTotal - 1; i >= index; i-- ) {
-                    *(a->vacant + i + 1) = *(a->vacant + i);
+                if (si <= a->vacantLast) {
+                    // printf("\nindex:%d  <= vacantLast:%d", index, a->vacantLast);
+                    for (int i = a->vacantLast; i >= index; i-- ) {
+                         *(a->vacant + i + 1) = *(a->vacant + i);
+                    }
+                    a->vacantLast++;
                 }
+                // if (index <= a->vacantLast)
+                //     a->vacantLast++;
+                if (si <= a->vacantFirst) {
+                //  printf("\nindex:%d  <= vacantFirst:%d", index, a->vacantFirst);
+
+                    a->vacantFirst++;
+                }
+                    
+
+
             }
         }    
         // Vi har nu ett fler element
