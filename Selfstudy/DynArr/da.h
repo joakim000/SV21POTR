@@ -178,6 +178,7 @@ da daInit2(int initAllocation, float growthFactor) {
 int daClear(da* a){
     free(a->p);
     free(a->vacant);
+    free(a->lookup);
     return 0;
 }
 
@@ -190,8 +191,7 @@ int daCreate(da* a, DA_TYPE values[], int len) {
         daRealloc(a, extraSlots);
     } 
     
-    int i;
-    for (i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
         *(a->p+i) = values[i];
     }
     a->elements = len;
@@ -222,14 +222,13 @@ static int daRealloc(da* a, int extraSlots){
     for (int i = oldSize; i < newSize; i++)
         *(a->vacant + i) = false;
 
-    printf("\nRealloc done. Elements:%ld  Slots:%ld\n", a->elements, a->slots);
+    printf("\nRealloc done. Elements:%ld  Slots:%ld\n", a->elements, a->slots); // Print to log
 
     return 0;
 }
 
 
 int daAdd(da* a, int index, DA_TYPE value) {  //index -1 == end
-    int i;
     if (a->elements == a->slots) {
         //Needs realloc
         daRealloc(a, 0);
@@ -241,7 +240,7 @@ int daAdd(da* a, int index, DA_TYPE value) {  //index -1 == end
     } else if (index > a->elements - 1 || index < 0) {
         // Illegal insert
         a->error = 2;
-        printf("\nInsert out of range:%d", index);
+        printf("\nInsert out of range:%d", index);  //Print to log 
         return 2;
     } else {
         // Insert
@@ -324,8 +323,7 @@ int daRemove(da* a, int startIndex, int endIndex) {
 
     // Move elements blocksize steps in negative direction
     int blockSize = endIndex - startIndex + 1;
-    int i;
-    for (i = startIndex + blockSize; i < a->elements; i++ ) {
+    for (int i = startIndex + blockSize; i < a->elements; i++ ) {
             *(a->p + i - blockSize) = *(a->p + i);
         }
     a->elements -= blockSize;
@@ -351,7 +349,7 @@ int daCompact(da* a){
         a->error = allocCheck(haveData);
         if (a->error) return a->error;
 
-        for (int i=0; i < a->elements+a->vacantTotal; i++) {
+        for (int i=0; i < a->elements + a->vacantTotal; i++) {
             if (*(a->vacant + i) == false) {
                 haveData[dataIter] = i;
                 dataIter++;
@@ -373,50 +371,6 @@ int daCompact(da* a){
     }
     return 0;
 }
-
-// int daCompact_old(da* a){
-//     int i;
-//     bool findVac = true;
-//     int nextVacToFill; 
-
-//     // for (i = 0; i < a->elements + a->vacantTotal; i++) {
-//     for (i = a->vacantFirst; i < a->elements + a->vacantTotal && i < a->vacantLast; i++) {
-//         if (*(a->vacant + i)) {
-//             if (findVac) {
-//             // Looking for vacancy and found one    
-//                 nextVacToFill = i;
-//                 findVac = false;
-//                 continue;
-//             } else {
-//             // Looking for data but found vacancy    
-//                 continue;
-//             } 
-//         } else {
-//             if (findVac) {
-//             // Looking for vacancy but found data   
-//                 continue;
-//             } else {
-//             // Looking for data and found some
-//                 // Move data
-//                 *(a->p + nextVacToFill) = *(a->p + i);
-//                 // This slot now vacant
-//                 *(a->vacant + i) = true;
-//                 // Look for next vacancy
-//                 findVac = true;
-//                 // Start looking after previous vacancy
-//                 i = nextVacToFill; // will ++ at beginning of loop
-//             }
-//         }
-//     }
-//     // Reset vacancy data
-//     for (i = 0; i < a->slots; i++)
-//         *(a->vacant + i) = false;
-//     a->vacantTotal = 0;
-
-//     return 0;
-// }
-
-
 
 
 static int daVacs(da* a, int index) {
