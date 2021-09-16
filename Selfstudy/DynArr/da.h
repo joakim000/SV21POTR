@@ -1,13 +1,14 @@
-// #include <assert.h>
-// #include <stdio.h>
-// #include <stdbool.h>
-// #include <math.h>
-// #include <stdlib.h>
-// #include <errno.h>
-// #include <stdarg.h>
+/*  C exercise:
+    Dynamic array implementation
+    with optional sparse arrays
 
-// //Google's apparantly clever array size macro
-// #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
+    210916 Joakim O
+
+    da_compo_test.c     Ocular component tests
+    da_perf_test.c      Performance tests
+    /unity              Unit tests
+    /perf               Selected performance logs
+
 
 /* Errors
     0 OK
@@ -41,9 +42,13 @@ typedef struct DynArr {
 } da;
 
 // Init array
-// Args: da* a, int reserve, int datatype
 // Return: exit code
-int daInit(da* a, int initSlots, float growthFactor);  
+int daInit(da* a, int initAllocation, float growthFactor);  
+
+// Init array, return struct
+// Return: struct
+// Check da.error
+da daInit2(int initAllocation, float growthFactor);  
 
 // Clear allocations when done
 // Return: exit code
@@ -79,7 +84,7 @@ DA_TYPE daSparseGet(da* a, int index);
 int daSet(da* a, int index, DA_TYPE value);
 int daSparseSet(da* a, int index, DA_TYPE value);
 
-// Compact allocation
+// Compact sparse allocation
 // Args: da* a
 int daCompact(da* a);
 
@@ -99,39 +104,30 @@ static short allocCheck(void *p);
 /* Declarations end */
 
 
-int daInit(da* a, int initSlots, float growthFactor) {   
+int daInit(da* a, int initAllocation, float growthFactor) {   
     /* Main init */
-    a->slots = initSlots;
+    a->slots = initAllocation;
     a->growthFactor = growthFactor;
     a->elements = 0;
 
     a->p = calloc(a->slots, sizeof(DA_TYPE));
-    if(a->p == NULL ) {
-        fprintf(stderr, "Unable to allocate memory.\n");
-        return -1;
-    } 
+    if (allocCheck(a->p)) return allocCheck(a->p); 
 
     /* Init vars for sparse functionality */
     a->compactFreq = 512;
     a->vacantTotal = 0;
 
-    a->vacant = calloc(initSlots, sizeof(bool)); 
-    if(a->vacant == NULL ) {
-        fprintf(stderr, "Unable to allocate memory.\n");
-        return -1;
-    } 
-    for (int i = 0; i < initSlots; i++)
+    a->vacant = calloc(initAllocation, sizeof(bool)); 
+    if (allocCheck(a->vacant)) return allocCheck(a->vacant);  
+    for (int i = 0; i < initAllocation; i++)
         *(a->vacant + i) = false;
     
     // Experimental lookup optimization 
     a->lookupCurrent = false;
 
-    a->lookup = calloc(initSlots, sizeof(unsigned short)); 
-    if(a->lookup == NULL ) {
-        fprintf(stderr, "Unable to allocate memory.\n");
-        return -1;
-    } 
-    for (int i = 0; i < initSlots; i++)
+    a->lookup = calloc(initAllocation, sizeof(unsigned short)); 
+    if (allocCheck(a->lookup)) return allocCheck(a->lookup);  
+    for (int i = 0; i < initAllocation; i++)
         *(a->lookup + i) = 0;
         
     return 0;
@@ -147,12 +143,12 @@ static short allocCheck(void* p) {
 
 }
 
-da daInit2(int initSlots, float growthFactor) {   
+da daInit2(int initAllocation, float growthFactor) {   
     da r;
     r.error = 0;
     
     /* Main init */
-    r.slots = initSlots;
+    r.slots = initAllocation;
     r.growthFactor = growthFactor;
     r.elements = 0;
 
@@ -163,17 +159,17 @@ da daInit2(int initSlots, float growthFactor) {
     r.compactFreq = 512;
     r.vacantTotal = 0;
 
-    r.vacant = calloc(initSlots, sizeof(bool)); 
+    r.vacant = calloc(initAllocation, sizeof(bool)); 
     r.error = allocCheck(r.vacant);
-    for (int i = 0; i < initSlots; i++)
+    for (int i = 0; i < initAllocation; i++)
         *(r.vacant + i) = false;
     
     // Experimental lookup optimization 
     r.lookupCurrent = false;
 
-    r.lookup = calloc(initSlots, sizeof(unsigned short)); 
+    r.lookup = calloc(initAllocation, sizeof(unsigned short)); 
     r.error = allocCheck(r.lookup);
-    for (int i = 0; i < initSlots; i++)
+    for (int i = 0; i < initAllocation; i++)
         *(r.lookup + i) = 0;
 
     return r;
