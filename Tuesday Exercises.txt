@@ -1,0 +1,19 @@
+
+I would suggest using functions for all these, to better structure your code.
+
+## Prime numbers.
+1. a. Printout the first 100 primes.
+   b. Printout every tenth prime of the first 1000 primes.
+   
+## Simple Bitwise.
+2. a. Print an unsinged char as its binary representation.
+   b. Print the binary representation of a number up to 64bits.
+   Need to know how big the number is in bytes for B. sizeof() helps.
+
+## Reversing
+3. a. Reverse a string with a maximum of 213 letters.
+   b. Reverse the bit order of unsinged char. ie 1000 0000 -> 0000 0001
+
+## Sorting
+4. Sort an array of unsigned ints. Make two functions, one Ascending, one Descending.
+   To get you started: sorting.c
