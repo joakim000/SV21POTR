@@ -232,7 +232,6 @@ void erastophanes(int size) {
 void bitwise() {
     unsigned char a = 'a';
     // long biggus = 9223372036854775806;
-    long biggus = 922337203685477;
 
 
 }
@@ -242,80 +241,44 @@ void bitwise() {
 3. a. Reverse a string with a maximum of 213 letters.
    b. Reverse the bit order of unsinged char. ie 1000 0000 -> 0000 0001
 */
-int my_strlen(char str[]) {
-    size_t len = sizeof(str)/sizeof(str[0]);
-    // ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
-
-    // return sizeof(str)/sizeof(str[0]);
-    // return COUNT_OF(str);
-
-    printf("\n%d %u   %d %u\n", sizeof(str), sizeof(str), sizeof(char), sizeof(char));
-
-    return sizeof(str)/sizeof(char);
 
 
-} 
+void my_strrev(char str[]) {  
+    char tmp[strlen(str)];
+    strcpy(tmp, str);
 
-char* my_strrev(char str[]) {
-    int len = my_strlen(str);
-    char* r;
     // Reverse
-    return str;
-} 
-
-
-
-
-char* my_strrev_max213(char str[]) {
-    if (strlen(str) < 214)  
-        str = my_strrev(str);
-    return str;
-} 
-
-char* lib_strrev_max213(char str[]) {
-    if (strlen(str) < 214)  
-        strrev(str);
-    return str;
+    int j = 0;
+    for (int i = strlen(str)-1; i >= 0; i--) {
+        str[j] = tmp[i];
+        j++;
+    }
 } 
 
 void beepbeepbeep() {
-    // char letters[213] = "ThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThe";
-    // char srettel[213];
-    // int j = 0;
-    // for (int i = 212; i >= 0; i--) {
-    //     letters[i] = srettel[j];
-    //     j++;
-    // }
-    // printf("\n%s\n", srettel);
-    
-    char str3[] = "The";
+    // 3a. Reverse a string with a maximum of 213 letters.
     char str213[] = "ThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThe";
     char str214[] = "ThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogTheQ";
-    printf("\nString:\"%s\"  Length:%d  ", lib_strrev_max213(str213), strlen(str213));
-    printf("\nString:\"%s\"  Length:%d  ", lib_strrev_max213(str214), strlen(str214));
-    printf("\n");
-    printf("\nString:\"%s\"  Length:%d  ", my_strrev_max213(str3), my_strlen(str213));
-    // printf("\nString:\"%s\"  Length:%d  ", lib_strrev_max213(str214), strlen(str214));
-
-
-    // printf("\nString:\"%s\"  Length:%d  ", str, strlen(str));
-
-    // printf("\nString:\"%s\"  Length:%d  ", str, strlen(str));
-
-
+    if (strlen(str213) <= 213)
+        strrev(str213);
+    if (strlen(str214) <= 213)
+        strrev(str214);
+    printf("\nLib reverse:\n213: %s\n214: %s", str213, str214);
     
 
-
+    char str213_2[] = "ThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThe";
+    char str214_2[] = "ThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogTheQ";
+    if (strlen(str213_2) <= 213)
+        strrev(str213_2);
+    if (strlen(str214_2) <= 213)
+        strrev(str214_2);
+    printf("\nMy reverse:\n213: %s\n214: %s", str213_2, str214_2);
+  
     // 3b. Reverse the bit order of unsinged char. ie 1000 0000 -> 0000 0001 
     unsigned char a = 'a';
 
                                 
 }
-
-
-
-// char* strrev2(char str[]) {} 
-// char* strrev2(char str[]) {} 
 
 
 
