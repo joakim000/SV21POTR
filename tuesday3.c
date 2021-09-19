@@ -241,8 +241,6 @@ void bitwise() {
 3. a. Reverse a string with a maximum of 213 letters.
    b. Reverse the bit order of unsinged char. ie 1000 0000 -> 0000 0001
 */
-
-
 void my_strrev(char str[]) {  
     char tmp[strlen(str)];
     strcpy(tmp, str);
@@ -254,6 +252,26 @@ void my_strrev(char str[]) {
         j++;
     }
 } 
+
+
+void stringBits(size_t const size, void const * const ptr, char out[]) {
+    unsigned char *byte = (unsigned char*) ptr;
+    unsigned char bit;
+    int i, j;
+    
+    for (i = size-1; i >= 0; i--) {
+        for (j = 7; j >= 0; j--) {
+            bit = (byte[i] >> j) & 1;
+            // bit ? out[j] = '1' : out[j] = '0';
+            if (!bit)
+                out[i * 8 + j] = '0';
+            else
+                out[i * 8 + j] = '1';
+        }
+    }
+    out[size*8] = 0;
+    strrev(out);
+}
 
 void beepbeepbeep() {
     // 3a. Reverse a string with a maximum of 213 letters.
@@ -272,13 +290,21 @@ void beepbeepbeep() {
         strrev(str213_2);
     if (strlen(str214_2) <= 213)
         strrev(str214_2);
-    printf("\nMy reverse:\n213: %s\n214: %s", str213_2, str214_2);
+    printf("\nMy reverse:\n213: %s\n214: %s\n\n", str213_2, str214_2);
   
     // 3b. Reverse the bit order of unsinged char. ie 1000 0000 -> 0000 0001 
-    unsigned char a = 'a';
+    unsigned char a = 'a';          // a   01100001   => 10000110
+    char bits[sizeof(a) * 8];
+    stringBits(sizeof(a), &a, bits);
+    printf("%c   %s\n", a, bits);
+
+    a = ~a;
+    stringBits(sizeof(a), &a, bits);
+    printf("%c   %s\n", a, bits);
 
                                 
 }
+
 
 
 
