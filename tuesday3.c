@@ -229,11 +229,55 @@ void erastophanes(int size) {
    Need to know how big the number is in bytes for B. sizeof() helps.
 */
 
-void bitwise() {
-    unsigned char a = 'a';
-    // long biggus = 9223372036854775806;
+void char2bin(unsigned char c) {
+    int recons = 0;
+    for (int i = 7; i >= 0; i--) {
+        int res = (int)c & (int)pow(2,i);
+        if (res) {
+            printf("%d", 1);
+            recons += (int)pow(2,i);
+        }
+        else {
+            printf("%d", 0);
+        }
+    }
+    printf("\n%3d %3c   reconstruct: %3d %3c\n", c, c, recons, recons);
+}
 
+void big2bin(long long biggus) {
+    // -9223372036854775808 9223372036854775807
 
+    printf("\nSize: %3d bytes\n", sizeof(biggus));
+    long long recons = 0;
+    for (int i = 63; i >= 0; i--) {
+        long long res = biggus & (unsigned long long)pow(2,i);
+        if (res) {
+            printf("%d", 1);
+            recons += (long long)pow(2,i);
+        }
+        else {
+            printf("%d", 0);
+        }
+    }
+    printf("\n%lld   reconstruct: %lld\n", biggus, recons);
+}
+
+void ubig2bin(unsigned long long biggus) {
+    // 18446744073709551615
+
+    printf("\nSize: %3d bytes\n", sizeof(biggus));
+    unsigned long long recons = 0;
+    for (int i = 63; i >= 0; i--) {
+        unsigned long long res = biggus & (unsigned long long)pow(2,i);
+        if (res) {
+            printf("%d", 1);
+            recons += (unsigned long long)pow(2,i);
+        }
+        else {
+            printf("%d", 0);
+        }
+    }
+    printf("\n%llu   reconstruct: %llu\n", biggus, recons);
 }
 
 /*
@@ -253,27 +297,7 @@ void my_strrev(char str[]) {
     }
 } 
 
-
-void stringBits(size_t const size, void const * const ptr, char out[]) {
-    unsigned char *byte = (unsigned char*) ptr;
-    unsigned char bit;
-    int i, j;
-    
-    for (i = size-1; i >= 0; i--) {
-        for (j = 7; j >= 0; j--) {
-            bit = (byte[i] >> j) & 1;
-            // bit ? out[j] = '1' : out[j] = '0';
-            if (!bit)
-                out[i * 8 + j] = '0';
-            else
-                out[i * 8 + j] = '1';
-        }
-    }
-    out[size*8] = 0;
-    strrev(out);
-}
-
-void beepbeepbeep() {
+void reverseString() {
     // 3a. Reverse a string with a maximum of 213 letters.
     char str213[] = "ThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThe";
     char str214[] = "ThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydogTheQ";
@@ -292,42 +316,66 @@ void beepbeepbeep() {
         strrev(str214_2);
     printf("\nMy reverse:\n213: %s\n214: %s\n\n", str213_2, str214_2);
   
-    // 3b. Reverse the bit order of unsinged char. ie 1000 0000 -> 0000 0001 
-    unsigned char a = 'a';          // a   01100001   => 10000110
-    char bits[sizeof(a) * 8];
-    stringBits(sizeof(a), &a, bits);
-    printf("%c   %s\n", a, bits);
-
-    a = ~a;
-    stringBits(sizeof(a), &a, bits);
-    printf("%c   %s\n", a, bits);
-
-                                
 }
 
+void reverseChar(unsigned char c) {
+    // 3b. Reverse the bit order of unsinged char. ie 1000 0000 -> 0000 0001 
+    bool bits[8];
+    int recons = 0;
+    for (int i = 7; i >= 0; i--) {
+        int res = (int)c & (int)pow(2,i);
+        if (res) {
+            printf("%d", 1);
+            recons += (int)pow(2,i);
+            bits[i] = true;
+        }
+        else {
+            printf("%d", 0);
+            bits[i] = false;
+        }
+    }
+    printf("\n%3d %3c   reconstruct: %3d %3c\n", c, c, recons, recons);
+
+    // Reverse
+    int rev = 0;
+    for (int i = 0; i < 8; i++) {
+        if (bits[i]) {
+            printf("%d", 1);
+        }
+        else {
+            printf("%d", 0);
+        }
+    }
+    int j = 0;
+    for (int i = 7; i >= 0; i--) {
+        if (bits[i]) {
+            rev += (int)pow(2,j);
+        }
+        j++;
+    }
+    printf("\n%3d %3c   reverse: %3d %3c", c, c, rev, rev);
+}
 
 
 
 void main() {
+    /* 1 */
     // primes();
 
-    // bitwise();
+    /* 2a */
+    // char2bin('a');
 
-    beepbeepbeep();
+    /* 2b */
+    big2bin(-9223372036854775808);
+    ubig2bin(18446744073709551615);
+
+    /* 3a */
+    // reverseString();
+    
+    /* 3b */
+    // reverseChar('a');
 
 }
 
 
-/*
-Trial A
-2 20000001 40000001 60000001 80000001 100000001 120000001 140000001 160000001 180000001
- 1.121 seconds
-Trial B
-2 20000001 40000001 60000001 80000001 100000001 120000001 140000001 160000001 180000001
- 1.378 seconds
-Erastophanes:
-2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97
-Total found: 100556393
- 23.536 seconds
-*/
 
