@@ -161,16 +161,33 @@ da daInit2(int initAllocation, float growthFactor) {
 
     r.vacant = calloc(initAllocation, sizeof(bool)); 
     r.error = allocCheck(r.vacant);
-    // for (int i = 0; i < initAllocation; i++)
-    //     *(r.vacant + i) = false;
     
     // Experimental lookup optimization 
     r.lookupCurrent = false;
 
     r.lookup = calloc(initAllocation, sizeof(unsigned short)); 
     r.error = allocCheck(r.lookup);
-    // for (int i = 0; i < initAllocation; i++)
-    //     *(r.lookup + i) = 0;
+
+    // da r = {
+    //     /* Main init */
+    //     .error = 0,       
+    //     .slots = initAllocation,
+    //     .growthFactor = growthFactor,
+    //     .elements = 0,
+    //     .p = calloc(r.slots, sizeof(DA_TYPE)),
+    //     .error = allocCheck(r.p),
+        
+    //     /* Sparse functionality */
+    //     .compactFreq = 512,
+    //     .vacantTotal = 0,
+    //     .vacant = calloc(initAllocation, sizeof(bool)),
+    //     .error = allocCheck(r.vacant),
+        
+    //     // Experimental lookup optimization 
+    //     .lookupCurrent = false,
+    //     .lookup = calloc(initAllocation, sizeof(unsigned short)), 
+    //     .error = allocCheck(r.lookup)
+    // };
 
     return r;
 }
