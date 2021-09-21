@@ -119,16 +119,16 @@ int daInit(da* a, int initAllocation, float growthFactor) {
 
     a->vacant = calloc(initAllocation, sizeof(bool)); 
     if (allocCheck(a->vacant)) return allocCheck(a->vacant);  
-    for (int i = 0; i < initAllocation; i++)
-        *(a->vacant + i) = false;
+    // for (int i = 0; i < initAllocation; i++)   // Not needed with calloc
+    //     *(a->vacant + i) = false;
     
     // Experimental lookup optimization 
     a->lookupCurrent = false;
 
     a->lookup = calloc(initAllocation, sizeof(unsigned short)); 
     if (allocCheck(a->lookup)) return allocCheck(a->lookup);  
-    for (int i = 0; i < initAllocation; i++)
-        *(a->lookup + i) = 0;
+    // for (int i = 0; i < initAllocation; i++)
+    //     *(a->lookup + i) = 0;
         
     return 0;
 }
@@ -161,16 +161,16 @@ da daInit2(int initAllocation, float growthFactor) {
 
     r.vacant = calloc(initAllocation, sizeof(bool)); 
     r.error = allocCheck(r.vacant);
-    for (int i = 0; i < initAllocation; i++)
-        *(r.vacant + i) = false;
+    // for (int i = 0; i < initAllocation; i++)
+    //     *(r.vacant + i) = false;
     
     // Experimental lookup optimization 
     r.lookupCurrent = false;
 
     r.lookup = calloc(initAllocation, sizeof(unsigned short)); 
     r.error = allocCheck(r.lookup);
-    for (int i = 0; i < initAllocation; i++)
-        *(r.lookup + i) = 0;
+    // for (int i = 0; i < initAllocation; i++)
+    //     *(r.lookup + i) = 0;
 
     return r;
 }
@@ -221,6 +221,9 @@ static int daRealloc(da* a, int extraSlots){
     // Init vacancy for added slots
     for (int i = oldSize; i < newSize; i++)
         *(a->vacant + i) = false;
+
+    // TODO: lookup realloc / init
+
 
     printf("\nRealloc done. Elements:%ld  Slots:%ld\n", a->elements, a->slots); // Print to log
 
