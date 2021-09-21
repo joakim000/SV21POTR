@@ -10,9 +10,9 @@
 */
 
 /*  The algorithm starts at the beginning of the data set.
-    It compares the first two elements, and if the first is greater than the second, it swaps them.
+    It compares the first two elements, and if the first is greater than the second, it swapped them.
     It continues doing this for each pair of adjacent elements to the end of the data set.
-    It then starts again with the first two elements, repeating until no swaps have occurred on the last pass.
+    It then starts again with the first two elements, repeating until no swapped have occurred on the last pass.
 */
 void swap(uint32_t *a, uint32_t *b)
 {
@@ -23,30 +23,30 @@ void swap(uint32_t *a, uint32_t *b)
 
 void sort_bubble(uint32_t *num, uint8_t size)
 {
-    bool swaps; 
+    bool swapped; 
     do {
-        swaps = false;
+        swapped = false;
         for (int i = 0; i < size; i++) {
             if (num[i] > num[i + 1]) {
                 swap(&num[i], &num[i + 1]);
-                swaps = true;
+                swapped = true;
             }
         }
-    } while (swaps == true);
+    } while (swapped == true);
 }
 
 void sort_bubble_d(uint32_t *num, uint8_t size)
 {
-    bool swaps; 
+    bool swapped; 
     do {
-        swaps = false;
+        swapped = false;
         for (int i = 0; i < size-1; i++) {
             if (num[i] < num[i + 1]) {
                swap(&num[i], &num[i + 1]);
-                swaps = true;
+                swapped = true;
             }
         }
-    } while (swaps == true);
+    } while (swapped == true);
 }
 
 /*
@@ -82,11 +82,33 @@ void sort_insertion_d(uint32_t *num, uint8_t size)
         exchanging (swapping) it with the leftmost unsorted element (putting it in sorted order),
         and moving the sublist boundaries one element to the right.
 */
+int select(int bound, uint32_t *num, uint8_t size, int direction) {
+    int r = bound;
+    if (direction == 1) 
+        for (int i = bound + 1; i < size; i++) 
+            r = num[i] > num[r] ? i : r; 
+    else
+        for (int i = bound + 1; i < size; i++) 
+            r = num[i] < num[r] ? i : r; 
+    return r;
+}
+
 void sort_selection(uint32_t *num, uint8_t size)
 {
     int bound = 0;
+    for (int i = bound; i < size; i++) {
+        int sel = select(i, num, size, 0);
+        swap(&num[i], &num[sel]);
+    }
+}
 
-
+void sort_selection_d(uint32_t *num, uint8_t size)
+{
+    int bound = 0;
+    for (int i = bound; i < size; i++) {
+        int sel = select(i, num, size, 1);
+        swap(&num[i], &num[sel]);
+    }
 }
 
 

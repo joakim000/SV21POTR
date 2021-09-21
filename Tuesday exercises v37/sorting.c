@@ -51,17 +51,24 @@ int main(void)
 
     /* Bubble */
     copy_array(random, ELEMENTS, numbers);
+    printf("Randomized array: \n");
+    print_array(numbers, ELEMENTS);
+
     printf("Bubble sort: \n"); //Low to High
     sort_bubble(numbers, ELEMENTS);
     print_array(numbers, ELEMENTS);
  
-    printf("Bubble sort (descending): \n"); //High to Low
-    sort_bubble_d(numbers, ELEMENTS);
-    print_array(numbers, ELEMENTS);
+    // printf("Bubble sort (descending): \n"); //High to Low
+    // sort_bubble_d(numbers, ELEMENTS);
+    // print_array(numbers, ELEMENTS);
     
+
 
     /* Insertion */
     // copy_array(random, ELEMENTS, numbers);
+    // printf("Randomized array: \n");
+    // print_array(numbers, ELEMENTS);
+    
     // printf("Insertion sort: \n"); //Low to High
     // sort_insertion(numbers, ELEMENTS);
     // print_array(numbers, ELEMENTS);
@@ -70,15 +77,35 @@ int main(void)
     // sort_insertion_d(numbers, ELEMENTS);
     // print_array(numbers, ELEMENTS);
 
-    /* Merge */
+
+
+    /* Selection */
     copy_array(random, ELEMENTS, numbers);
-    printf("Merge sort: \n"); //Low to High
-    sort_merge(numbers, ELEMENTS);
+    printf("Randomized array: \n");
+    print_array(numbers, ELEMENTS);
+   
+    printf("Selection sort: \n"); //Low to High
+    sort_selection(numbers, ELEMENTS);
     print_array(numbers, ELEMENTS);
  
-    printf("Merge sort (descending): \n"); //High to Low
-    sort_merge_d(numbers, ELEMENTS);
+    printf("Selection sort (descending): \n"); //High to Low
+    sort_selection_d(numbers, ELEMENTS);
     print_array(numbers, ELEMENTS);
+
+
+
+    /* Merge */
+    // copy_array(random, ELEMENTS, numbers);
+    // printf("Randomized array: \n");
+    // print_array(numbers, ELEMENTS);
+    
+    // printf("Merge sort: \n"); //Low to High
+    // sort_merge(numbers, ELEMENTS);
+    // print_array(numbers, ELEMENTS);
+ 
+    // printf("Merge sort (descending): \n"); //High to Low
+    // sort_merge_d(numbers, ELEMENTS);
+    // print_array(numbers, ELEMENTS);
 
 
 
