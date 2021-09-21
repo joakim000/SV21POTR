@@ -60,27 +60,28 @@ int main(void)
     print_array(numbers, ELEMENTS);
     
 
-   /* Insertion */
+    /* Insertion */
+    // copy_array(random, ELEMENTS, numbers);
+    // printf("Insertion sort: \n"); //Low to High
+    // sort_insertion(numbers, ELEMENTS);
+    // print_array(numbers, ELEMENTS);
+ 
+    // printf("Insertion sort (descending): \n"); //High to Low
+    // sort_insertion_d(numbers, ELEMENTS);
+    // print_array(numbers, ELEMENTS);
+
+    /* Merge */
     copy_array(random, ELEMENTS, numbers);
-    printf("Insertion sort: \n"); //Low to High
-    sort_insertion(numbers, ELEMENTS);
+    printf("Merge sort: \n"); //Low to High
+    sort_merge(numbers, ELEMENTS);
     print_array(numbers, ELEMENTS);
  
-    printf("Bubble sort (descending): \n"); //High to Low
-    sort_insertion_d(numbers, ELEMENTS);
+    printf("Merge sort (descending): \n"); //High to Low
+    sort_merge_d(numbers, ELEMENTS);
     print_array(numbers, ELEMENTS);
 
 
 
-
-
-    // printf("Ascending array: \n"); //Low to High
-    // sort_ascending(numbers, ELEMENTS);
-    // print_array(numbers, ELEMENTS);
-
-    // printf("Descending array: \n"); //High to Low
-    // sort_descending(numbers, ELEMENTS);
-    // print_array(numbers, ELEMENTS);
 
     return 0;
 }
