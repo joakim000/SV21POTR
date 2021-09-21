@@ -14,17 +14,21 @@
     It continues doing this for each pair of adjacent elements to the end of the data set.
     It then starts again with the first two elements, repeating until no swaps have occurred on the last pass.
 */
+void swap(uint32_t *a, uint32_t *b)
+{
+    uint32_t tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
 void sort_bubble(uint32_t *num, uint8_t size)
 {
-    uint32_t tmp;
     bool swaps; 
     do {
         swaps = false;
         for (int i = 0; i < size; i++) {
             if (num[i] > num[i + 1]) {
-                tmp = num[i];
-                num[i] = num[i + 1];
-                num[i + 1] = tmp;
+                swap(&num[i], &num[i + 1]);
                 swaps = true;
             }
         }
@@ -33,15 +37,12 @@ void sort_bubble(uint32_t *num, uint8_t size)
 
 void sort_bubble_d(uint32_t *num, uint8_t size)
 {
-    uint32_t tmp;
     bool swaps; 
     do {
         swaps = false;
         for (int i = 0; i < size-1; i++) {
             if (num[i] < num[i + 1]) {
-                tmp = num[i];
-                num[i] = num[i + 1];
-                num[i + 1] = tmp;
+               swap(&num[i], &num[i + 1]);
                 swaps = true;
             }
         }
