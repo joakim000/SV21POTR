@@ -31,7 +31,7 @@ void stringBits(size_t const size, void const * const ptr, char out[]) {
     for (i = 0; i <= size-1; i++) {
         for (j = 0; j <= 7; j++) {
             bit = (byte[i] >> j) & 1;
-            // bit ? out[j] = '1' : out[j] = '0';
+            // out[i * 8 + j] = bit ? 1 : 0; 
             if (!bit)
                 out[i * 8 + j] = '0';
             else
@@ -39,6 +39,7 @@ void stringBits(size_t const size, void const * const ptr, char out[]) {
         }
     }
 }
+
 
 void my_strrev(char str[]) {  
     char tmp[strlen(str)];
