@@ -62,19 +62,16 @@ void reverseChar(unsigned char c) {
     // Reverse
     int rev = 0;
     for (int i = 0; i < 8; i++) {
-        if (bits[i]) {
+        if (bits[i]) 
             printf("%d", 1);
-        }
-        else {
+        else 
             printf("%d", 0);
-        }
     }
-    int j = 0;
-    for (int i = 7; i >= 0; i--) {
+
+    for (int i = 7, j = 0; i >= 0; i--, j++) {
         if (bits[i]) {
             rev += (int)pow(2,j);
         }
-        j++;
     }
     printf("\n%3d %3c   reverse: %3d %3c", c, c, rev, rev);
 }
@@ -86,7 +83,7 @@ void main() {
     reverseString();
     
     /* 3b */
-    reverseChar('a');
+    reverseChar(10);
 
 }
 
