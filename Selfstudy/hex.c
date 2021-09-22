@@ -12,7 +12,7 @@ void main(){
 
         // _printf_p("2^%1$-2d %2$#24llo %2$24llu %2$#24llx\n", i, num);
 
-        _printf_p("2^%1$-2d %2$16lld   %2$-#16llx\n", i, num);
+        _printf_p("%2$16lld  2^%1$-2d  %2$-#16llx\n", i, num);
         
 
     }
