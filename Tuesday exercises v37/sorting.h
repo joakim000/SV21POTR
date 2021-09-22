@@ -1,7 +1,15 @@
 #include "devheaders.h"
 
+/* Tuesday exercises
+    ## Sorting
+    4. Sort an array of unsigned ints. Make two functions, one Ascending, one Descending.
+       To get you started: sorting.c
+
+*/
+
 /*
-		a. Bubble / Exchange
+	Selection of well-known algorithms
+        a. Bubble
 		b. Insertion
 		c. Selection
 		d. Merge
@@ -9,7 +17,8 @@
         f. Quick
 */
 
-/*  The algorithm starts at the beginning of the data set.
+/*  Bubble sort:
+    The algorithm starts at the beginning of the data set.
     It compares the first two elements, and if the first is greater than the second, it swapped them.
     It continues doing this for each pair of adjacent elements to the end of the data set.
     It then starts again with the first two elements, repeating until no swapped have occurred on the last pass.
@@ -49,7 +58,7 @@ void sort_bubble_d(uint32_t *num, uint8_t size)
     } while (swapped == true);
 }
 
-/*
+/*  Insertion sort:
  1. Suppose there exists a function called Insert designed to insert a value into a sorted sequence at the beginning of an array.
     It operates by beginning at the end of the sequence and shifting each element one place to the right until a suitable position is found for the new element.
     The function has the side effect of overwriting the value stored immediately after the sorted sequence in the array.
@@ -57,14 +66,44 @@ void sort_bubble_d(uint32_t *num, uint8_t size)
     The ordered sequence into which the element is inserted is stored at the beginning of the array in the set of indices already examined.
     Each insertion overwrites a single value: the value being inserted.
 */
+
+void insert(int index, uint32_t *num, uint8_t size, int direction ) {
+    int moveToIndex = index;
+    //Find place
+    if (direction == 1) 
+        for (int i = index - 1; i >= 0; i--) 
+            if (num[i] < num[index])
+                moveToIndex--;
+            else
+                break;
+    else 
+        for (int i = index - 1; i >= 0; i--) 
+            if (num[i] > num[index])
+                moveToIndex--;
+            else
+                break;
+
+    // Move elements up and insert value
+    if (moveToIndex != index) {
+        uint32_t tmp = num[index];
+        for (int i = index; i >= moveToIndex; i--) {
+            num[i] = num[i - 1];
+        }
+        num[moveToIndex] = tmp;
+    }
+}
+
+
 void sort_insertion(uint32_t *num, uint8_t size)
 {
-    //implement me!
+    for (int i = 1; i < size; i++)
+        insert(i, num, size, 0);
 }
 
 void sort_insertion_d(uint32_t *num, uint8_t size)
 {
-    //implement me!
+    for (int i = 1; i < size; i++)
+        insert(i, num, size, 1);
 }
 
 
@@ -73,7 +112,7 @@ void sort_insertion_d(uint32_t *num, uint8_t size)
 
 
 
-/*
+/*  Selection sort:
     The algorithm divides the input list into two parts: 
         a sorted sublist of items which is built up from left to right at the front (left) of the list
         and a sublist of the remaining unsorted items that occupy the rest of the list.
@@ -82,32 +121,30 @@ void sort_insertion_d(uint32_t *num, uint8_t size)
         exchanging (swapping) it with the leftmost unsorted element (putting it in sorted order),
         and moving the sublist boundaries one element to the right.
 */
-int select(int bound, uint32_t *num, uint8_t size, int direction) {
+int select(int bound, uint32_t *num, uint8_t size, int small0large1) {
     int r = bound;
-    if (direction == 1) 
+    if (small0large1 == 1) 
         for (int i = bound + 1; i < size; i++) 
-            r = num[i] > num[r] ? i : r; 
+            r = num[i] > num[r] ? i : r;        // select largest value
     else
         for (int i = bound + 1; i < size; i++) 
-            r = num[i] < num[r] ? i : r; 
+            r = num[i] < num[r] ? i : r;        // select smallest value
     return r;
 }
 
 void sort_selection(uint32_t *num, uint8_t size)
 {
-    int bound = 0;
-    for (int i = bound; i < size; i++) {
-        int sel = select(i, num, size, 0);
-        swap(&num[i], &num[sel]);
+    for (int bound = 0; bound < size; bound++) {
+        int sel = select(bound, num, size, 0);
+        swap(&num[bound], &num[sel]);
     }
 }
 
 void sort_selection_d(uint32_t *num, uint8_t size)
 {
-    int bound = 0;
-    for (int i = bound; i < size; i++) {
-        int sel = select(i, num, size, 1);
-        swap(&num[i], &num[sel]);
+    for (int bound = 0; bound < size; bound++) {
+        int sel = select(bound, num, size, 1);
+        swap(&num[bound], &num[sel]);
     }
 }
 
@@ -115,7 +152,7 @@ void sort_selection_d(uint32_t *num, uint8_t size)
 
 
 
-/*
+/*  Merge sort:
     Conceptually, a merge sort works as follows:
     Divide the unsorted list into n sublists, each containing one element (a list of one element is considered sorted).
     Repeatedly merge sublists to produce new sorted sublists until there is only one sublist remaining. This will be the sorted list.
@@ -134,7 +171,7 @@ void sort_merge(uint32_t *num, uint8_t size)
 
 
 
-/*
+/*  Shellsort:
     Shellsort is an optimization of insertion sort that allows the exchange of items that are far apart.
     The idea is to arrange the list of elements so that, starting anywhere, taking every hth element produces a sorted list.
     Such a list is said to be h-sorted. 
@@ -157,7 +194,7 @@ void sort_shell(uint32_t *num, uint8_t size)
 
 
 
-/*
+/*  Quicksort:
  1. If the range has less than two elements, return immediately as there is nothing to do. 
     Possibly for other very short lengths a special-purpose sorting method is applied and the remainder of these steps skipped.
  2. Otherwise pick a value, called a pivot, that occurs in the range (the precise manner of choosing depends on the partition routine, and can involve randomness).
