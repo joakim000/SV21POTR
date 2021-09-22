@@ -9,9 +9,9 @@
 
 /*
 	Selection of well-known algorithms
-        a. Bubble
-		b. Insertion
-		c. Selection
+        a. Bubble - done
+		b. Insertion - done 
+		c. Selection - done
 		d. Merge
 		e. Shell
         f. Quick
