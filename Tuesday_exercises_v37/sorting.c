@@ -46,58 +46,61 @@ int main(void)
 
     generate_array(random, ELEMENTS);
     // printf("Randomized array: \n");
-    // print_array(numbers, ELEMENTS);
+    // print_array(random, ELEMENTS);
 
 
 
     /* Bubble ok */
     copy_array(random, ELEMENTS, numbers);
-    printf("Randomized array: \n");
+    printf("Randomized array (copy):\n");
     print_array(numbers, ELEMENTS);
 
     printf("Bubble sort: \n"); //Low to High
     sort_bubble(numbers, ELEMENTS);
     print_array(numbers, ELEMENTS);
  
-    printf("Bubble sort (descending): \n"); //High to Low
-    sort_bubble_d(numbers, ELEMENTS);
-    print_array(numbers, ELEMENTS);
+    // printf("Bubble sort (descending): \n"); //High to Low
+    // sort_bubble_d(numbers, ELEMENTS);
+    // print_array(numbers, ELEMENTS);
     
+
 
 
     /* Insertion ok */
     copy_array(random, ELEMENTS, numbers);
-    printf("Randomized array: \n");
+    printf("Randomized array (copy):\n");
     print_array(numbers, ELEMENTS);
     
     printf("Insertion sort: \n"); //Low to High
     sort_insertion(numbers, ELEMENTS);
     print_array(numbers, ELEMENTS);
  
-    printf("Insertion sort (descending): \n"); //High to Low
-    sort_insertion_d(numbers, ELEMENTS);
-    print_array(numbers, ELEMENTS);
+    // printf("Insertion sort (descending): \n"); //High to Low
+    // sort_insertion_d(numbers, ELEMENTS);
+    // print_array(numbers, ELEMENTS);
+
 
 
 
     /* Selection ok */
     copy_array(random, ELEMENTS, numbers);
-    printf("Randomized array: \n");
+    printf("Randomized array (copy):\n");
     print_array(numbers, ELEMENTS);
    
     printf("Selection sort: \n"); //Low to High
     sort_selection(numbers, ELEMENTS);
     print_array(numbers, ELEMENTS);
  
-    printf("Selection sort (descending): \n"); //High to Low
-    sort_selection_d(numbers, ELEMENTS);
-    print_array(numbers, ELEMENTS);
+    // printf("Selection sort (descending): \n"); //High to Low
+    // sort_selection_d(numbers, ELEMENTS);
+    // print_array(numbers, ELEMENTS);
+
 
 
 
     /* Merge */
     // copy_array(random, ELEMENTS, numbers);
-    // printf("Randomized array: \n");
+    // printf("Randomized array (copy):\n");
     // print_array(numbers, ELEMENTS);
     
     // printf("Merge sort: \n"); //Low to High
@@ -112,7 +115,7 @@ int main(void)
 
     /* Shell */
     // copy_array(random, ELEMENTS, numbers);
-    // printf("Randomized array: \n");
+    // printf("Randomized array (copy):\n");
     // print_array(numbers, ELEMENTS);
     
     // printf("Shell sort: \n"); //Low to High
@@ -127,7 +130,7 @@ int main(void)
 
     /* Quick */
     // copy_array(random, ELEMENTS, numbers);
-    // printf("Randomized array: \n");
+    // printf("Randomized array (copy):\n");
     // print_array(numbers, ELEMENTS);
     
     // printf("Quick sort: \n"); //Low to High
