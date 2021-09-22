@@ -86,9 +86,8 @@ void insert(int index, uint32_t *num, uint8_t size, int direction ) {
     // Move elements up and insert value
     if (moveToIndex != index) {
         uint32_t tmp = num[index];
-        for (int i = index; i >= moveToIndex; i--) {
+        for (int i = index; i >= moveToIndex; i--) 
             num[i] = num[i - 1];
-        }
         num[moveToIndex] = tmp;
     }
 }
