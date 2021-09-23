@@ -5,7 +5,8 @@
 
 #include "sorting.h"
 
-#define ELEMENTS 100000
+#define ELEMENTS 250000
+#define PRT false // print random tables
 #define PT false // print tables
 #define T true // timing
 
@@ -29,8 +30,8 @@ int main(void)
 
     /* Bubble ok */
     copy_array(random, ELEMENTS, numbers);
-    if (PT) printf("Randomized array (copy):\n");
-    if (PT) print_array(numbers, ELEMENTS);
+    if (PRT) printf("Randomized array (copy):\n");
+    if (PRT) print_array(numbers, ELEMENTS);
 
     printf("Bubble sort: \n"); //Low to High
     start = clock();
@@ -48,8 +49,8 @@ int main(void)
 
     /* Insertion ok */
     copy_array(random, ELEMENTS, numbers);
-    if (PT) printf("Randomized array (copy):\n");
-    if (PT) print_array(numbers, ELEMENTS);
+    if (PRT) printf("Randomized array (copy):\n");
+    if (PRT) print_array(numbers, ELEMENTS);
     
     printf("Insertion sort: \n"); //Low to High
     start = clock();
@@ -67,8 +68,8 @@ int main(void)
 
     /* Selection ok */
     copy_array(random, ELEMENTS, numbers);
-    if (PT) printf("Randomized array (copy):\n");
-    if (PT) print_array(numbers, ELEMENTS);
+    if (PRT) printf("Randomized array (copy):\n");
+    if (PRT) print_array(numbers, ELEMENTS);
    
     printf("Selection sort: \n"); //Low to High
     start = clock();
@@ -100,13 +101,16 @@ int main(void)
 
 
     /* Shell */
-    // copy_array(random, ELEMENTS, numbers);
-    // printf("Randomized array (copy):\n");
-    // if (PT) print_array(numbers, ELEMENTS);
+    copy_array(random, ELEMENTS, numbers);
+    if (PRT) printf("Randomized array (copy):\n");
+    if (PRT) print_array(numbers, ELEMENTS);
     
-    // printf("Shell sort: \n"); //Low to High
-    // sort_shell(numbers, ELEMENTS);
-    // if (PT) print_array(numbers, ELEMENTS);
+    printf("Shell sort: \n"); //Low to High
+    start = clock();
+        sort_shell(numbers, ELEMENTS);
+    end = clock();
+    if (PT) print_array(numbers, ELEMENTS);
+    if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(start, end));
  
     // printf("Shell sort (descending): \n"); //High to Low
     // sort_shell_d(numbers, ELEMENTS);

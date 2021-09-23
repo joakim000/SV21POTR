@@ -179,14 +179,46 @@ void sort_merge(uint32_t *num, uint32_t size)
     and leaving less work for smaller h-sort steps to do. 
     If the list is then k-sorted for some smaller integer k, then the list remains h-sorted.
     Following this idea for a decreasing sequence of h values ending in 1 is guaranteed to leave a sorted list in the end.
+
+    gaps = [701, 301, 132, 57, 23, 10, 4, 1]  // Ciura gap sequence
 */
-void sort_shell(uint32_t *num, uint32_t size)
-{
-    //implement me!
+void gapInsert(int index, int gap, uint32_t *num, uint32_t size, int direction ) {
+    int moveToIndex = index;
+    //Find place
+    if (direction == 1) 
+        for (int i = index - 1; i >= 0; i--) 
+            if (num[i] < num[index])
+                moveToIndex--;
+            else
+                break;
+    else 
+        for (int i = index - gap; i >= 0; i -= gap) 
+            if (num[i] > num[index])
+                moveToIndex -= gap;
+            else
+                break;
+
+    // Move elements up and insert value
+    if (moveToIndex != index) {
+        uint32_t tmp = num[index];
+        for (int i = index; i >= moveToIndex; i--) 
+            num[i] = num[i - 1];
+        num[moveToIndex] = tmp;
+    }
 }
 
+void sort_shell(uint32_t *num, uint32_t size)
+{
+    int gaps[] = {701, 301, 132, 57, 23, 10, 4, 1};  // Ciura gap sequence
+    // int gaps[] = {5, 3, 1};
+    // int gaps[] = {3, 1};
+    // int gaps[] = {1};
 
-
+    for (int si = 0; si < COUNT_OF(gaps); si++) { // si: shell iterator
+        for (int i = 1; i < size; i++)
+            gapInsert(i, gaps[si], num, size, 0);
+    }   
+}
 
 
 
