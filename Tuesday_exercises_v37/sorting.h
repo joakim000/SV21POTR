@@ -30,7 +30,7 @@ void swap(uint32_t *a, uint32_t *b)
     *b = tmp;
 }
 
-void sort_bubble(uint32_t *num, uint8_t size)
+void sort_bubble(uint32_t *num, uint32_t size)
 {
     bool swapped; 
     do {
@@ -44,7 +44,7 @@ void sort_bubble(uint32_t *num, uint8_t size)
     } while (swapped == true);
 }
 
-void sort_bubble_d(uint32_t *num, uint8_t size)
+void sort_bubble_d(uint32_t *num, uint32_t size)
 {
     bool swapped; 
     do {
@@ -67,7 +67,7 @@ void sort_bubble_d(uint32_t *num, uint8_t size)
     Each insertion overwrites a single value: the value being inserted.
 */
 
-void insert(int index, uint32_t *num, uint8_t size, int direction ) {
+void insert(int index, uint32_t *num, uint32_t size, int direction ) {
     int moveToIndex = index;
     //Find place
     if (direction == 1) 
@@ -93,13 +93,13 @@ void insert(int index, uint32_t *num, uint8_t size, int direction ) {
 }
 
 
-void sort_insertion(uint32_t *num, uint8_t size)
+void sort_insertion(uint32_t *num, uint32_t size)
 {
     for (int i = 1; i < size; i++)
         insert(i, num, size, 0);
 }
 
-void sort_insertion_d(uint32_t *num, uint8_t size)
+void sort_insertion_d(uint32_t *num, uint32_t size)
 {
     for (int i = 1; i < size; i++)
         insert(i, num, size, 1);
@@ -120,7 +120,7 @@ void sort_insertion_d(uint32_t *num, uint8_t size)
         exchanging (swapping) it with the leftmost unsorted element (putting it in sorted order),
         and moving the sublist boundaries one element to the right.
 */
-int select(int bound, uint32_t *num, uint8_t size, int small0large1) {
+int select(int bound, uint32_t *num, uint32_t size, int small0large1) {
     int r = bound;
     if (small0large1 == 1) 
         for (int i = bound + 1; i < size; i++) 
@@ -131,7 +131,7 @@ int select(int bound, uint32_t *num, uint8_t size, int small0large1) {
     return r;
 }
 
-void sort_selection(uint32_t *num, uint8_t size)
+void sort_selection(uint32_t *num, uint32_t size)
 {
     for (int bound = 0; bound < size; bound++) {
         int sel = select(bound, num, size, 0);
@@ -139,7 +139,7 @@ void sort_selection(uint32_t *num, uint8_t size)
     }
 }
 
-void sort_selection_d(uint32_t *num, uint8_t size)
+void sort_selection_d(uint32_t *num, uint32_t size)
 {
     for (int bound = 0; bound < size; bound++) {
         int sel = select(bound, num, size, 1);
@@ -157,7 +157,7 @@ void sort_selection_d(uint32_t *num, uint8_t size)
     Repeatedly merge sublists to produce new sorted sublists until there is only one sublist remaining. This will be the sorted list.
     Note: Top-down vs. bottom-up implementation.
 */
-void sort_merge(uint32_t *num, uint8_t size)
+void sort_merge(uint32_t *num, uint32_t size)
 {
     //implement me!
 }
@@ -180,7 +180,7 @@ void sort_merge(uint32_t *num, uint8_t size)
     If the list is then k-sorted for some smaller integer k, then the list remains h-sorted.
     Following this idea for a decreasing sequence of h values ending in 1 is guaranteed to leave a sorted list in the end.
 */
-void sort_shell(uint32_t *num, uint8_t size)
+void sort_shell(uint32_t *num, uint32_t size)
 {
     //implement me!
 }
@@ -207,7 +207,7 @@ void sort_shell(uint32_t *num, uint8_t size)
     possibly excluding from both ranges the element equal to the pivot at the point of division.
     (If the partition produces a possibly larger sub-range near the boundary where all elements are known to be equal to the pivot, these can be excluded as well.)
 */
-void sort_quick(uint32_t *num, uint8_t size)
+void sort_quick(uint32_t *num, uint32_t size)
 {
     //implement me!
 }
