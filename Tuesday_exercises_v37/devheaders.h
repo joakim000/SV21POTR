@@ -18,5 +18,6 @@
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 
 // Timing
-clock_t start; clock_t end; float stopwatch;
- 
+#define TIMING(y, x) ((float)(x - y) / CLOCKS_PER_SEC)
+clock_t start; clock_t end; float stopwatch; 
+
