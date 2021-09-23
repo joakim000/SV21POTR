@@ -1,0 +1,27 @@
+// Random array, -O0
+
+Bubble sort:
+10000 elements in 0.259 seconds
+Insertion sort:
+10000 elements in 0.088 seconds
+Selection sort:
+10000 elements in 0.110 seconds
+
+Bubble sort:
+100000 elements in 31.382 seconds
+Insertion sort:
+100000 elements in 8.675 seconds
+Selection sort:
+100000 elements in 10.798 seconds
+
+
+// Random array, -O3
+
+Bubble sort:
+100000 elements in 17.022 seconds
+Insertion sort:
+100000 elements in 0.860 seconds
+Selection sort:
+100000 elements in 4.852 seconds
+
+
