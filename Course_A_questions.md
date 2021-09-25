@@ -1,5 +1,7 @@
 # Hand-in questions SV21POTR Course A
 
+SV21POTR - Examination Assignment - SV21POTR Course A - Joakim Odermalm
+
 ## Agile Software Development
 
 1. What is Scrum? (G)
@@ -77,15 +79,32 @@ d. Software integration testing. Why? What is integration testing? (G)
 ## Automotive software Architecture
 
 1. What is software architecture and why do we need structured software? (VG)
+
 2. How can the architecture improve maintainability of a software? (VG)
+
 3. What is AUTOSAR? (G)
+
+- An industry standard for automotive software architecture. [3]
+
 4. What is the main idea behind the RTE layer in AUTOSAR? (VG)
+
 5. Explain the purposes of the following layers in the AUTOSAR basic software architecture
 
-- Microcontroller Abstraction Layer (G)
-- ECU Abstraction Layer (G)
-- Services Layer (G)
-- Complex Drivers (G)
+a. Microcontroller Abstraction Layer (G)
+
+- Make higher software layers independent of microcontroller. [3]
+
+b. ECU Abstraction Layer (G)
+
+- Make higher software layers independent of ECU hardware. Provide API for hardware access.
+
+c. Services Layer (G)
+
+- 
+
+d. Complex Drivers (G)
+
+- Make possible integration of non-standard, hardware dependent or timing critical devices. [3]
 
 ## References
 
@@ -101,11 +120,3 @@ d. Software integration testing. Why? What is integration testing? (G)
 
 [6] T. Hoffman, Defensive Programming - Friend or Foe?. Accessed on: Sep. 25, 2021. [Online]. Available: <https://interrupt.memfault.com/blog/defensive-and-offensive-programming>
 
-
-
-
-## Reference examples
-
-[1] E. Andrew, “Turtle Extinction Event Bodes Ill For Our Waterways,” IFLScience, Mar. 25, 2015.
-
-[1] D. Holland, Finding the Building Blocks of Wood, The University of Melbourne, June 6, 2018. Accessed on: June 13, 2018. [Online]. Available: [https://pursuit.unimelb.edu.au/articles/finding-the-building-blocks-of-wood?utm_source=linkedin.com&utm_medium=social&utm_content=story]
