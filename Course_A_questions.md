@@ -3,7 +3,10 @@
 ## Agile Software Development
 
 1. What is Scrum? (G)
-..*A collaborative work model. [1]
+  - A collaborative work model. [1]
+
+
+
 2. Name and briefly explain the pillars of Scrum. (G)
 ..*Transparancy:
 ..*Inspection:
@@ -38,9 +41,11 @@
 ## References
 
 [1] K. William, SV21POTR Course A Guest lecture, Sep. 13, 2021
+
 [2] F. Mehri, SV21POTR Course A Lecture series, Sep., 2021
 
 ## Reference examples
 
 [1] E. Andrew, “Turtle Extinction Event Bodes Ill For Our Waterways,” IFLScience, Mar. 25, 2015.
+
 [1] D. Holland, Finding the Building Blocks of Wood, The University of Melbourne, June 6, 2018. Accessed on: June 13, 2018. [Online]. Available: [https://pursuit.unimelb.edu.au/articles/finding-the-building-blocks-of-wood?utm_source=linkedin.com&utm_medium=social&utm_content=story]
