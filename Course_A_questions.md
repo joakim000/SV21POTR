@@ -44,8 +44,7 @@ SV21POTR - Examination Assignment - SV21POTR Course A - Joakim Odermalm
 
 6. T-shirt Sizing is a Scrum story point estimation technique. Explain it. (VG)
 
-- T-shirt sizes (S, M, L , XL) are used as buckets for relative estimation of work size for story point.
-Implementation may include using cards marked with sizes and a process to reach agreement. [2]
+- T-shirt sizes (S, M, L , XL) are used as buckets for relative estimation of work size for story point. Implementation may include using cards marked with sizes and a process to reach agreement. [2]
 
 ## Functional Safety
 
@@ -62,7 +61,7 @@ Implementation may include using cards marked with sizes and a process to reach 
 
 a. Use of defensive programming. Why? What is defensive programming? (VG)
 
-- Defensive programming is designing software to continue functioning while and after experiencing unplanned issues. Defensive programming is of particular use when interacting with hardware and external inputs not controllable by the software. [6]
+- Defensive programming is designing software to continue functioning while (and after) experiencing unplanned issues. Defensive programming is of particular use when interacting with hardware and external inputs not controllable by the software. [6]
 
 b. Use of language subsets like MISRA C. Why? What is MISRA C? (G)
 
@@ -74,19 +73,27 @@ c. Software unit testing. Why? What is unit testing? (G)
 
 d. Software integration testing. Why? What is integration testing? (G)
 
-- Functional tests of integrated units of the software. Evaluate compliance with functional requirements. [4]
+- Functional tests of sets of integrated units of the software. Evaluate compliance with functional requirements. [4]
 
 ## Automotive software Architecture
 
-1. What is software architecture and why do we need structured software? (VG)
+1. What is software architecture and why do we need structured software? (VG) 
+
+- A software architecture serves as a blueprint for a system. It allows oversight and collaboration. It may include both functional and non-functional requirements. [7] The term may also refer to a particular set of standards a specific software architecture may conform to, for example AUTOSAR. [3] Structured design facilitates understanding of the software by applying a "divide and conquer"-strategy. [8] This in turn enables or facilitates unit- and integration testing, agile workflows, code reuse and verification of standards compliance.
 
 2. How can the architecture improve maintainability of a software? (VG)
+
+- By providing standard interfaces and abstractions. [3] 
+- Simplifying the system by applying a architectural strategy of hierarchical "black boxes". [9]
+- By supporting use of known positive maintenance factors such as; code restructuring tools, defect tracking tools, automated change control tools and regression test libraries. [10]
 
 3. What is AUTOSAR? (G)
 
 - An industry standard for automotive software architecture. [3]
 
 4. What is the main idea behind the RTE layer in AUTOSAR? (VG)
+
+- To allow portability between different types of ECU for AUTOSAR software components. [3]
 
 5. Explain the purposes of the following layers in the AUTOSAR basic software architecture
 
@@ -100,7 +107,7 @@ b. ECU Abstraction Layer (G)
 
 c. Services Layer (G)
   
-- Provide operating system-like functionality. Memory, network, diagnostic services, etc.
+- Provide operating system-like functionality. Memory, network, diagnostic services, etc. [3]
 
 d. Complex Drivers (G)
 
@@ -120,3 +127,10 @@ d. Complex Drivers (G)
 
 [6] T. Hoffman, Defensive Programming - Friend or Foe?. Accessed on: Sep. 25, 2021. [Online]. Available: <https://interrupt.memfault.com/blog/defensive-and-offensive-programming>
 
+[7] Tutorialspoint.com, Software Architecture & Design Introduction. Accessed on Sep. 25, 2021. [Online] Available: <https://www.tutorialspoint.com/software_architecture_design/introduction.htm>
+
+[8] Tutorialspoint.com, Software Design Strategies. Accessed on Sep. 25, 2021. [Online] Available: <https://www.tutorialspoint.com/software_engineering/software_design_strategies.htm>
+
+[9] M. Page-Jones, "The practical guide to structured systems design". New York, NY: Yourdon Press, 1980.
+
+[10] C. Jones, "The Economics of Software Maintenace in the Twenty-first Century". Accessed on Sep 25, 2021. Available: <https://web.archive.org/web/20150319075401/http://www.compaid.com/caiinternet/ezine/capersjones-maintenance.pdf>
