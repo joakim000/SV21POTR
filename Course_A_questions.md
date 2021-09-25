@@ -96,11 +96,11 @@ a. Microcontroller Abstraction Layer (G)
 
 b. ECU Abstraction Layer (G)
 
-- Make higher software layers independent of ECU hardware. Provide API for hardware access.
+- Make higher software layers independent of ECU hardware. Provide API for hardware access. [3]
 
 c. Services Layer (G)
-
-- 
+  
+- Provide operating system-like functionality. Memory, network, diagnostic services, etc.
 
 d. Complex Drivers (G)
 
