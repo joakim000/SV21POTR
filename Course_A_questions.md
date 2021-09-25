@@ -58,19 +58,19 @@ Implementation may include using cards marked with sizes and a process to reach 
 
 3. Explain the following ISO 26262 guidelines in software development level
 
-+ Use of defensive programming. Why? What is defensive programming? (VG)
+a. Use of defensive programming. Why? What is defensive programming? (VG)
 
 - Defensive programming is designing software to continue functioning while and after experiencing unplanned issues. Defensive programming is of particular use when interacting with hardware and external inputs not controllable by the software. [6]
 
-- Use of language subsets like MISRA C. Why? What is MISRA C? (G)
+b. Use of language subsets like MISRA C. Why? What is MISRA C? (G)
 
 - MISRA C is a subset of C for use in critical systems, in particular embedded systems. It aims to facilitate safety and security, and to provide reassurance of high code quality. [5]
 
-+ Software unit testing. Why? What is unit testing? (G)
+c. Software unit testing. Why? What is unit testing? (G)
 
 - Functional tests of atomic parts of the software. Helps find software defects early. Enables test-driven development. [4]
 
-+ Software integration testing. Why? What is integration testing? (G)
+d. Software integration testing. Why? What is integration testing? (G)
 
 - Functional tests of integrated units of the software. Evaluate compliance with functional requirements. [4]
 
