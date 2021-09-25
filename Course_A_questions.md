@@ -11,6 +11,7 @@
 - Transparancy: All roles understand process, process tools, project vision. Common _definition of done_ for blacklog items.
 - Inspection: Regular practice, find opportunities for improvement.
 - Adaptation: _Respond to change_ - adapt to optimize project outcome.
+
 [1]
 
 3. Name and briefly explain the roles in a Scrum team. (G)
@@ -18,6 +19,7 @@
 - Product owner: Manages backlog, accept/reject work by Dev team.
 - Development team: Organizes their own work.
 - Scrum master: Supports the work model.
+
 [1]
 
 4. Name and briefly explain the Scrum artifacts. (G)
@@ -25,6 +27,7 @@
 - Backlog: Prioritized set of TODOs.
 - Sprint backlog: Subset of TODOs selected for sprint.
 - Product increment: Releasable product (_Working software_) where sprint backlong is done.
+
 [1]
 
 5. Name and briefly explain the Scrum events. (G)
@@ -34,6 +37,7 @@
 - Daily scrum: Timeboxed (15 min) standup meeting of Team and Master. goals: Inspect progress, optimize collaboration and progression.
 - Sprint review: Timeboxed (hour / sprint week) meeting of planning party and stakeholders. Goals: Inspect product increment, adapt backlog, update stakeholders (demo).
 - Sprint retrospective: Timeboxed (3/4ths of review) meeting of Team and Master. Goals: Inspect process, plan improvment.
+
 [1]
 
 6. T-shirt Sizing is a Scrum story point estimation technique. Explain it. (VG)
