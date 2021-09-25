@@ -10,7 +10,7 @@ SV21POTR - Examination Assignment - SV21POTR Course A - Joakim Odermalm
 
 2. Name and briefly explain the pillars of Scrum. (G)
 
-- Transparancy: All roles understand process, process tools, project vision. Common _definition of done_ for blacklog items.
+- Transparancy: All roles understand process, process tools, project vision. Common _definition of done_ for backlog items.
 - Inspection: Regular practice, find opportunities for improvement.
 - Adaptation: _Respond to change_ - adapt to optimize project outcome.
 
@@ -18,9 +18,9 @@ SV21POTR - Examination Assignment - SV21POTR Course A - Joakim Odermalm
 
 3. Name and briefly explain the roles in a Scrum team. (G)
 
-- Product owner: Manages backlog, accept/reject work by Dev team.
+- Product owner: Manages backlog, accepts or rejects work done by Dev team.
 - Development team: Organizes their own work.
-- Scrum master: Supports the work model.
+- Scrum master: Supports the Scrum work model.
 
 [1]
 
@@ -28,7 +28,7 @@ SV21POTR - Examination Assignment - SV21POTR Course A - Joakim Odermalm
 
 - Backlog: Prioritized set of TODOs.
 - Sprint backlog: Subset of TODOs selected for sprint.
-- Product increment: Releasable product (_Working software_) where sprint backlong is done.
+- Product increment: Releasable product (_Working software_) where sprint backlog is done.
 
 [1]
 
