@@ -5,7 +5,7 @@
 
 #include "sorting.h"
 
-#define ELEMENTS 250000
+#define ELEMENTS 250000    // max 259056
 #define PRT false // print random tables
 #define PT false // print tables
 #define T true // timing
@@ -16,6 +16,8 @@ void copy_array(uint32_t *num, uint32_t size, uint32_t *out);
 
 int main(void)
 {
+    
+    printf("hej");
     //uint32_t == unsigned int
     //uint32_t == unsigned char
     srand(time(0));
@@ -35,7 +37,7 @@ int main(void)
 
     printf("Bubble sort: \n"); //Low to High
     start = clock();
-        sort_bubble(numbers, ELEMENTS);
+        // sort_bubble(numbers, ELEMENTS);
     end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(start, end));
@@ -54,7 +56,7 @@ int main(void)
     
     printf("Insertion sort: \n"); //Low to High
     start = clock();
-        sort_insertion(numbers, ELEMENTS);
+        // sort_insertion(numbers, ELEMENTS);
     end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(start, end));
@@ -73,7 +75,7 @@ int main(void)
    
     printf("Selection sort: \n"); //Low to High
     start = clock();
-        sort_selection(numbers, ELEMENTS);
+        // sort_selection(numbers, ELEMENTS);
     end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(start, end));

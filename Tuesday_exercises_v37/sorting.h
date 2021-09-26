@@ -9,11 +9,11 @@
 
 /*
 	Selection of well-known algorithms
-        a. Bubble - done
+        a. Bubble    - done
 		b. Insertion - done 
 		c. Selection - done
 		d. Merge
-		e. Shell
+		e. Shell     - done
         f. Quick
 */
 
@@ -180,7 +180,7 @@ void sort_merge(uint32_t *num, uint32_t size)
     If the list is then k-sorted for some smaller integer k, then the list remains h-sorted.
     Following this idea for a decreasing sequence of h values ending in 1 is guaranteed to leave a sorted list in the end.
 
-    gaps = [701, 301, 132, 57, 23, 10, 4, 1]  // Ciura gap sequence
+    gaps = [1750, 701, 301, 132, 57, 23, 10, 4, 1]  // Ciura gap sequence
 */
 void gapInsert(int index, int gap, uint32_t *num, uint32_t size, int direction ) {
     int moveToIndex = index;
@@ -209,7 +209,8 @@ void gapInsert(int index, int gap, uint32_t *num, uint32_t size, int direction )
 
 void sort_shell(uint32_t *num, uint32_t size)
 {
-    int gaps[] = {701, 301, 132, 57, 23, 10, 4, 1};  // Ciura gap sequence
+    int gaps[] = {1750, 701, 301, 132, 57, 23, 10, 4, 1};  // Ciura gap sequence
+    // int gaps[] = {4, 1};  // Ciura gap sequence
     // int gaps[] = {5, 3, 1};
     // int gaps[] = {3, 1};
     // int gaps[] = {1};
