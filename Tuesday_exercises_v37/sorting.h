@@ -157,13 +157,116 @@ void sort_selection_d(uint32_t *num, uint32_t size)
     Repeatedly merge sublists to produce new sorted sublists until there is only one sublist remaining. This will be the sorted list.
     Note: Top-down vs. bottom-up implementation.
 */
-void sort_merge(uint32_t *num, uint32_t size)
-{
-    //implement me!
+
+void copy_array2(uint32_t *num, uint32_t size, uint32_t *out) {
+    for (int i = 0; i < size; i++) 
+        out[i] = num[i];
 }
 
 
+void sort_merge(uint32_t *num, uint32_t size)
+{
+    uint32_t tmp[size];
 
+    int p = 0; // array place
+    int ss = pow(2,1); //segment size
+    int segments = size / ss;
+
+    for (int s = 0; s < segments; s++) {
+        int a = s*ss;
+        int b = a + (ss / 2); 
+        if (num[a] < num[b]) { 
+            tmp[p++] = num[a]; 
+            tmp[p++] = num[b];
+        } else {
+            tmp[p++] = num[b];
+            tmp[p++] = num[a];
+        }       
+    }
+    copy_array2(tmp, size, num);
+    printf("\n");
+    for (int i = 0; i < size; i++)
+        printf("%d ", num[i]);
+    // Step 1: {23, 1, 2, 43, 3, 34, 65, 5 }; => 1, 23, 2, 43, 3, 34, 5, 65
+
+
+    p = 0; // array place
+    ss = pow(2,2); //segment size
+    segments = size / ss;
+
+    for (int s = 0; s < segments; s++) {
+        int a = s*ss;
+        int b = a + (ss / 2);
+        int bCount = 0; 
+        for (int a = s*ss; a < ss / 2; a++) {
+            if (num[a] < num[b + bCount]) {
+                tmp[p++] = num[a];
+                continue; // next a
+            } else {
+                tmp[p++] = num[b + bCount++];
+                // Go thru rest of B:s
+                for (b += bCount; b < ss / 2; b++) {
+                    if (num[a] > num[b]) {
+                        tmp[p++] = num[b];
+                        bCount++;
+                    }  
+                }
+            }
+
+        }
+        
+        
+    }
+    copy_array2(tmp, size, num);
+    printf("\n");
+    for (int i = 0; i < size; i++)
+        printf("%d ", num[i]);
+    // Step 2: 1, 23, 2, 43, 3, 34, 5, 65  => 1, 2, 23, 43  3, 5, 34, 65
+
+
+    // for (int s = 0; s < segments; s++) {
+    //     for (int a = 0+ss*s; a < 1+ss*s; a++) {
+    //         for (int b = a + 1; b < a + 2; b++)
+    //             if (num[a] > num[b]) 
+    //                 tmp[p++] = num[b];
+    //             else {
+    //                 tmp[p++] = num[a];
+    //                 break;
+    //             }
+    //     }
+    // }
+
+
+    // int max_ss = size/2;
+    
+    
+    // int segments = size / (pow(2,1));  // inc exponent as merge continues
+
+    // for (int s = 0; s < segments; s++) {  
+    //     int begin = s * ss * 2;
+    //     for (int a = 0+begin; a < begin+ss; a++) {
+    //         int b = a + ss;
+    //         while (num[a] > num[b]) {
+    //             tmp[p++] = num[b++];
+    //         }
+    //         tmp[p++] = num[a];
+    //     }
+    // }
+
+
+    copy_array2(tmp, size, num);   
+    
+}
+// 
+
+
+        // for (int a = 0; a < ss; a++) {
+        //     int b = a + ss;
+        //     while (num[a] > num[b]) {
+        //         tmp[p++] = num[b++];
+        //     }
+        //     tmp[p++] = num[a];
+        // }
 
 
 
