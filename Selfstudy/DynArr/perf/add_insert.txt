@@ -1,0 +1,138 @@
+==============================
+Add / Insert
+=============================
+// -O0, startindex: 10, jump:1
+Test started 09/15/21 14:28:09
+
+Elements before:50000
+Realloc done. Elements:50000  Slots:125000
+
+ Elements after:70000
+Vacants    Total:0 First:0 Last:0
+Insert 10000 of 50000 (Jump:0)
+    Secs:1.891
+
+Elements:70000  Slots:125000
+
+ Elements after:78222
+Vacants    Total:0 First:0 Last:0
+Random Insert 10000 of 50000 (Jump:0)
+    Secs:1.828
+
+Elements:78222  Slots:125000
+
+                                      Combined time: 3.719
+									  
+// -O0, startindex: 40000, jump:1								  
+Test started 09/15/21 14:30:32
+
+Elements before:50000
+Realloc done. Elements:50000  Slots:125000
+
+ Elements after:70000
+Vacants    Total:0 First:0 Last:0
+Insert 10000 of 50000 (Jump:0)
+    Secs:0.632
+
+Elements:70000  Slots:125000
+
+ Elements after:78222
+Vacants    Total:0 First:0 Last:0
+Random Insert 10000 of 50000 (Jump:0)
+    Secs:1.819
+
+Elements:78222  Slots:125000
+
+                                      Combined time: 2.451
+									
+// -O0, add only
+Test started 09/15/21 14:32:10
+
+Elements before:50000000
+Realloc done. Elements:50000000  Slots:125000000
+
+ Elements after:60000000
+Vacants    Total:0 First:0 Last:0
+Add 10000000 of 50000000 (Jump:0)
+    Secs:0.047
+
+Elements:60000000  Slots:125000000
+
+                                      Combined time: 0.047
+
+// -O0, add only
+Test started 09/15/21 14:35:02
+
+Elements before:100000000
+Realloc done. Elements:100000000  Slots:250000000
+
+ Elements after:150000000
+Vacants    Total:0 First:0 Last:0
+Add 50000000 of 100000000 (Jump:0)
+    Secs:0.236
+
+Elements:150000000  Slots:250000000
+
+                                      Combined time: 0.236
+									  
+
+============
+SPARSE INSERT
+============
+//Comparison,  -O0  startindex:10, jump:0
+Test started 09/15/21 23:07:36
+
+Elements before:100000
+Realloc done. Elements:100000  Slots:250000
+
+ Elements after:110000
+Vacants    Total:0 First:0 Last:0
+Insert 10000 of 100000 (Jump:0)
+    Secs:3.328
+
+Elements:110000  Slots:250000
+
+ Elements after:120000
+Vacants    Total:0 First:0 Last:0
+Random Insert 10000 of 100000 (Jump:0)
+    Secs:2.114
+
+Elements:120000  Slots:250000
+
+                                      Combined time: 5.442
+									  
+
+// With vacants, -O0  startindex:10, jump:0
+Test started 09/16/21 13:23:14
+
+Elements before:120000
+Realloc done. Elements:120000  Slots:300000
+
+ Elements after:100000
+Vacants    Total:20000 First:10 Last:20009
+Sparse remove 20000 of 120000 (by 1)
+    Secs:0.424
+
+Elements:100000  Slots:300000
+
+ Elements after:110000
+Vacants    Total:10000 First:10 Last:20009
+Insert 10000 of 120000 (Jump:0)
+    Secs:0.320
+
+Elements:110000  Slots:300000
+
+ Elements after:119788
+Vacants    Total:10000 First:10 Last:29797
+Random Insert 10000 of 120000 (Jump:0)
+    Secs:3.653
+
+Elements:119788  Slots:300000
+
+                                      Combined time: 4.397   Lovande om den kan bli buggfri
+									  Blir konsistent Elements:119788 istf väntade 120000
+									  
+								
+
+
+
