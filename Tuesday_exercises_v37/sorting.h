@@ -35,9 +35,9 @@
 */
 
 // Flags
-#define DEBUGCOPY true
-#define DEBUGWRITE true
-#define DEBUG true
+#define DEBUGCOPY false
+#define DEBUGWRITE false
+#define DEBUG false
 
 
 void swap(uint32_t *a, uint32_t *b)
@@ -177,7 +177,7 @@ void sort_selection_d(uint32_t *num, uint32_t size)
 uint32_t totalSize; // DEBUG
 uint32_t* randomArray; // DEBUG
 
-
+// DEBUG helper
 bool inArray(uint32_t find, uint32_t *num, uint32_t size) {
     for (int i = 0; i < size; i++) {
        if (find == num[i]) 
@@ -188,19 +188,22 @@ bool inArray(uint32_t find, uint32_t *num, uint32_t size) {
 
 
 void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
-    // printf("\nRunning merge_recurse. size:%d  start:%d\n", size, start);
-    
+    // if (DEBUG) printf("\nRunning merge_recurse. size:%d  start:%d\n", size, start);
+
+    // Shouldn't happen
+    assert( ("Illegal array size", size > 0) );
+
+    // Split into 2 virtual parts    
     int aSize = size / 2;
     int bSize = size / 2 + size % 2;
-
-    if (size <= 0)
-        printf("Error: array size is %d\n", size);
-
+ 
+    // Continue splitting    
     if (size > 2) {
         merge_recurse(num, aSize, start);
         merge_recurse(num, bSize, start + aSize);
     }
 
+    // Now we're on the way up. First ignore size 1 (sorted by definition). Then start comparing.
     if (size > 1) {
         if (DEBUG) {
             printf("\nmerge_recurse compare. size:%d  start:%d  Array before:\n", size, start);
@@ -210,16 +213,15 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
             printf("}\n");
             
         }
-        
-        
 
-        int p = start; // array place
+        /* Copy values to be sorted for this call.
+            May not be neccessary, but clearer. Revisit later. 
+            Or use some global temp array to avoid creation in every call? */
+        // Make some sized arrays to hold values for each half
+        uint32_t a[aSize];
+        uint32_t b[bSize];
 
-        // uint32_t a[aSize];
-        // uint32_t b[bSize];
-        uint32_t a[100];
-        uint32_t b[100];
-
+        // Begin reading a-values at start index for this call
         for (int i = 0; i < aSize; i++) { 
             a[i] = num[start + i];
             if (DEBUGCOPY) {
@@ -228,6 +230,7 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
             }
         }
 
+        // Read b-values at count of a-values further along array 
         for (int i = 0; i < bSize; i++) { 
             b[i] = num[start + aSize + i];
             if (DEBUGCOPY) {
@@ -236,7 +239,12 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
              }
         }
 
+        /* Compare and write values into sort array */
+        int p = start; // For this call, start writing here. Later increment p whenever writing value.
+
         for (int i = 0, j = 0; i < aSize; i++) {
+            // Case: have more a values but out of b values. Continue looping over and writing a-vals.
+            //    Forgetting about this was source of intermittent errors depending on look of random array. 
             if (j >= bSize) {
                 num[p++] = a[i];
                 if (DEBUGWRITE) {
@@ -246,38 +254,30 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
                 continue;
             }
             
-            
+            // Case: a-val is already < b-val, write and continue to next a-val
             if (a[i] < b[j]) {
                 num[p++] = a[i];
                 if (DEBUGWRITE) {
                     if (!(inArray(a[i], randomArray, totalSize) ))
                         printf("a[i] = %d  num[p] = %d  p=%d\n",  a[i], num[p-1], p-1);
                 }
+                continue;
             }
-            else {
-                do {
-                        num[p++] = b[j++];
-                        if (DEBUGWRITE) {
-                            if (!(inArray(b[i], randomArray, totalSize) ))
-                                printf("b[i] = %d  num[p] = %d  p=%d\n",  b[i], num[p-1], p-1);
-                        }
-                }  while (j < bSize && b[j] < a[i]);
-                
-                num[p++] = a[i];
-                if (DEBUGWRITE) {
-                    if (!(inArray(a[i], randomArray, totalSize) ))
-                        printf("a[i] = %d  num[p] = %d  p=%d\n",  a[i], num[p-1], p-1);
-                }
 
-                // do {
-                //     num[p++] = a[i++];
-                //     if (DEBUGWRITE) {
-                //         if (!(inArray(a[i], randomArray, totalSize) ))
-                //             printf("a[i] = %d  num[p] = %d  p=%d\n",  a[i], num[p-1], p-1);
-                //     }
-                // } while (i < aSize);
-
-
+            // Case: b-val < a-val. Continue writing b-vals until current a-val is smaller or b-vals exhausted.
+            do {
+                    num[p++] = b[j++];
+                    if (DEBUGWRITE) {
+                        if (!(inArray(b[i], randomArray, totalSize) ))
+                            printf("b[i] = %d  num[p] = %d  p=%d\n",  b[i], num[p-1], p-1);
+                    }
+            }  while (j < bSize && b[j] < a[i]);
+             
+            // After 1 or more b-vals, finally write current a-val. 
+            num[p++] = a[i];
+            if (DEBUGWRITE) {
+                if (!(inArray(a[i], randomArray, totalSize) ))
+                    printf("a[i] = %d  num[p] = %d  p=%d\n",  a[i], num[p-1], p-1);
             }
         }
     }
