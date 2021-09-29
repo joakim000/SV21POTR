@@ -13,7 +13,7 @@
 #define T true // timing
 
 // Sort size
-#define ELEMENTS 240000    // max 259056 (stack)
+#define ELEMENTS 100000000    // max 259056 (stack)
 
 // Declarations
 void generate_array(uint32_t *num, uint32_t size);
@@ -23,7 +23,7 @@ void compare_array(uint32_t *num, uint32_t size, uint32_t *comp);
 
 int main(void)
 {
-    printf("This line not reached with ELEMENTS > 259056  (0x3f3f0)\n");
+    // printf("This line not reached with ELEMENTS > 259056  (0x3f3f0)\n");  // Solved with manual allocation
 
     srand(time(0));
 
@@ -92,7 +92,7 @@ int main(void)
     
     printf("\nInsertion sort: \n"); //Low to High
     timer_start = clock();
-        sort_insertion(numbers, ELEMENTS);
+        // sort_insertion(numbers, ELEMENTS);
     timer_end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(timer_start, timer_end));
@@ -131,7 +131,7 @@ int main(void)
     
     printf("\nShell sort: \n"); //Low to High
     timer_start = clock();
-        sort_shell(numbers, ELEMENTS);
+        // sort_shell(numbers, ELEMENTS);
     timer_end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(timer_start, timer_end));
@@ -151,7 +151,8 @@ int main(void)
     
     printf("\nMerge sort: \n"); //Low to High
     timer_start = clock();
-        sort_merge(numbers, ELEMENTS, random);
+        // sort_merge(numbers, ELEMENTS, random);
+        sort_merge(numbers, ELEMENTS);
     timer_end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(timer_start, timer_end));
