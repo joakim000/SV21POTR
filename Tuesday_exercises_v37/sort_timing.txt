@@ -67,3 +67,34 @@ Shell sort:
 Merge sort:
 130000 elements in 0.011 seconds
 
+
+// Random array, -O3, shell gaps: Ciura sequence
+Lib qsort:
+500000 elements in 0.040 seconds
+Shell sort:
+500000 elements in 6.400 seconds
+Merge sort:
+500000 elements in 0.039 seconds
+
+
+// Random array, -O3, shell gaps: Ciura sequence
+Lib qsort:
+1000000 elements in 0.080 seconds
+Shell sort:
+1000000 elements in 24.988 seconds
+Merge sort: 
+1000000 elements in 0.080 seconds
+
+
+// Random array, -O3, 10M elements
+Lib qsort:
+10000000 elements in 0.762 seconds
+Merge sort:
+10000000 elements in 0.862 seconds
+
+
+// Random array, -O3, 100M elements
+Lib qsort:
+100000000 elements in 7.500 seconds
+Merge sort:
+100000000 elements in 9.074 seconds
