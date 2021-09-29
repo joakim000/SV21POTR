@@ -13,7 +13,7 @@
 #define T true // timing
 
 // Sort size
-#define ELEMENTS 130000    // max 259056
+#define ELEMENTS 240000    // max 259056 (stack)
 
 // Declarations
 void generate_array(uint32_t *num, uint32_t size);
@@ -26,9 +26,22 @@ int main(void)
     printf("This line not reached with ELEMENTS > 259056  (0x3f3f0)\n");
 
     srand(time(0));
-    uint32_t random[ELEMENTS] = {};
-    uint32_t numbers[ELEMENTS] = {};
-    uint32_t compare[ELEMENTS] = {};
+
+    // uint32_t random[ELEMENTS] = {};
+    // uint32_t numbers[ELEMENTS] = {};
+    // uint32_t compare[ELEMENTS] = {};
+
+    uint32_t* random;
+    uint32_t* numbers;
+    uint32_t* compare;
+    random = calloc(ELEMENTS, sizeof(uint32_t));
+    assert( ("Memory allocation failed.", random != NULL) );
+    numbers = calloc(ELEMENTS, sizeof(uint32_t));
+    assert( ("Memory allocation failed.", numbers != NULL) );
+    compare = calloc(ELEMENTS, sizeof(uint32_t));
+    assert( ("Memory allocation failed.", compare != NULL) );
+
+
 
     generate_array(random, ELEMENTS);
     // printf("Randomized array: \n");
@@ -59,7 +72,7 @@ int main(void)
 
     printf("\nBubble sort: \n"); //Low to High
     timer_start = clock();
-        sort_bubble(numbers, ELEMENTS);
+        // sort_bubble(numbers, ELEMENTS);
     timer_end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(timer_start, timer_end));
@@ -99,7 +112,7 @@ int main(void)
    
     printf("\nSelection sort: \n"); //Low to High
     timer_start = clock();
-        sort_selection(numbers, ELEMENTS);
+        // sort_selection(numbers, ELEMENTS);
     timer_end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(timer_start, timer_end));
