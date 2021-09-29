@@ -317,16 +317,23 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
     }
 }
 
-//void sort_merge(uint32_t *num, uint32_t size)
-void sort_merge(uint32_t *num, uint32_t size, uint32_t *random)  //DEBUG
+void sort_merge(uint32_t *num, uint32_t size)
+// void sort_merge(uint32_t *num, uint32_t size, uint32_t *random)  //DEBUG
 {
-    totalSize = size; // DEBUG
-    randomArray = random; // DEBUG
-
-    uint32_t aTemp[size / 2 + 2];  
+    // To hold temp values
+    uint32_t* aTemp;
+    aTemp = calloc(size / 2 + 2, sizeof(uint32_t));
+    assert( ("Memory allocation failed.", aTemp != NULL) );
     a = aTemp;
-    uint32_t bTemp[size / 2 + 2];
+
+    uint32_t* bTemp;
+    bTemp = calloc(size / 2 + 2, sizeof(uint32_t));
+    assert( ("Memory allocation failed.", bTemp != NULL) );
     b = bTemp;
+
+    // totalSize = size; // DEBUG
+    // randomArray = random; // DEBUG
+
     merge_recurse(num, size, 0);
 }
 
