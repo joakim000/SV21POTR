@@ -36,12 +36,13 @@ void main(){
     uint32_t libNums[ELEMENTS];
     copy_array(random, ELEMENTS, libNums);
     sort_lib(libNums, ELEMENTS);
-    print_array(libNums, ELEMENTS);
+    // print_array(libNums, ELEMENTS);
 
     uint32_t mergeNums[ELEMENTS];
     copy_array(random, ELEMENTS, mergeNums);
     sort_merge(mergeNums, ELEMENTS, random);    
-    compare_print_array(mergeNums, ELEMENTS, libNums);
+    // compare_print_array(mergeNums, ELEMENTS, libNums);
+    compare_array(mergeNums, ELEMENTS, libNums);
 
 }
 
@@ -61,7 +62,7 @@ void compare_array(uint32_t *num, uint32_t size, uint32_t *comp)
         if (num[i] != comp[i])
             errors++;
     }
-    printf("\n%d errors in %d elements\n", errors, size);
+    printf("\n%d errors in %d elements.\n", errors, size);
 }
 
 void compare_print_array(uint32_t *num, uint32_t size, uint32_t *comp)
