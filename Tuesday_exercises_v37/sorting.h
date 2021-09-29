@@ -248,6 +248,9 @@ void sort_shell(uint32_t *num, uint32_t size)
 uint32_t totalSize; // DEBUG
 uint32_t* randomArray; // DEBUG
 
+uint32_t* a;
+uint32_t* b;
+
 // DEBUG helper
 bool inArray(uint32_t find, uint32_t *num, uint32_t size) {
     for (int i = 0; i < size; i++) {
@@ -288,8 +291,8 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
             May not be neccessary, but clearer. Revisit later. 
             Or use some global temp array to avoid creation in every call? */
         // Make some sized arrays to hold values for each half
-        uint32_t a[aSize];
-        uint32_t b[bSize];
+        // uint32_t a[aSize];
+        // uint32_t b[bSize];
 
         // Begin reading a-values at start index for this call
         for (int i = 0; i < aSize; i++) { 
@@ -358,6 +361,11 @@ void sort_merge(uint32_t *num, uint32_t size, uint32_t *random)  //DEBUG
 {
     totalSize = size; // DEBUG
     randomArray = random; // DEBUG
+
+    uint32_t aTemp[size / 2 + 2];  // Almost twice as big as needed
+    a = aTemp;
+    uint32_t bTemp[size / 2 + 2];
+    b = bTemp;
     merge_recurse(num, size, 0);
 }
 
