@@ -27,7 +27,7 @@ void trial_A(int findCount) {
     int found = 0;
     bool prime;
     int candidate = 2;
-    start = clock();
+    timer_start = clock();
     while (found < findCount) {
         prime = true;
         int root = (int)sqrt(candidate);
@@ -43,7 +43,7 @@ void trial_A(int findCount) {
         }    
         candidate++;
     }
-    end = clock();
+    timer_end = clock();
     printf("Trial A:\n");
     printf("Found %d", findCount);
     printf(" in %5.3f seconds\n", (float)(end - start) / CLOCKS_PER_SEC);
@@ -65,7 +65,7 @@ void trial_B(int findCount) {
     int found = 1;
     bool prime;
     int candidate = 3;
-    start = clock();
+    timer_start = clock();
     while (found < findCount) {
         prime = true;
         int root = (int)sqrt(candidate);
@@ -81,7 +81,7 @@ void trial_B(int findCount) {
         }    
         candidate++;
     }
-    end = clock();
+    timer_end = clock();
     printf("Trial B:\n");
     printf("Found %d", findCount);
     printf(" in %5.3f seconds\n", (float)(end - start) / CLOCKS_PER_SEC);
@@ -126,7 +126,7 @@ void erastophanes(int size) {
     }
 
     // Sieve    
-    start = clock();
+    timer_start = clock();
     for (int i = 2; i < size; i++) {
         if ( !(s[i].prime || s[i].comp) ) { 
             s[i].prime = true;
@@ -136,7 +136,7 @@ void erastophanes(int size) {
                 s[j].comp = true;    
         }
     }
-    end = clock();
+    timer_end = clock();
 
     // Print
     printf("Erastophanes:\n");
