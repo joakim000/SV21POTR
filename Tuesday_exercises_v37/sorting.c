@@ -5,9 +5,9 @@
 
 #include "sorting.h"
 
-#define ELEMENTS 250000    // max 259056
+#define ELEMENTS 32    // max 259056
 #define PRT false // print random tables
-#define PT false // print tables
+#define PT true // print tables
 #define T true // timing
 
 void generate_array(uint32_t *num, uint32_t size);
@@ -17,7 +17,7 @@ void copy_array(uint32_t *num, uint32_t size, uint32_t *out);
 int main(void)
 {
     
-    printf("hej");
+    // printf("hej");
     //uint32_t == unsigned int
     //uint32_t == unsigned char
     srand(time(0));
@@ -37,7 +37,7 @@ int main(void)
 
     printf("Bubble sort: \n"); //Low to High
     start = clock();
-        // sort_bubble(numbers, ELEMENTS);
+        sort_bubble(numbers, ELEMENTS);
     end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(start, end));
@@ -56,7 +56,7 @@ int main(void)
     
     printf("Insertion sort: \n"); //Low to High
     start = clock();
-        // sort_insertion(numbers, ELEMENTS);
+        sort_insertion(numbers, ELEMENTS);
     end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(start, end));
@@ -75,29 +75,13 @@ int main(void)
    
     printf("Selection sort: \n"); //Low to High
     start = clock();
-        // sort_selection(numbers, ELEMENTS);
+        sort_selection(numbers, ELEMENTS);
     end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(start, end));
  
     // printf("Selection sort (descending): \n"); //High to Low
     // sort_selection_d(numbers, ELEMENTS);
-    // print_array(numbers, ELEMENTS);
-
-
-
-
-    /* Merge */
-    // copy_array(random, ELEMENTS, numbers);
-    // if (PT) printf("Randomized array (copy):\n");
-    // if (PT) print_array(numbers, ELEMENTS);
-    
-    // printf("Merge sort: \n"); //Low to High
-    // sort_merge(numbers, ELEMENTS);
-    // if (PT) print_array(numbers, ELEMENTS);
- 
-    // printf("Merge sort (descending): \n"); //High to Low
-    // sort_merge_d(numbers, ELEMENTS);
     // print_array(numbers, ELEMENTS);
 
 
@@ -117,6 +101,29 @@ int main(void)
     // printf("Shell sort (descending): \n"); //High to Low
     // sort_shell_d(numbers, ELEMENTS);
     // print_array(numbers, ELEMENTS);
+
+
+
+
+    /* Merge */
+    copy_array(random, ELEMENTS, numbers);
+    if (PRT) printf("Randomized array (copy):\n");
+    if (PRT) print_array(numbers, ELEMENTS);
+    
+    printf("Merge sort: \n"); //Low to High
+    start = clock();
+        sort_merge(numbers, ELEMENTS);
+    end = clock();
+    if (PT) print_array(numbers, ELEMENTS);
+    if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(start, end));
+ 
+    // printf("Merge sort (descending): \n"); //High to Low
+    // sort_merge_d(numbers, ELEMENTS);
+    // print_array(numbers, ELEMENTS);
+
+
+
+    
 
 
 

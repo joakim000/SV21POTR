@@ -158,115 +158,45 @@ void sort_selection_d(uint32_t *num, uint32_t size)
     Note: Top-down vs. bottom-up implementation.
 */
 
-void copy_array2(uint32_t *num, uint32_t size, uint32_t *out) {
-    for (int i = 0; i < size; i++) 
-        out[i] = num[i];
-}
+void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
+    // printf("\nRunning merge_recurse. size:%d  start:%d\n", size, start);
+    
+    int halfSize = size / 2;
 
+    if (size > 2) {
+        merge_recurse(num, halfSize, start);
+        merge_recurse(num, halfSize, start + halfSize);
+    }
+
+    if (size > 1) {
+        // printf("\nmerge_recurse compare. size:%d  start:%d\n", size, start);
+        int p = start; // array place
+        uint32_t a[halfSize];
+        uint32_t b[halfSize];
+
+        for (int i = 0; i < halfSize; i++) { 
+            a[i] = num[start + i];
+            b[i] = num[start + halfSize + i];
+        }
+
+        for (int i = 0, j = 0; i < halfSize; i++) {
+            if (a[i] < b[j]) 
+                 num[p++] = a[i];
+            else {
+                do {
+                    num[p++] = b[j++];
+                }  while (j < halfSize && b[j] < a[i]);
+                num[p++] = a[i];
+            }
+        }
+    }
+}
 
 void sort_merge(uint32_t *num, uint32_t size)
 {
-    uint32_t tmp[size];
-
-    int p = 0; // array place
-    int ss = pow(2,1); //segment size
-    int segments = size / ss;
-
-    for (int s = 0; s < segments; s++) {
-        int a = s*ss;
-        int b = a + (ss / 2); 
-        if (num[a] < num[b]) { 
-            tmp[p++] = num[a]; 
-            tmp[p++] = num[b];
-        } else {
-            tmp[p++] = num[b];
-            tmp[p++] = num[a];
-        }       
-    }
-    copy_array2(tmp, size, num);
-    printf("\n");
-    for (int i = 0; i < size; i++)
-        printf("%d ", num[i]);
-    // Step 1: {23, 1, 2, 43, 3, 34, 65, 5 }; => 1, 23, 2, 43, 3, 34, 5, 65
-
-
-    p = 0; // array place
-    ss = pow(2,2); //segment size
-    segments = size / ss;
-
-    for (int s = 0; s < segments; s++) {
-        int a = s*ss;
-        int b = a + (ss / 2);
-        int bCount = 0; 
-        for (int a = s*ss; a < ss / 2; a++) {
-            if (num[a] < num[b + bCount]) {
-                tmp[p++] = num[a];
-                continue; // next a
-            } else {
-                tmp[p++] = num[b + bCount++];
-                // Go thru rest of B:s
-                for (b += bCount; b < ss / 2; b++) {
-                    if (num[a] > num[b]) {
-                        tmp[p++] = num[b];
-                        bCount++;
-                    }  
-                }
-            }
-
-        }
-        
-        
-    }
-    copy_array2(tmp, size, num);
-    printf("\n");
-    for (int i = 0; i < size; i++)
-        printf("%d ", num[i]);
-    // Step 2: 1, 23, 2, 43, 3, 34, 5, 65  => 1, 2, 23, 43  3, 5, 34, 65
-
-
-    // for (int s = 0; s < segments; s++) {
-    //     for (int a = 0+ss*s; a < 1+ss*s; a++) {
-    //         for (int b = a + 1; b < a + 2; b++)
-    //             if (num[a] > num[b]) 
-    //                 tmp[p++] = num[b];
-    //             else {
-    //                 tmp[p++] = num[a];
-    //                 break;
-    //             }
-    //     }
-    // }
-
-
-    // int max_ss = size/2;
-    
-    
-    // int segments = size / (pow(2,1));  // inc exponent as merge continues
-
-    // for (int s = 0; s < segments; s++) {  
-    //     int begin = s * ss * 2;
-    //     for (int a = 0+begin; a < begin+ss; a++) {
-    //         int b = a + ss;
-    //         while (num[a] > num[b]) {
-    //             tmp[p++] = num[b++];
-    //         }
-    //         tmp[p++] = num[a];
-    //     }
-    // }
-
-
-    copy_array2(tmp, size, num);   
-    
+    merge_recurse(num, size, 0);
 }
-// 
 
-
-        // for (int a = 0; a < ss; a++) {
-        //     int b = a + ss;
-        //     while (num[a] > num[b]) {
-        //         tmp[p++] = num[b++];
-        //     }
-        //     tmp[p++] = num[a];
-        // }
 
 
 
