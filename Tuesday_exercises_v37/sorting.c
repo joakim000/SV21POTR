@@ -13,7 +13,7 @@
 #define T true // timing
 
 // Sort size
-#define ELEMENTS 250000    // max 259056
+#define ELEMENTS 1000    // max 259056
 
 // Declarations
 void generate_array(uint32_t *num, uint32_t size);
@@ -22,10 +22,7 @@ void copy_array(uint32_t *num, uint32_t size, uint32_t *out);
 
 int main(void)
 {
-    
-    // printf("This line not reached with ELEMENTS > 259056  (0x3f3f0)");
-    //uint32_t == unsigned int
-    //uint32_t == unsigned char
+    printf("This line not reached with ELEMENTS > 259056  (0x3f3f0)");
     srand(time(0));
     uint32_t random[ELEMENTS] = {};
     uint32_t numbers[ELEMENTS] = {};
