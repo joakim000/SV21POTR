@@ -1,5 +1,21 @@
 #include "devheaders.h"
 
+// #define ELEMENTS 20    // max 259056
+
+/**
+ * ISSUES
+ *  252k elements, first line of main
+ *  qsort + timing
+ *  rename start/end
+ *  fix inArray
+ *  DEBUG-flag
+ * 
+ *  make exercise-template
+ * 
+ * 
+ */
+
+
 /* Tuesday exercises
     ## Sorting
     4. Sort an array of unsigned ints. Make two functions, one Ascending, one Descending.
@@ -23,6 +39,10 @@
     It continues doing this for each pair of adjacent elements to the end of the data set.
     It then starts again with the first two elements, repeating until no swapped have occurred on the last pass.
 */
+
+// Flags
+#define DEBUG false
+
 void swap(uint32_t *a, uint32_t *b)
 {
     uint32_t tmp = *a;
@@ -158,10 +178,18 @@ void sort_selection_d(uint32_t *num, uint32_t size)
     Note: Top-down vs. bottom-up implementation.
 */
 
+bool inArray(uint32_t find, uint32_t *num, uint32_t size) {
+    for (int i = 0; i < size; i++) {
+       if (find == num[i]) 
+          return true;
+    }
+    return false;
+}
+
+
 void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
     // printf("\nRunning merge_recurse. size:%d  start:%d\n", size, start);
     
-    // int halfSize = size / 2;
     int aSize = size / 2;
     int bSize = size / 2 + size % 2;
 
@@ -178,14 +206,26 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
 
         for (int i = 0; i < aSize; i++) { 
             a[i] = num[start + i];
+            if (DEBUG) {
+                 if (!(inArray(a[i], num, size) ))
+                    printf("\na[i] = %d  num[start+i] = %d  start+i=%d\n", a[i], num[start+i], start+i);
+            }
         }
+
         for (int i = 0; i < bSize; i++) { 
             b[i] = num[start + aSize + i];
+            if (DEBUG) {
+                if (!(inArray(b[i], num, size) ))
+                    printf("\nb[i] = %d  num[start+aSize+i] = %d  start+aSize+i=%d\n",  b[i], num[start+aSize+i], start+aSize+i);
+            }
         }
 
         for (int i = 0, j = 0; i < aSize; i++) {
-            if (a[i] < b[j]) 
-                 num[p++] = a[i];
+            if (a[i] < b[j]) {
+                if (a[i] < 5)
+                    // printf("\na[i] = %d\n", a[i]);
+                num[p++] = a[i];
+            }
             else {
                 do {
                     num[p++] = b[j++];
@@ -196,11 +236,12 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
     }
 }
 
+
+
 void sort_merge(uint32_t *num, uint32_t size)
 {
     merge_recurse(num, size, 0);
 }
-
 
 
 
@@ -246,8 +287,9 @@ void gapInsert(int index, int gap, uint32_t *num, uint32_t size, int direction )
 
 void sort_shell(uint32_t *num, uint32_t size)
 {
-    int gaps[] = {1750, 701, 301, 132, 57, 23, 10, 4, 1};  // Ciura gap sequence
-    // int gaps[] = {4, 1};  // Ciura gap sequence
+    int gaps[] = {1750, 701, 301, 132, 57, 23, 10, 4, 1};  // Extended Ciura gap sequence
+                                                           // https://oeis.org/A102549/internal 
+    // int gaps[] = {4, 1};  
     // int gaps[] = {5, 3, 1};
     // int gaps[] = {3, 1};
     // int gaps[] = {1};
@@ -284,4 +326,12 @@ void sort_quick(uint32_t *num, uint32_t size)
 
 
 
+
+// Std lib qsort 
+int cmpfunc (const void * a, const void * b) {  // From tutorialspoint
+   return ( *(int*)a - *(int*)b );
+}
+void sort_lib(uint32_t *num, uint32_t size) {
+    qsort(num, size, sizeof(int), cmpfunc);
+}
 
