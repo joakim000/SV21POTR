@@ -13,7 +13,7 @@
 #define T true // timing
 
 // Sort size
-#define ELEMENTS 100000000    // max 259056 (stack)
+#define ELEMENTS 1000000    // max 259056 (stack)
 
 // Declarations
 void generate_array(uint32_t *num, uint32_t size);
@@ -27,20 +27,12 @@ int main(void)
 
     srand(time(0));
 
-    // uint32_t random[ELEMENTS] = {};
-    // uint32_t numbers[ELEMENTS] = {};
-    // uint32_t compare[ELEMENTS] = {};
-
-    uint32_t* random;
-    uint32_t* numbers;
-    uint32_t* compare;
-    random = calloc(ELEMENTS, sizeof(uint32_t));
+    uint32_t* random = calloc(ELEMENTS, sizeof(uint32_t));
     assert( ("Memory allocation failed.", random != NULL) );
-    numbers = calloc(ELEMENTS, sizeof(uint32_t));
+    uint32_t* numbers = calloc(ELEMENTS, sizeof(uint32_t));
     assert( ("Memory allocation failed.", numbers != NULL) );
-    compare = calloc(ELEMENTS, sizeof(uint32_t));
+    uint32_t* compare = calloc(ELEMENTS, sizeof(uint32_t));
     assert( ("Memory allocation failed.", compare != NULL) );
-
 
 
     generate_array(random, ELEMENTS);
