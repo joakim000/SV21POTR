@@ -40,7 +40,8 @@ void main(){
 
     uint32_t mergeNums[ELEMENTS];
     copy_array(random, ELEMENTS, mergeNums);
-    sort_merge(mergeNums, ELEMENTS, random);    
+    // sort_merge(mergeNums, ELEMENTS, random);
+    sort_merge(mergeNums, ELEMENTS);    
     // compare_print_array(mergeNums, ELEMENTS, libNums);
     compare_array(mergeNums, ELEMENTS, libNums);
 
