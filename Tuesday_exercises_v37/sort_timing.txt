@@ -49,5 +49,7 @@ Selection sort:
 250000 elements in 30.263 seconds
 Shell sort:
 250000 elements in 1.594 seconds
+Lib qsort:
+250000 elements in 0.031 seconds
 
 
