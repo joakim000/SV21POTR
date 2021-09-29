@@ -293,7 +293,7 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
         int p = start; // For this call, start writing here. Later increment p whenever writing value.
 
         for (int i = 0, j = 0; i < aSize; i++) {
-            // Case: have more a values but out of b values. Continue looping over and writing a-vals.
+            // Case: have more a-values but out of b-values. Continue looping over and writing a-vals.
             //    Forgetting about this was source of intermittent errors depending on look of random array. 
             if (j >= bSize) {
                 num[p++] = a[i];
@@ -310,7 +310,6 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
             do {
                 num[p++] = b[j++];
             }  while (j < bSize && b[j] < a[i]);
-             
             // After 1 or more b-vals, finally write current a-val. 
             num[p++] = a[i];
         }
