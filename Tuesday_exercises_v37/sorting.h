@@ -1,14 +1,8 @@
 #include "devheaders.h"
 
-// #define ELEMENTS 20    // max 259056
-
 /**
  * ISSUES
- *  252k elements, first line of main
- *  qsort + timing
- *  rename start/end
  *  fix inArray
- *  DEBUG-flag
  * 
  *  make exercise-template
  * 
@@ -41,7 +35,10 @@
 */
 
 // Flags
-#define DEBUG false
+#define DEBUGCOPY true
+#define DEBUGWRITE true
+#define DEBUG true
+
 
 void swap(uint32_t *a, uint32_t *b)
 {
@@ -177,6 +174,9 @@ void sort_selection_d(uint32_t *num, uint32_t size)
     Repeatedly merge sublists to produce new sorted sublists until there is only one sublist remaining. This will be the sorted list.
     Note: Top-down vs. bottom-up implementation.
 */
+uint32_t totalSize; // DEBUG
+uint32_t* randomArray; // DEBUG
+
 
 bool inArray(uint32_t find, uint32_t *num, uint32_t size) {
     for (int i = 0; i < size; i++) {
@@ -193,44 +193,91 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
     int aSize = size / 2;
     int bSize = size / 2 + size % 2;
 
+    if (size <= 0)
+        printf("Error: array size is %d\n", size);
+
     if (size > 2) {
         merge_recurse(num, aSize, start);
         merge_recurse(num, bSize, start + aSize);
     }
 
     if (size > 1) {
-        // printf("\nmerge_recurse compare. size:%d  start:%d\n", size, start);
+        if (DEBUG) {
+            printf("\nmerge_recurse compare. size:%d  start:%d  Array before:\n", size, start);
+            printf("{ ");
+            for (int i = 0; i < totalSize; i++) 
+                printf("%d ", num[i]);
+            printf("}\n");
+            
+        }
+        
+        
+
         int p = start; // array place
-        uint32_t a[aSize];
-        uint32_t b[bSize];
+
+        // uint32_t a[aSize];
+        // uint32_t b[bSize];
+        uint32_t a[100];
+        uint32_t b[100];
 
         for (int i = 0; i < aSize; i++) { 
             a[i] = num[start + i];
-            if (DEBUG) {
-                 if (!(inArray(a[i], num, size) ))
-                    printf("\na[i] = %d  num[start+i] = %d  start+i=%d\n", a[i], num[start+i], start+i);
+            if (DEBUGCOPY) {
+                 if (!(inArray(a[i], randomArray, totalSize) ))
+                    printf("a[i] = %d  num[start+i] = %d  start+i=%d\n", a[i], num[start+i], start+i);
             }
         }
 
         for (int i = 0; i < bSize; i++) { 
             b[i] = num[start + aSize + i];
-            if (DEBUG) {
-                if (!(inArray(b[i], num, size) ))
-                    printf("\nb[i] = %d  num[start+aSize+i] = %d  start+aSize+i=%d\n",  b[i], num[start+aSize+i], start+aSize+i);
-            }
+            if (DEBUGCOPY) {
+                 if (!(inArray(b[i], randomArray, totalSize) ))
+                     printf("b[i] = %d  num[start+aSize+i] = %d  start+aSize+i=%d\n",  b[i], num[start+aSize+i], start+aSize+i);
+             }
         }
 
         for (int i = 0, j = 0; i < aSize; i++) {
-            if (a[i] < b[j]) {
-                if (a[i] < 5)
-                    // printf("\na[i] = %d\n", a[i]);
+            if (j >= bSize) {
                 num[p++] = a[i];
+                if (DEBUGWRITE) {
+                    if (!(inArray(a[i], randomArray, totalSize) ))
+                        printf("a[i] = %d  num[p] = %d  p=%d\n",  a[i], num[p-1], p-1);
+                }
+                continue;
+            }
+            
+            
+            if (a[i] < b[j]) {
+                num[p++] = a[i];
+                if (DEBUGWRITE) {
+                    if (!(inArray(a[i], randomArray, totalSize) ))
+                        printf("a[i] = %d  num[p] = %d  p=%d\n",  a[i], num[p-1], p-1);
+                }
             }
             else {
                 do {
-                    num[p++] = b[j++];
+                        num[p++] = b[j++];
+                        if (DEBUGWRITE) {
+                            if (!(inArray(b[i], randomArray, totalSize) ))
+                                printf("b[i] = %d  num[p] = %d  p=%d\n",  b[i], num[p-1], p-1);
+                        }
                 }  while (j < bSize && b[j] < a[i]);
+                
                 num[p++] = a[i];
+                if (DEBUGWRITE) {
+                    if (!(inArray(a[i], randomArray, totalSize) ))
+                        printf("a[i] = %d  num[p] = %d  p=%d\n",  a[i], num[p-1], p-1);
+                }
+
+                // do {
+                //     num[p++] = a[i++];
+                //     if (DEBUGWRITE) {
+                //         if (!(inArray(a[i], randomArray, totalSize) ))
+                //             printf("a[i] = %d  num[p] = %d  p=%d\n",  a[i], num[p-1], p-1);
+                //     }
+                // } while (i < aSize);
+
+
             }
         }
     }
@@ -238,8 +285,11 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
 
 
 
-void sort_merge(uint32_t *num, uint32_t size)
+//void sort_merge(uint32_t *num, uint32_t size)
+void sort_merge(uint32_t *num, uint32_t size, uint32_t *random)  //DEBUG
 {
+    totalSize = size; // DEBUG
+    randomArray = random; // DEBUG
     merge_recurse(num, size, 0);
 }
 
