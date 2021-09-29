@@ -19,5 +19,5 @@
 
 // Timing
 #define TIMING(y, x) ((float)(x - y) / CLOCKS_PER_SEC)
-clock_t start; clock_t end; float stopwatch; 
+clock_t timer_start; clock_t timer_end; float stopwatch; 
 
