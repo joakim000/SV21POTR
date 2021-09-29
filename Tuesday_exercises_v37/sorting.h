@@ -289,24 +289,19 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
             b[i] = num[start + aSize + i];
         }
 
-        /* Compare and write values into sort array */
+        /* Compare and write values into sort array. */
         int p = start; // For this call, start writing here. Later increment p whenever writing value.
 
         for (int i = 0, j = 0; i < aSize; i++) {
-            // Case: have more a-values but out of b-values. Continue looping over and writing a-vals.
+            // Case 1: have more a-values but out of b-values. Continue looping over and writing a-vals.
             //    Forgetting about this was source of intermittent errors depending on look of random array. 
-            if (j >= bSize) {
+            // Case 2: a-val is already < b-val, write and continue to next a-val
+            if (j >= bSize || a[i] < b[j]) {
                 num[p++] = a[i];
                 continue;
             }
             
-            // Case: a-val is already < b-val, write and continue to next a-val
-            if (a[i] < b[j]) {
-                num[p++] = a[i];
-                continue;
-            }
-
-            // Case: b-val < a-val. Continue writing b-vals until current a-val is smaller or b-vals exhausted.
+            // Case 3: b-val < a-val. Continue writing b-vals until current a-val is smaller or b-vals exhausted.
             do {
                 num[p++] = b[j++];
             }  while (j < bSize && b[j] < a[i]);
