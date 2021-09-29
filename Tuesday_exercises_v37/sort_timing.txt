@@ -41,6 +41,8 @@ Shell sort:
 250000 elements in 2.641 seconds
 
 // Random array, -O3, shell gaps: Ciura sequence
+Lib qsort:
+250000 elements in 0.031 seconds
 Bubble sort:
 250000 elements in 107.550 seconds
 Insertion sort:
@@ -49,7 +51,19 @@ Selection sort:
 250000 elements in 30.263 seconds
 Shell sort:
 250000 elements in 1.594 seconds
-Lib qsort:
-250000 elements in 0.031 seconds
 
+
+// Random array, -O3, shell gaps: Ciura sequence
+Lib qsort:
+130000 elements in 0.010 seconds
+Bubble sort:
+130000 elements in 28.956 seconds
+Insertion sort:
+130000 elements in 1.465 seconds
+Selection sort:
+130000 elements in 8.230 seconds
+Shell sort:
+130000 elements in 0.501 seconds
+Merge sort:
+130000 elements in 0.011 seconds
 
