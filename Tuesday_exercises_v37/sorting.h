@@ -161,31 +161,35 @@ void sort_selection_d(uint32_t *num, uint32_t size)
 void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
     // printf("\nRunning merge_recurse. size:%d  start:%d\n", size, start);
     
-    int halfSize = size / 2;
+    // int halfSize = size / 2;
+    int aSize = size / 2;
+    int bSize = size / 2 + size % 2;
 
     if (size > 2) {
-        merge_recurse(num, halfSize, start);
-        merge_recurse(num, halfSize, start + halfSize);
+        merge_recurse(num, aSize, start);
+        merge_recurse(num, bSize, start + aSize);
     }
 
     if (size > 1) {
         // printf("\nmerge_recurse compare. size:%d  start:%d\n", size, start);
         int p = start; // array place
-        uint32_t a[halfSize];
-        uint32_t b[halfSize];
+        uint32_t a[aSize];
+        uint32_t b[bSize];
 
-        for (int i = 0; i < halfSize; i++) { 
+        for (int i = 0; i < aSize; i++) { 
             a[i] = num[start + i];
-            b[i] = num[start + halfSize + i];
+        }
+        for (int i = 0; i < bSize; i++) { 
+            b[i] = num[start + aSize + i];
         }
 
-        for (int i = 0, j = 0; i < halfSize; i++) {
+        for (int i = 0, j = 0; i < aSize; i++) {
             if (a[i] < b[j]) 
                  num[p++] = a[i];
             else {
                 do {
                     num[p++] = b[j++];
-                }  while (j < halfSize && b[j] < a[i]);
+                }  while (j < bSize && b[j] < a[i]);
                 num[p++] = a[i];
             }
         }
