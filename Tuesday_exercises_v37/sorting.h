@@ -1,15 +1,5 @@
 #include "devheaders.h"
 
-/**
- * ISSUES
- *  fix inArray
- * 
- *  make exercise-template
- * 
- * 
- */
-
-
 /* Tuesday exercises
     ## Sorting
     4. Sort an array of unsigned ints. Make two functions, one Ascending, one Descending.
@@ -17,15 +7,45 @@
 
 */
 
+
 /*
 	Selection of well-known algorithms
         a. Bubble    - done
 		b. Insertion - done 
 		c. Selection - done
-		d. Merge
-		e. Shell     - done
+        d. Shell     - done
+		e. Merge     - working, max 130k elements, optmization potentional (temp arrays)
         f. Quick
 */
+
+
+/**
+ * ISSUES
+ * 
+ *  make exercise-template
+ * 
+ * 
+ */
+
+// Flags
+#define DEBUGCOPY false
+#define DEBUGWRITE false
+#define DEBUG false
+
+
+/* Lib qsort
+    Assumed error-free, use as comparison for functional tests
+    and as performance reference.
+*/
+int cmpfunc (const void * a, const void * b) {  // From tutorialspoint
+   return ( *(int*)a - *(int*)b );
+}
+void sort_lib(uint32_t *num, uint32_t size) {
+    qsort(num, size, sizeof(int), cmpfunc);
+}
+
+
+
 
 /*  Bubble sort:
     The algorithm starts at the beginning of the data set.
@@ -33,12 +53,6 @@
     It continues doing this for each pair of adjacent elements to the end of the data set.
     It then starts again with the first two elements, repeating until no swapped have occurred on the last pass.
 */
-
-// Flags
-#define DEBUGCOPY false
-#define DEBUGWRITE false
-#define DEBUG false
-
 
 void swap(uint32_t *a, uint32_t *b)
 {
@@ -74,6 +88,9 @@ void sort_bubble_d(uint32_t *num, uint32_t size)
         }
     } while (swapped == true);
 }
+
+
+
 
 /*  Insertion sort:
  1. Suppose there exists a function called Insert designed to insert a value into a sorted sequence at the beginning of an array.
@@ -126,8 +143,6 @@ void sort_insertion_d(uint32_t *num, uint32_t size)
 
 
 
-
-
 /*  Selection sort:
     The algorithm divides the input list into two parts: 
         a sorted sublist of items which is built up from left to right at the front (left) of the list
@@ -167,6 +182,62 @@ void sort_selection_d(uint32_t *num, uint32_t size)
 
 
 
+/*  Shellsort:
+    Shellsort is an optimization of insertion sort that allows the exchange of items that are far apart.
+    The idea is to arrange the list of elements so that, starting anywhere, taking every hth element produces a sorted list.
+    Such a list is said to be h-sorted. 
+    It can also be thought of as h interleaved lists, each individually sorted. 
+    Beginning with large values of h allows elements to move long distances in the original list, reducing large amounts of disorder quickly,
+    and leaving less work for smaller h-sort steps to do. 
+    If the list is then k-sorted for some smaller integer k, then the list remains h-sorted.
+    Following this idea for a decreasing sequence of h values ending in 1 is guaranteed to leave a sorted list in the end.
+
+    gaps = [1750, 701, 301, 132, 57, 23, 10, 4, 1]  // Extended Ciura gap sequence
+                                                    // https://oeis.org/A102549/internal 
+*/
+void gapInsert(int index, int gap, uint32_t *num, uint32_t size, int direction ) {
+    int moveToIndex = index;
+    //Find place
+    if (direction == 1) 
+        for (int i = index - 1; i >= 0; i--) 
+            if (num[i] < num[index])
+                moveToIndex--;
+            else
+                break;
+    else 
+        for (int i = index - gap; i >= 0; i -= gap) 
+            if (num[i] > num[index])
+                moveToIndex -= gap;
+            else
+                break;
+
+    // Move elements up and insert value
+    if (moveToIndex != index) {
+        uint32_t tmp = num[index];
+        for (int i = index; i >= moveToIndex; i--) 
+            num[i] = num[i - 1];
+        num[moveToIndex] = tmp;
+    }
+}
+
+void sort_shell(uint32_t *num, uint32_t size)
+{
+    int gaps[] = {1750, 701, 301, 132, 57, 23, 10, 4, 1};  // Extended Ciura gap sequence
+    // int gaps[] = {4, 1};  
+    // int gaps[] = {5, 3, 1};
+    // int gaps[] = {3, 1};
+    // int gaps[] = {1};
+
+    for (int si = 0; si < COUNT_OF(gaps); si++) { // si: shell iterator
+        for (int i = 1; i < size; i++)
+            gapInsert(i, gaps[si], num, size, 0);
+    }   
+}
+
+
+
+
+
 
 /*  Merge sort:
     Conceptually, a merge sort works as follows:
@@ -185,7 +256,6 @@ bool inArray(uint32_t find, uint32_t *num, uint32_t size) {
     }
     return false;
 }
-
 
 void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
     // if (DEBUG) printf("\nRunning merge_recurse. size:%d  start:%d\n", size, start);
@@ -283,71 +353,12 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
     }
 }
 
-
-
 //void sort_merge(uint32_t *num, uint32_t size)
 void sort_merge(uint32_t *num, uint32_t size, uint32_t *random)  //DEBUG
 {
     totalSize = size; // DEBUG
     randomArray = random; // DEBUG
     merge_recurse(num, size, 0);
-}
-
-
-
-
-
-
-/*  Shellsort:
-    Shellsort is an optimization of insertion sort that allows the exchange of items that are far apart.
-    The idea is to arrange the list of elements so that, starting anywhere, taking every hth element produces a sorted list.
-    Such a list is said to be h-sorted. 
-    It can also be thought of as h interleaved lists, each individually sorted. 
-    Beginning with large values of h allows elements to move long distances in the original list, reducing large amounts of disorder quickly,
-    and leaving less work for smaller h-sort steps to do. 
-    If the list is then k-sorted for some smaller integer k, then the list remains h-sorted.
-    Following this idea for a decreasing sequence of h values ending in 1 is guaranteed to leave a sorted list in the end.
-
-    gaps = [1750, 701, 301, 132, 57, 23, 10, 4, 1]  // Ciura gap sequence
-*/
-void gapInsert(int index, int gap, uint32_t *num, uint32_t size, int direction ) {
-    int moveToIndex = index;
-    //Find place
-    if (direction == 1) 
-        for (int i = index - 1; i >= 0; i--) 
-            if (num[i] < num[index])
-                moveToIndex--;
-            else
-                break;
-    else 
-        for (int i = index - gap; i >= 0; i -= gap) 
-            if (num[i] > num[index])
-                moveToIndex -= gap;
-            else
-                break;
-
-    // Move elements up and insert value
-    if (moveToIndex != index) {
-        uint32_t tmp = num[index];
-        for (int i = index; i >= moveToIndex; i--) 
-            num[i] = num[i - 1];
-        num[moveToIndex] = tmp;
-    }
-}
-
-void sort_shell(uint32_t *num, uint32_t size)
-{
-    int gaps[] = {1750, 701, 301, 132, 57, 23, 10, 4, 1};  // Extended Ciura gap sequence
-                                                           // https://oeis.org/A102549/internal 
-    // int gaps[] = {4, 1};  
-    // int gaps[] = {5, 3, 1};
-    // int gaps[] = {3, 1};
-    // int gaps[] = {1};
-
-    for (int si = 0; si < COUNT_OF(gaps); si++) { // si: shell iterator
-        for (int i = 1; i < size; i++)
-            gapInsert(i, gaps[si], num, size, 0);
-    }   
 }
 
 
@@ -377,11 +388,4 @@ void sort_quick(uint32_t *num, uint32_t size)
 
 
 
-// Std lib qsort 
-int cmpfunc (const void * a, const void * b) {  // From tutorialspoint
-   return ( *(int*)a - *(int*)b );
-}
-void sort_lib(uint32_t *num, uint32_t size) {
-    qsort(num, size, sizeof(int), cmpfunc);
-}
 
