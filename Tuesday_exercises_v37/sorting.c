@@ -1,10 +1,13 @@
-#include <stdio.h>
-#include <time.h>
-#include <stdlib.h>
+#include <assert.h>
+#include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
-#include "sorting.h"
+#include "sorting_lib.h"
 
+// gcc -std=c11 -O3 sorting.c sorting_lib.c -o sorting
 
 // Flags
 #define PRT false // print random tables
@@ -13,7 +16,7 @@
 #define T true // timing
 
 // Sort size
-#define ELEMENTS 1000000    // max 259056 (stack)
+#define ELEMENTS 100000    // max 259056 (stack)
 
 // Declarations
 void generate_array(uint32_t *num, uint32_t size);
@@ -64,7 +67,7 @@ int main(void)
 
     printf("\nBubble sort: \n"); //Low to High
     timer_start = clock();
-        // sort_bubble(numbers, ELEMENTS);
+        sort_bubble(numbers, ELEMENTS);
     timer_end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(timer_start, timer_end));
@@ -84,7 +87,7 @@ int main(void)
     
     printf("\nInsertion sort: \n"); //Low to High
     timer_start = clock();
-        // sort_insertion(numbers, ELEMENTS);
+        sort_insertion(numbers, ELEMENTS);
     timer_end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(timer_start, timer_end));
@@ -104,7 +107,7 @@ int main(void)
    
     printf("\nSelection sort: \n"); //Low to High
     timer_start = clock();
-        // sort_selection(numbers, ELEMENTS);
+        sort_selection(numbers, ELEMENTS);
     timer_end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(timer_start, timer_end));
@@ -123,7 +126,7 @@ int main(void)
     
     printf("\nShell sort: \n"); //Low to High
     timer_start = clock();
-        // sort_shell(numbers, ELEMENTS);
+        sort_shell(numbers, ELEMENTS);
     timer_end = clock();
     if (PT) print_array(numbers, ELEMENTS);
     if (T) _printf_p("%d elements in %5.3f seconds\n", ELEMENTS, TIMING(timer_start, timer_end));
