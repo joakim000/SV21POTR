@@ -8,8 +8,10 @@
 */
 
 
-/*
-	Selection of well-known algorithms
+/*  Sorting exercise
+
+    This file contains natural language descriptions of a 
+	selection of well-known algorithms:
         a. Bubble    - done
 		b. Insertion - done 
 		c. Selection - done
