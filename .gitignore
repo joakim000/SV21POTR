@@ -1,6 +1,7 @@
 
 .vscode
 **/*.exe
+**/*.o
 **/*.obj
 /.vs/SV21POTR/v16
 /.vs/slnx.sqlite
