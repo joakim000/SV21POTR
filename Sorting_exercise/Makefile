@@ -1,8 +1,14 @@
-run : run.o sorting.o
-	cc -std=c11 -O3 -g -o run run.o sorting.o
+cflags = -c -std=c11 -O3 -g
+objects = run.o sorting.o
+sorting_files = sorting.c sorting.h
+.DELETE_ON_ERROR :
 
-run.o : run.c sorting.c sorting.h
-	cc -c -std=c11 -O3 -g run.c
-sorting.o : sorting.c sorting.h
-	cc -c -std=c11 -O3 -g sorting.c
+run : $(objects)
+	cc -o run $(objects)
+
+run.o : run.c $(sorting_files)
+	cc $(cflags) run.c
+sorting.o : $(sorting_files)
+	cc $(cflags) sorting.c
+	
 clean : rm run.exe run.o sorting.o
