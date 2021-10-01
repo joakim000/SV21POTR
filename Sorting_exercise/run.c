@@ -7,24 +7,20 @@
     stdlib qsort used as reference.
 */
 
-#include <assert.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
 #include "sorting.h"
-
-// Timing
-#define TIMING(y, x) ((float)(x - y) / CLOCKS_PER_SEC)
-clock_t timer_start; clock_t timer_end; 
 
 // Flags
 #define PRT false // print random tables
 #define PT true  // print result tables
 #define CT true // qsort comparison testing
 #define T true // timing
+
+#define    BUBBLE true
+#define INSERTION false
+#define SELECTION false
+#define     SHELL false
+#define     MERGE false
+#define     QUICK false
 
 // Sort size
 #define ELEMENTS 50    
@@ -40,11 +36,11 @@ int main(void)
     srand(time(0));
 
     uint32_t* random = calloc(ELEMENTS, sizeof(uint32_t));
-    assert( ("Memory allocation failed.", random != NULL) );
+        assert( ("Memory allocation failed.", random != NULL) );
     uint32_t* numbers = calloc(ELEMENTS, sizeof(uint32_t));
-    assert( ("Memory allocation failed.", numbers != NULL) );
+        assert( ("Memory allocation failed.", numbers != NULL) );
     uint32_t* compare = calloc(ELEMENTS, sizeof(uint32_t));
-    assert( ("Memory allocation failed.", compare != NULL) );
+        assert( ("Memory allocation failed.", compare != NULL) );
 
     generate_array(random, ELEMENTS);
     // printf("Randomized array: \n");
@@ -52,9 +48,6 @@ int main(void)
 
     /* Lib */
     copy_array(random, ELEMENTS, compare);
-    if (PRT) printf("Randomized array (copy):\n");
-    if (PRT) print_array(compare, ELEMENTS);
-    
     printf("\nLib qsort: \n"); 
     timer_start = clock();
         sort_lib(compare, ELEMENTS);
@@ -64,88 +57,80 @@ int main(void)
 
 
     /* Bubble */
-    copy_array(random, ELEMENTS, numbers);
-    if (PRT) printf("Randomized array (copy):\n");
-    if (PRT) print_array(numbers, ELEMENTS);
-
-    printf("\nBubble sort: \n"); 
-    timer_start = clock();
-        sort_bubble(numbers, ELEMENTS);
-    timer_end = clock();
-    if (PT) print_array(numbers, ELEMENTS);
-    if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
-    if (CT) compare_array(numbers, ELEMENTS, compare);
-
+    if (BUBBLE) {
+        copy_array(random, ELEMENTS, numbers);
+        printf("\nBubble sort: \n"); 
+        timer_start = clock();
+            sort_bubble(numbers, ELEMENTS);
+        timer_end = clock();
+        if (PT) print_array(numbers, ELEMENTS);
+        if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+        if (CT) compare_array(numbers, ELEMENTS, compare);
+    }
 
     /* Insertion */
-    copy_array(random, ELEMENTS, numbers);
-    if (PRT) printf("Randomized array (copy):\n");
-    if (PRT) print_array(numbers, ELEMENTS);
-    
-    printf("\nInsertion sort: \n"); //Low to High
-    timer_start = clock();
-        sort_insertion(numbers, ELEMENTS);
-    timer_end = clock();
-    if (PT) print_array(numbers, ELEMENTS);
-    if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
-    if (CT) compare_array(numbers, ELEMENTS, compare);
-  
+    if (INSERTION) {
+        copy_array(random, ELEMENTS, numbers);
+        printf("\nInsertion sort: \n"); //Low to High
+        timer_start = clock();
+            sort_insertion(numbers, ELEMENTS);
+        timer_end = clock();
+        if (PT) print_array(numbers, ELEMENTS);
+        if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+        if (CT) compare_array(numbers, ELEMENTS, compare);
+    }
 
     /* Selection */
-    copy_array(random, ELEMENTS, numbers);
-    if (PRT) printf("Randomized array (copy):\n");
-    if (PRT) print_array(numbers, ELEMENTS);
-   
-    printf("\nSelection sort: \n"); //Low to High
-    timer_start = clock();
-        sort_selection(numbers, ELEMENTS);
-    timer_end = clock();
-    if (PT) print_array(numbers, ELEMENTS);
-    if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
-    if (CT) compare_array(numbers, ELEMENTS, compare);
- 
+    if (SELECTION) {
+        copy_array(random, ELEMENTS, numbers);
+        printf("\nSelection sort: \n"); //Low to High
+        timer_start = clock();
+            sort_selection(numbers, ELEMENTS);
+        timer_end = clock();
+        if (PT) print_array(numbers, ELEMENTS);
+        if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+        if (CT) compare_array(numbers, ELEMENTS, compare);
+    }
    
     /* Shell */
-    copy_array(random, ELEMENTS, numbers);
-    if (PRT) printf("Randomized array (copy):\n");
-    if (PRT) print_array(numbers, ELEMENTS);
-    
-    printf("\nShell sort: \n"); //Low to High
-    timer_start = clock();
-        sort_shell(numbers, ELEMENTS);
-    timer_end = clock();
-    if (PT) print_array(numbers, ELEMENTS);
-    if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
-    if (CT) compare_array(numbers, ELEMENTS, compare);
- 
+    if (SHELL) {
+        copy_array(random, ELEMENTS, numbers);
+        printf("\nShell sort: \n"); //Low to High
+        timer_start = clock();
+            sort_shell(numbers, ELEMENTS);
+        timer_end = clock();
+        if (PT) print_array(numbers, ELEMENTS);
+        if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+        if (CT) compare_array(numbers, ELEMENTS, compare);
+    }
    
     /* Merge */
-    copy_array(random, ELEMENTS, numbers);
-    if (PRT) printf("Randomized array (copy):\n");
-    if (PRT) print_array(numbers, ELEMENTS);
-    
-    printf("\nMerge sort: \n"); //Low to High
-    timer_start = clock();
-        sort_merge(numbers, ELEMENTS);
-    timer_end = clock();
-    if (PT) print_array(numbers, ELEMENTS);
-    if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
-    if (CT) compare_array(numbers, ELEMENTS, compare);
- 
+    if (MERGE) {
+        copy_array(random, ELEMENTS, numbers);
+        printf("\nMerge sort: \n"); //Low to High
+        timer_start = clock();
+            sort_merge(numbers, ELEMENTS);
+        timer_end = clock();
+        if (PT) print_array(numbers, ELEMENTS);
+        if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+        if (CT) compare_array(numbers, ELEMENTS, compare);
+    }
 
     /* Quick */
-    copy_array(random, ELEMENTS, numbers);
-    if (PRT) printf("Randomized array (copy):\n");
-    if (PRT) print_array(numbers, ELEMENTS);
+    if (QUICK) {
+        copy_array(random, ELEMENTS, numbers);
+        printf("\nQuick sort: \n"); //Low to High
+        timer_start = clock();
+            sort_quick(numbers, ELEMENTS);
+        timer_end = clock();
+        if (PT) print_array(numbers, ELEMENTS);
+        if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+        if (CT) compare_array(numbers, ELEMENTS, compare);
+    }
 
-    printf("\nQuick sort: \n"); //Low to High
-    timer_start = clock();
-        sort_quick(numbers, ELEMENTS);
-    timer_end = clock();
-    if (PT) print_array(numbers, ELEMENTS);
-    if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
-    if (CT) compare_array(numbers, ELEMENTS, compare);
- 
+    free(random);
+    free(numbers);
+    free(compare);
 
     return 0;
 }
@@ -161,21 +146,23 @@ void generate_array(uint32_t *num, uint32_t size)
 
 void print_array(uint32_t *num, uint32_t size)
 {
-    printf("[");
+    // printf("[");
     for (size_t i = 0; i < size; i++)
     {
-        printf("%d", num[i]);
+        printf("%7d", num[i]);
         if (i < size - 1)
-            printf(", ");
+            // printf(", ");
         if (i != 0 && (i + 1) % 10 == 0 && i + 1 != size)
             printf("\n");
     }
-    printf("]\n");
+    printf("\n");
 }
 
 void copy_array(uint32_t *num, uint32_t size, uint32_t *out) {
     for (int i = 0; i < size; i++) 
         out[i] = num[i];
+    if (PRT) printf("\nRandomized array (copy):\n");
+    if (PRT) print_array(out, ELEMENTS);
 }
 
 void compare_array(uint32_t *num, uint32_t size, uint32_t *comp)
