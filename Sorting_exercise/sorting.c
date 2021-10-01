@@ -12,9 +12,9 @@
 
     The idea with this exercise is to encourage fluency in
     translating your your idea of an action into C instructions.
-    There are no advanced concepts, just steps describing
-    a process and you using the language to translate those
-    steps into runnable code. 
+    There are no advanced concepts or standards, just steps
+    describing a process and you using the language to translate
+    those steps into runnable code. 
        I can also recommend looking at implementations (check
     Wikipedia) when you're done. Reading code is as neccessary
     as it is difficult, but seeing anothers expression of the
@@ -27,10 +27,6 @@
     Descriptions from Wikipedia.
 */
 
-#include <assert.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
 #include "sorting.h"
 
 // Flags
@@ -53,9 +49,9 @@ void sort_lib(uint32_t *num, uint32_t size) {
 
 /*  Bubble sort:
     The algorithm starts at the beginning of the data set.
-    It compares the first two elements, and if the first is greater than the second, it swapped them.
+    It compares the first two elements, and if the first is greater than the second, it swaps them.
     It continues doing this for each pair of adjacent elements to the end of the data set.
-    It then starts again with the first two elements, repeating until no swapped have occurred on the last pass.
+    It then starts again with the first two elements, repeating until no swaps have occurred on the last pass.
 */
 void sort_bubble(uint32_t *num, uint32_t size) {
 
