@@ -11,22 +11,26 @@
 
 // Flags
 #define PRT false // print random tables
-#define PT true  // print result tables
+#define PT false  // print result tables
 #define CT true // qsort comparison testing
 #define T true // timing
 
-#define    BUBBLE true
+#define    BUBBLE false
 #define INSERTION false
 #define SELECTION false
 #define     SHELL false
-#define     MERGE false
+#define     MERGE true
 #define     QUICK false
 
+#define RND_MAX INT16_MAX
+// #define RND_MAX UINT32_MAX
+
 // Sort size
-#define ELEMENTS 50    
+#define ELEMENTS 100000000
 
 // Declarations
-void generate_array(uint32_t *num, uint32_t size);
+void generate_random_array(uint32_t *num, uint32_t size);
+void generate_mixed_array(uint32_t *num, uint32_t size);
 void print_array(uint32_t *num, uint32_t size);
 void copy_array(uint32_t *num, uint32_t size, uint32_t *out);
 void compare_array(uint32_t *num, uint32_t size, uint32_t *comp);
@@ -42,8 +46,8 @@ int main(void)
     uint32_t* compare = calloc(ELEMENTS, sizeof(uint32_t));
         assert( ("Memory allocation failed.", compare != NULL) );
 
-    generate_array(random, ELEMENTS);
-    // printf("Randomized array: \n");
+    generate_random_array(random, ELEMENTS);
+    // generate_mixed_array(random, ELEMENTS);
     // print_array(random, ELEMENTS);
 
     /* Lib */
@@ -136,7 +140,7 @@ int main(void)
 }
 
 /* Helper functions */
-void generate_array(uint32_t *num, uint32_t size)
+void generate_array_old(uint32_t *num, uint32_t size)
 {
     for (size_t i = 0; i < size; i++)
     {
@@ -144,14 +148,38 @@ void generate_array(uint32_t *num, uint32_t size)
     }
 }
 
+void generate_random_array(uint32_t *num, uint32_t size)
+{
+    for (size_t i = 0; i < size; i++) 
+        num[i] = ((rand() << 16) | rand()) % RND_MAX;
+}
+
+void generate_mixed_array(uint32_t *num, uint32_t size)
+{
+    int runSize = 1001;  // Must be odd number
+    for (size_t i = 0; i < size; ) 
+        if (i % 2) {
+            uint32_t runStart = num[i - 1];
+            for (int runEnd = i + runSize; i < runEnd && i < size; i++)
+                num[i] = runStart + i;
+        }
+        else {
+            for (int runEnd = i + runSize; i < runEnd && i < size; i++) 
+                num[i] = ((rand() << 16) | rand()) % RND_MAX;
+        }
+}
+
 void print_array(uint32_t *num, uint32_t size)
 {
-    // printf("[");
+    int orders = (int)log10(RND_MAX) + 1;
+    int space = 2;
+    char fmt[10];
+    sprintf(fmt, "%%%dd", orders+space);
+
     for (size_t i = 0; i < size; i++)
     {
-        printf("%7d", num[i]);
+        printf(fmt, num[i]);
         if (i < size - 1)
-            // printf(", ");
         if (i != 0 && (i + 1) % 10 == 0 && i + 1 != size)
             printf("\n");
     }
