@@ -1,4 +1,4 @@
-// Random array, -O0
+// Random max 32k, -O0
 Bubble sort:
 10000 elements in 0.259 seconds
 Insertion sort:
@@ -6,7 +6,7 @@ Insertion sort:
 Selection sort:
 10000 elements in 0.110 seconds
 
-// Random array, -O0
+// Random max 32k, -O0
 Bubble sort:
 100000 elements in 31.382 seconds
 Insertion sort:
@@ -14,7 +14,7 @@ Insertion sort:
 Selection sort:
 100000 elements in 10.798 seconds
 
-// Random array, -O3, shell gaps: 5, 3, 1
+// Random max 32k, -O3, shell gaps: 5, 3, 1
 Bubble sort:
 50000 elements in 4.092 seconds
 Insertion sort:
@@ -24,7 +24,7 @@ Selection sort:
 Shell sort:
 50000 elements in 0.104 seconds
 
-// Random array, -O3, shell gaps: 5, 3, 1
+// Random max 32k, -O3, shell gaps: 5, 3, 1
 Bubble sort:
 100000 elements in 17.022 seconds
 Insertion sort:
@@ -34,13 +34,13 @@ Selection sort:
 Shell sort:
 100000 elements in 0.417 seconds
 
-// Random array, -O3, shell gaps: 5, 3, 1
+// Random max 32k, -O3, shell gaps: 5, 3, 1
 Insertion sort:
 250000 elements in 5.418 seconds
 Shell sort:
 250000 elements in 2.641 seconds
 
-// Random array, -O3, shell gaps: Ciura sequence
+// Random max 32k, -O3, shell gaps: Ciura sequence
 Lib qsort:
 250000 elements in 0.031 seconds
 Bubble sort:
@@ -53,7 +53,7 @@ Shell sort:
 250000 elements in 1.594 seconds
 
 
-// Random array, -O3, shell gaps: Ciura sequence
+// Random max 32k, -O3, shell gaps: Ciura sequence
 Lib qsort:
 130000 elements in 0.010 seconds
 Bubble sort:
@@ -68,7 +68,7 @@ Merge sort:
 130000 elements in 0.011 seconds
 
 
-// Random array, -O3, shell gaps: Ciura sequence
+// Random max 32k, -O3, shell gaps: Ciura sequence, 500k elements
 Lib qsort:
 500000 elements in 0.040 seconds
 Shell sort:
@@ -77,24 +77,72 @@ Merge sort:
 500000 elements in 0.039 seconds
 
 
-// Random array, -O3, shell gaps: Ciura sequence
+// Random max 32k, -O3, shell gaps: Ciura sequence, 1M elements
 Lib qsort:
-1000000 elements in 0.080 seconds
+1000000 elements in 0.080 seconds.
+Insertion sort:
+1000000 elements in 87.235 seconds.
+Selection sort:
+1000000 elements in 483.906 seconds.
 Shell sort:
-1000000 elements in 24.988 seconds
-Merge sort: 
-1000000 elements in 0.080 seconds
+1000000 elements in 25.016 seconds.
+Merge sort:
+1000000 elements in 0.086 seconds.
 
 
-// Random array, -O3, 10M elements
+// Random max 32k, -O3, 10M elements
 Lib qsort:
 10000000 elements in 0.762 seconds
 Merge sort:
 10000000 elements in 0.862 seconds
 
 
-// Random array, -O3, 100M elements
+// Random max 32k, -O3, 100M elements
 Lib qsort:
 100000000 elements in 7.658 seconds
 Merge sort:
 100000000 elements in 8.906 seconds
+
+// Random max 2^32, -O3, 100M elements
+Lib qsort:
+100000000 elements in 13.721 seconds.
+Merge sort:
+100000000 elements in 12.709 seconds.
+
+// Random max 32k, -O3, 200M elements
+Lib qsort:
+200000000 elements in 14.844 seconds.
+Merge sort:
+200000000 elements in 18.086 seconds.
+
+// Random max 32k, -O3, 300M elements
+Lib qsort:
+300000000 elements in 22.218 seconds.
+Merge sort:
+300000000 elements in 27.217 seconds.
+
+// Random max 2^32, -O3, 300M elements
+Lib qsort:
+300000000 elements in 43.597 seconds.
+Merge sort:
+300000000 elements in 40.192 seconds.
+
+// Random max 32k, -O3, 400M elements
+Lib qsort:
+400000000 elements in 29.750 seconds.
+Merge sort:
+400000000 elements in 36.859 seconds.
+
+// Random max 32k, -O3, 500M elements
+Lib qsort:
+500000000 elements in 36.487 seconds.
+Merge sort:
+500000000 elements in 46.175 seconds.
+
+// Random max 2^32, -O3, 500M elements
+Lib qsort:
+500000000 elements in 73.786 seconds.
+Merge sort:
+500000000 elements in 68.913 seconds.
+
+
