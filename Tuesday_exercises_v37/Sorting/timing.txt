@@ -146,3 +146,70 @@ Merge sort:
 500000000 elements in 68.913 seconds.
 
 
+==============================================
+// Mixed runsize 1001, max 2^32, -O3, shell gaps: Ciura sequence, 100k elements
+Lib qsort:
+100000 elements in 0.009 seconds.
+Bubble sort:
+100000 elements in 13.111 seconds.
+Insertion sort:
+100000 elements in 0.872 seconds.
+Selection sort:
+100000 elements in 4.841 seconds.
+Shell sort:
+100000 elements in 0.370 seconds.
+Merge sort:
+100000 elements in 0.004 seconds.
+// Random, max 2^32, -O3, shell gaps: Ciura sequence, 100k elements
+Lib qsort:
+100000 elements in 0.009 seconds.
+Bubble sort:
+100000 elements in 17.679 seconds.
+Insertion sort:
+100000 elements in 0.901 seconds.
+Selection sort:
+100000 elements in 4.855 seconds.
+Shell sort:
+100000 elements in 0.313 seconds.
+Merge sort:
+100000 elements in 0.008 seconds.
+
+// Mixed runsize 1001, max 2^32, -O3, shell gaps: Ciura sequence, 1M elements
+Lib qsort:
+1000000 elements in 0.097 seconds.
+Shell sort:
+1000000 elements in 28.301 seconds.
+Merge sort:
+1000000 elements in 0.063 seconds.
+// Random, max 2^32, -O3, shell gaps: Ciura sequence, 1M elements
+Lib qsort:
+1000000 elements in 0.108 seconds.
+Insertion sort:
+1000000 elements in 86.712 seconds.
+Shell sort:
+1000000 elements in 25.099 seconds.
+Merge sort:
+1000000 elements in 0.097 seconds.
+
+
+// Random, max 32k, -O3, shell gaps: Ciura sequence, 100M elements
+    Lib qsort:
+    100000000 elements in 7.435 seconds.
+    Merge sort:
+    100000000 elements in 9.472 seconds.
+// Mixed, runsize 1001, max 32k, -O3, shell gaps: Ciura sequence, 100M elements
+    Lib qsort:
+    100000000 elements in 8.503 seconds.
+    Merge sort:
+    100000000 elements in 6.378 seconds.
+// Random, max 2^32, -O3, shell gaps: Ciura sequence, 100M elements
+    Lib qsort:
+    100000000 elements in 13.751 seconds.
+    Merge sort:
+    100000000 elements in 12.675 seconds.
+// Mixed, runsize 1001, max 2^32, -O3, shell gaps: Ciura sequence, 100M elements
+    Lib qsort:
+    100000000 elements in 12.412 seconds.
+    Merge sort:
+    100000000 elements in 8.150 seconds.
+
