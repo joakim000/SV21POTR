@@ -192,22 +192,22 @@ Merge sort:
 1000000 elements in 0.097 seconds.
 
 
-// Random, max 32k, -O3, shell gaps: Ciura sequence, 100M elements
+// Random, max 32k, -O3, 100M elements
     Lib qsort:
     100000000 elements in 7.435 seconds.
     Merge sort:
     100000000 elements in 9.472 seconds.
-// Mixed, runsize 1001, max 32k, -O3, shell gaps: Ciura sequence, 100M elements
+// Mixed, runsize 1001, max 32k, -O3, 100M elements
     Lib qsort:
     100000000 elements in 8.503 seconds.
     Merge sort:
     100000000 elements in 6.378 seconds.
-// Random, max 2^32, -O3, shell gaps: Ciura sequence, 100M elements
+// Random, max 2^32, -O3, 100M elements
     Lib qsort:
     100000000 elements in 13.751 seconds.
     Merge sort:
     100000000 elements in 12.675 seconds.
-// Mixed, runsize 1001, max 2^32, -O3, shell gaps: Ciura sequence, 100M elements
+// Mixed, runsize 1001, max 2^32, -O3, 100M elements
     Lib qsort:
     100000000 elements in 12.412 seconds.
     Merge sort:
