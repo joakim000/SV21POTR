@@ -335,6 +335,8 @@ void sort_merge(uint32_t *num, uint32_t size)
     // randomArray = random; // DEBUG
 
     merge_recurse(num, size, 0);
+    free(aTemp);
+    free(bTemp);
 }
 
 
