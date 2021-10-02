@@ -9,9 +9,23 @@
 
 #include "sorting.h"
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+// win
+#define GENRAND(x) (((rand() << 16) | rand()) % x)
+#elif __linux__
+// lin
+#define GENRAND(x) (rand() % x) 
+#else
+#error "Unknown compiler"
+#endif
+
+// Timing
+#define TIMING(y, x) ((float)(x - y) / CLOCKS_PER_SEC)
+clock_t timer_start; clock_t timer_end; 
+
 // Flags
 #define PRT false // print random tables
-#define PT false  // print result tables
+#define PT true  // print result tables
 #define CT true // qsort comparison testing
 #define T true // timing
 
@@ -19,18 +33,20 @@
 #define INSERTION false
 #define SELECTION false
 #define     SHELL false
-#define     MERGE true
+#define     MERGE false
 #define     QUICK false
 
-#define RND_MAX INT16_MAX
-// #define RND_MAX UINT32_MAX
+// #define RND_MAX INT16_MAX
+#define RND_MAX UINT32_MAX
 
 // Sort size
-#define ELEMENTS 100000000
+#define ELEMENTS 5000000
 
 // Declarations
+void generate_array_old(uint32_t *num, uint32_t size);
 void generate_random_array(uint32_t *num, uint32_t size);
 void generate_mixed_array(uint32_t *num, uint32_t size);
+void generate_mixed_array_old(uint32_t *num, uint32_t size);
 void print_array(uint32_t *num, uint32_t size);
 void copy_array(uint32_t *num, uint32_t size, uint32_t *out);
 void compare_array(uint32_t *num, uint32_t size, uint32_t *comp);
@@ -46,8 +62,11 @@ int main(void)
     uint32_t* compare = calloc(ELEMENTS, sizeof(uint32_t));
         assert( ("Memory allocation failed.", compare != NULL) );
 
-    generate_random_array(random, ELEMENTS);
+    generate_array_old(random, ELEMENTS);
+    // generate_random_array(random, ELEMENTS);
+    // generate_mixed_array_old(random, ELEMENTS);
     // generate_mixed_array(random, ELEMENTS);
+
     // print_array(random, ELEMENTS);
 
     /* Lib */
@@ -57,7 +76,7 @@ int main(void)
         sort_lib(compare, ELEMENTS);
     timer_end = clock();
     if (PT) print_array(compare, ELEMENTS);
-    if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+    if (T) printf("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
 
 
     /* Bubble */
@@ -68,7 +87,7 @@ int main(void)
             sort_bubble(numbers, ELEMENTS);
         timer_end = clock();
         if (PT) print_array(numbers, ELEMENTS);
-        if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+        if (T) printf("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
         if (CT) compare_array(numbers, ELEMENTS, compare);
     }
 
@@ -80,7 +99,7 @@ int main(void)
             sort_insertion(numbers, ELEMENTS);
         timer_end = clock();
         if (PT) print_array(numbers, ELEMENTS);
-        if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+        if (T) printf("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
         if (CT) compare_array(numbers, ELEMENTS, compare);
     }
 
@@ -92,7 +111,7 @@ int main(void)
             sort_selection(numbers, ELEMENTS);
         timer_end = clock();
         if (PT) print_array(numbers, ELEMENTS);
-        if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+        if (T) printf("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
         if (CT) compare_array(numbers, ELEMENTS, compare);
     }
    
@@ -104,7 +123,7 @@ int main(void)
             sort_shell(numbers, ELEMENTS);
         timer_end = clock();
         if (PT) print_array(numbers, ELEMENTS);
-        if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+        if (T) printf("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
         if (CT) compare_array(numbers, ELEMENTS, compare);
     }
    
@@ -116,7 +135,7 @@ int main(void)
             sort_merge(numbers, ELEMENTS);
         timer_end = clock();
         if (PT) print_array(numbers, ELEMENTS);
-        if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+        if (T) printf("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
         if (CT) compare_array(numbers, ELEMENTS, compare);
     }
 
@@ -128,7 +147,7 @@ int main(void)
             sort_quick(numbers, ELEMENTS);
         timer_end = clock();
         if (PT) print_array(numbers, ELEMENTS);
-        if (T) _printf_p("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
+        if (T) printf("%d elements in %5.3f seconds.\n", ELEMENTS, TIMING(timer_start, timer_end));
         if (CT) compare_array(numbers, ELEMENTS, compare);
     }
 
@@ -143,11 +162,27 @@ int main(void)
 void generate_array_old(uint32_t *num, uint32_t size)
 {
     for (size_t i = 0; i < size; i++)
-    {
-        num[i] = rand();
+    {       
+        // Better compromise: Good on deb, skewed a bit low on win
+        // num[i] = (uint32_t)( ((rand() % 0x7fff ) << 16) | rand() % 0x7fff );
+
+        // Compromise: good on win, skewed very low on deb
+        // num[i] = (uint32_t)abs(( (rand() << 16) | rand() ));
+
+        // Good on deb, max 0x8000 on win
+        // num[i] = (uint32_t)(rand() );
+
+        // Good on win, negative nums on deb
+        // num[i] = (uint32_t)((rand() << 16) | rand()) ;
+
+
+        //Cross plattform
+        num[i] = (uint32_t)GENRAND(RND_MAX);
+
     }
 }
 
+// Deb: inkluderar negativa värden... 
 void generate_random_array(uint32_t *num, uint32_t size)
 {
     for (size_t i = 0; i < size; i++) 
@@ -156,7 +191,7 @@ void generate_random_array(uint32_t *num, uint32_t size)
 
 void generate_mixed_array(uint32_t *num, uint32_t size)
 {
-    int runSize = 1001;  // Must be odd number
+    int runSize = 11;  // Must be odd number
     for (size_t i = 0; i < size; ) 
         if (i % 2) {
             uint32_t runStart = num[i - 1];
@@ -169,6 +204,22 @@ void generate_mixed_array(uint32_t *num, uint32_t size)
         }
 }
 
+void generate_mixed_array_old(uint32_t *num, uint32_t size)
+{
+    int runSize = 11;  // Must be odd number
+    for (size_t i = 0; i < size; ) 
+        if (i % 2) {
+            uint32_t runStart = num[i - 1];
+            for (int runEnd = i + runSize; i < runEnd && i < size; i++)
+                num[i] = runStart + i;
+        }
+        else {
+            for (int runEnd = i + runSize; i < runEnd && i < size; i++) 
+                num[i] = rand() % INT16_MAX;
+        }
+}
+
+
 void print_array(uint32_t *num, uint32_t size)
 {
     int orders = (int)log10(RND_MAX) + 1;
@@ -176,7 +227,7 @@ void print_array(uint32_t *num, uint32_t size)
     char fmt[10];
     sprintf(fmt, "%%%dd", orders+space);
 
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < 100; i++)
     {
         printf(fmt, num[i]);
         if (i < size - 1)
