@@ -10,10 +10,8 @@
 #include "sorting.h"
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-// win
 #define GENRAND(x) (((rand() << 16) | rand()) % x)
 #elif __linux__
-// lin
 #define GENRAND(x) (rand() % x) 
 #else
 #error "Unknown compiler"
@@ -37,16 +35,22 @@ clock_t timer_start; clock_t timer_end;
 #define     QUICK false
 
 // #define RND_MAX INT16_MAX
-#define RND_MAX UINT32_MAX
+#define RND_MAX INT32_MAX      // Max random value in sort set
+// #define RND_MAX 1000
 
-// Sort size
+#define RUN_LEN 1           // Run size, alternating linear / random 
+                            //    0: all linear, 1: all random
+
+// Sort set size
+// #define ELEMENTS 100
 #define ELEMENTS 5000000
 
 // Declarations
 void generate_array_old(uint32_t *num, uint32_t size);
-void generate_random_array(uint32_t *num, uint32_t size);
-void generate_mixed_array(uint32_t *num, uint32_t size);
+void generate_random_array(uint32_t *num, uint32_t size, uint32_t rnd_max);
+void generate_mixed_array(uint32_t *num, uint32_t size, uint32_t run_len, uint32_t rnd_max);
 void generate_mixed_array_old(uint32_t *num, uint32_t size);
+
 void print_array(uint32_t *num, uint32_t size);
 void copy_array(uint32_t *num, uint32_t size, uint32_t *out);
 void compare_array(uint32_t *num, uint32_t size, uint32_t *comp);
@@ -62,12 +66,12 @@ int main(void)
     uint32_t* compare = calloc(ELEMENTS, sizeof(uint32_t));
         assert( ("Memory allocation failed.", compare != NULL) );
 
-    generate_array_old(random, ELEMENTS);
+    // generate_array_old(random, ELEMENTS);
     // generate_random_array(random, ELEMENTS);
     // generate_mixed_array_old(random, ELEMENTS);
-    // generate_mixed_array(random, ELEMENTS);
+    generate_mixed_array(random, ELEMENTS, RUN_LEN, RND_MAX);
 
-    // print_array(random, ELEMENTS);
+    print_array(random, ELEMENTS);
 
     /* Lib */
     copy_array(random, ELEMENTS, compare);
@@ -183,25 +187,35 @@ void generate_array_old(uint32_t *num, uint32_t size)
 }
 
 // Deb: inkluderar negativa värden... 
-void generate_random_array(uint32_t *num, uint32_t size)
+void generate_random_array(uint32_t *num, uint32_t size, uint32_t rnd_max)
 {
     for (size_t i = 0; i < size; i++) 
-        num[i] = ((rand() << 16) | rand()) % RND_MAX;
+        num[i] = (uint32_t)GENRAND(rnd_max);
 }
 
-void generate_mixed_array(uint32_t *num, uint32_t size)
+void generate_mixed_array(uint32_t *num, uint32_t size, uint32_t run_len, uint32_t rnd_max)
 {
-    int runSize = 11;  // Must be odd number
-    for (size_t i = 0; i < size; ) 
-        if (i % 2) {
-            uint32_t runStart = num[i - 1];
-            for (int runEnd = i + runSize; i < runEnd && i < size; i++)
-                num[i] = runStart + i;
-        }
-        else {
-            for (int runEnd = i + runSize; i < runEnd && i < size; i++) 
-                num[i] = ((rand() << 16) | rand()) % RND_MAX;
-        }
+    if (run_len <= 0)    // Linear array
+        for (size_t i = 0; i < size; i++) 
+            num[i] = i;
+
+    else if (run_len == 1)    // Random array
+        generate_random_array(num, size, rnd_max);
+
+    else {  // Mixed array
+        int runSize = (run_len % 2 == 0) ? run_len + 1 : run_len;  // Must be odd number
+
+        for (size_t i = 0; i < size; ) 
+            if (i % 2) {
+                uint32_t runStart = num[i - 1];
+                for (int runEnd = i + runSize; i < runEnd && i < size; i++)
+                    num[i] = runStart + i;
+            }
+            else {
+                for (int runEnd = i + runSize; i < runEnd && i < size; i++) 
+                    num[i] = (uint32_t)GENRAND(rnd_max);
+            }
+    }
 }
 
 void generate_mixed_array_old(uint32_t *num, uint32_t size)
