@@ -132,7 +132,180 @@ Elements:119788  Slots:300000
                                       Combined time: 4.397   Lovande om den kan bli buggfri
 									  Blir konsistent Elements:119788 istf väntade 120000
 									  
-								
+
+Test started 09/16/21 13:37:51
+
+Elements before:120000
+Realloc done. Elements:120000  Slots:300000
+
+ Elements after:130000
+Vacants    Total:0 First:0 Last:0
+Insert 10000 of 120000 (Jump:0)
+    Secs:3.953
+
+Elements:130000  Slots:300000
+
+ Elements after:140000
+Vacants    Total:0 First:0 Last:0
+Random Insert 10000 of 120000 (Jump:0)
+    Secs:2.441
+
+Elements:140000  Slots:300000
+
+ Elements after:120000
+Vacants    Total:20000 First:10 Last:20009
+Sparse remove 20000 of 120000 (by 1)
+    Secs:0.420
+
+Elements:120000  Slots:300000
+
+ Elements after:130000
+Vacants    Total:10000 First:10 Last:20009
+Sparse Insert 10000 of 120000 (Jump:0)
+    Secs:0.314
+
+Elements:130000  Slots:300000
+
+ Elements after:140000
+Vacants    Total:10000 First:10 Last:30009
+Random Sparse Insert 10000 of 120000 (Jump:0)
+    Secs:4.642
+
+Elements:140000  Slots:300000
+
+                                      Combined time: 11.770
+									  
+									  
+									
+									
+Felanalys
+===========
+Test started 09/16/21 14:33:12
+
+Elements before:10
+Realloc done. Elements:10  Slots:25
+
+ Elements after:12
+Vacants    Total:0 First:0 Last:0
+Insert 2 of 10 (Jump:0)
+    Secs:0.000
+
+Elements:12  Slots:25
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0       i:0      slot:0
+1       i:1      slot:1
+101     i:2      slot:2
+100     i:3      slot:3
+2       i:4      slot:4
+3       i:5      slot:5
+4       i:6      slot:6
+5       i:7      slot:7
+6       i:8      slot:8
+7       i:9      slot:9
+8       i:10     slot:10
+9       i:11     slot:11
 
 
+ Elements after:14
+Vacants    Total:0 First:0 Last:0
+Random Insert 2 of 10 (Jump:0)
+    Secs:0.000
 
+Elements:14  Slots:25
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0       i:0      slot:0
+1       i:1      slot:1
+101     i:2      slot:2
+200     i:3      slot:3
+100     i:4      slot:4
+2       i:5      slot:5
+3       i:6      slot:6
+4       i:7      slot:7
+201     i:8      slot:8
+5       i:9      slot:9
+6       i:10     slot:10
+7       i:11     slot:11
+8       i:12     slot:12
+9       i:13     slot:13
+
+
+ Elements after:9
+Vacants    Total:5 First:2 Last:6
+Sparse remove 5 of 10 (by 1)
+    Secs:0.000
+
+Elements:9  Slots:25
+0 0 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0       i:0      slot:0
+1       i:1      slot:1
+4       i:2      slot:7
+201     i:3      slot:8
+5       i:4      slot:9
+6       i:5      slot:10
+7       i:6      slot:11
+8       i:7      slot:12
+9       i:8      slot:13
+
+
+ Elements after:11
+Vacants    Total:3 First:2 Last:6       Last ska vara 4!
+Insert 2 of 10 (Jump:0)
+    Secs:0.000
+
+Elements:11  Slots:25
+0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0       i:0      slot:0
+1       i:1      slot:1
+301     i:2      slot:5
+300     i:3      slot:6
+4       i:4      slot:7
+201     i:5      slot:8
+5       i:6      slot:9
+6       i:7      slot:10
+7       i:8      slot:11
+8       i:9      slot:12
+9       i:10     slot:13
+
+
+ Elements after:13
+Vacants    Total:3 First:2 Last:8
+Random Insert 2 of 10 (Jump:0)
+    Secs:0.000
+
+Elements:13  Slots:25
+0 0 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0       i:0      slot:0
+1       i:1      slot:1
+100     i:2      slot:5
+301     i:3      slot:6
+300     i:4      slot:7
+401     i:5      slot:8
+4       i:6      slot:9
+201     i:7      slot:10
+5       i:8      slot:11
+6       i:9      slot:12
+7       i:10     slot:13
+8       i:11     slot:14
+9       i:12     slot:15
+
+
+                                      Combined time: 0.000
+									  
+									  
+									  
+									  
+									  
+									  
+									  
+Problem vid insert på första vacant: 
+lements:110000  Slots:300000
+First insert at index:10 slot:10010               Last insert at index:10 slot:10
+ Elements after:120000
+Vacants    Total:0 First:10 Last:9    !!!!!!
+Random Sparse Insert 10000 of 120000 (Jump:0)
+    Secs:0.106
+
+Elements:120000  Slots:300000
+
+                                      Combined time: 0.844
+									  
