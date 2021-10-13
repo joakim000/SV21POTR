@@ -22,8 +22,8 @@ clock_t timer_start; clock_t timer_end;
 // Helper functions
 int checkArg(int argc, char *argv[], char arg[]);
 void generate_array(uint32_t *num, uint32_t size, uint32_t run_len, uint32_t rnd_max);
-void print_array(uint32_t *num, uint32_t size);
-void copy_array(uint32_t *num, uint32_t size, uint32_t *out, bool prt);
+void print_array(uint32_t *num, uint32_t size, uint32_t tmax);
+void copy_array(uint32_t *num, uint32_t size, uint32_t *out, bool prt, uint32_t tmax);
 void compare_array(uint32_t *num, uint32_t size, uint32_t *comp);
 
 // sorting.c, Sort functions
@@ -41,3 +41,5 @@ void sort_merge(uint32_t *num, uint32_t size);
 void sort_merge_d(uint32_t *num, uint32_t size);
 void sort_quick(uint32_t *num, uint32_t size);
 void sort_quick_d(uint32_t *num, uint32_t size);
+
+enum sort_algos{bub, ins, sel, she, mer, qui};
