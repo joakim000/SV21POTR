@@ -1,16 +1,16 @@
 /* Options for sorting exercise run            args    */
 
-// Flags    true overrides missing arg
+// Flags    true: disregard arg, always run
 #define PRT false  // print input tables        -it
 #define PT false  // print result tables        -rt
-#define CT false // qsort comparison testing    -test
+#define CT true  // qsort comparison testing    -test
 #define T false // timing                       -time
 
 // Printing sanity check
 #define TMAX 100   // max table size
 
 // Sorts to run                                 
-//                falls back     
+//    no sort arg falls back to these defs     
 #define    BUBBLE false                     //  bub
 #define INSERTION false                     //  ins                
 #define SELECTION false                     //  sel
@@ -30,3 +30,6 @@
 // Run size, alternating linear / random.       -run=X
 // 0: all linear, 1: all random
 #define RUN_LEN 1                               
+
+// Debugging
+#define DEBUG true
