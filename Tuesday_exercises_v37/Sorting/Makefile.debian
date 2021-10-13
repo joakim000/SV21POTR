@@ -3,9 +3,6 @@ $(info $(SHELL))
 
 .DELETE_ON_ERROR :
 
-WIN = if windows
-NOWIN = if not windows
-
 ifdef OPT
 CFLAGS = -c -std=c11 -O3
 else
@@ -14,7 +11,7 @@ endif
 
 objects = run.o sorting.o
 
-default : $(objects)
+all : $(objects)
 	cc -o run $(objects)
 
 run.o : run.c run.h options.h
@@ -31,11 +28,10 @@ clean :
 #	ifeq ($(OS),Windows_NT)
 #	clean ::
 #		$(info "if windows")
-		powershell rm *.exe 
-		powershell rm *.o
+#		powershell rm *.exe 
+#		powershell rm *.o
 #	else
 #	clean ::
 #		$(info "if not windows")
-#		rm run *.o
+		rm -f run *.o
 #	endif
-	
