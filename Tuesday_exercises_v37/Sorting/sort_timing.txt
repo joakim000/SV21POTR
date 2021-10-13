@@ -1,0 +1,84 @@
+// Random array, -O0
+Bubble sort:
+10000 elements in 0.259 seconds
+Insertion sort:
+10000 elements in 0.088 seconds
+Selection sort:
+10000 elements in 0.110 seconds
+
+// Random array, -O0
+Bubble sort:
+100000 elements in 31.382 seconds
+Insertion sort:
+100000 elements in 8.675 seconds
+Selection sort:
+100000 elements in 10.798 seconds
+
+// Random array, -O3, shell gaps: 5, 3, 1
+Bubble sort:
+50000 elements in 4.092 seconds
+Insertion sort:
+50000 elements in 0.216 seconds
+Selection sort:
+50000 elements in 1.211 seconds
+Shell sort:
+50000 elements in 0.104 seconds
+
+// Random array, -O3, shell gaps: 5, 3, 1
+Bubble sort:
+100000 elements in 17.022 seconds
+Insertion sort:
+100000 elements in 0.860 seconds
+Selection sort:
+100000 elements in 4.852 seconds
+Shell sort:
+100000 elements in 0.417 seconds
+
+// Random array, -O3, shell gaps: 5, 3, 1
+Insertion sort:
+250000 elements in 5.418 seconds
+Shell sort:
+250000 elements in 2.641 seconds
+
+// Random array, -O3, shell gaps: Ciura sequence
+Bubble sort:
+250000 elements in 107.550 seconds
+Insertion sort:
+250000 elements in 5.422 seconds
+Selection sort:
+250000 elements in 30.263 seconds
+Shell sort:
+250000 elements in 1.720 seconds
+
+// Random array, -O3, shell gaps: progessively truncated Ciura sequence
+Shell sort: 1750, 701, 301, 132, 57, 23, 10, 4, 1
+250000 elements in 1.720 seconds
+Shell sort: 701, 301, 132, 57, 23, 10, 4, 1
+250000 elements in 1.610 seconds
+Shell sort: 301, 132, 57, 23, 10, 4, 1
+250000 elements in 1.564 seconds
+Shell sort: 132, 57, 23, 10, 4, 1
+250000 elements in 1.568 seconds
+Shell sort:	57, 23, 10, 4, 1
+250000 elements in 1.718 seconds
+Shell sort: 23, 10, 4, 1
+250000 elements in 1.977 seconds
+Shell sort: 10, 4, 1
+250000 elements in 2.139 seconds
+Shell sort: 4, 1
+250000 elements in 2.886 seconds
+
+// Random array, -O0, shell gaps: Ciura sequence
+Shell sort:
+250000 elements in 38.906 seconds
+
+
+
+
+
+
+
+
+
+
+

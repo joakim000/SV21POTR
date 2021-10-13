@@ -212,4 +212,25 @@ Merge sort:
     100000000 elements in 12.412 seconds.
     Merge sort:
     100000000 elements in 8.150 seconds.
-
+// Mixed, runsize 10001, max 2^32, -O3, 100M elements
+    Lib qsort:
+    100000000 elements in 12.395 seconds.
+    Merge sort:
+    100000000 elements in 7.970 seconds.
+// Mixed, runsize 100001, max 2^32, -O3, 100M elements
+    Lib qsort:
+    100000000 elements in 12.146 seconds.
+    Merge sort:
+    100000000 elements in 7.891 seconds.
+// Mixed, runsize 100001, max 2^32, -O0, 100M elements, debian
+    Lib qsort:
+    100000000 elements in 10.422 seconds.
+    Merge sort:
+    100000000 elements in 16.594 seconds.
+    100000000 errors in 100000000 elements.
+// Mixed, runsize 100001, max 2^32, -O3, 100M elements, debian
+    Lib qsort:
+    100000000 elements in 8.484 seconds.
+    Merge sort:
+    100000000 elements in 7.500 seconds.
+    100000000 errors in 100000000 elements.
