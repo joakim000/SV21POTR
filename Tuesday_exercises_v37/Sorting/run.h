@@ -20,12 +20,13 @@
 clock_t timer_start; clock_t timer_end; 
 
 // Helper functions
+int checkArg(int argc, char *argv[], char arg[]);
 void generate_array(uint32_t *num, uint32_t size, uint32_t run_len, uint32_t rnd_max);
 void print_array(uint32_t *num, uint32_t size);
 void copy_array(uint32_t *num, uint32_t size, uint32_t *out, bool prt);
 void compare_array(uint32_t *num, uint32_t size, uint32_t *comp);
 
-// Sort functions
+// sorting.c, Sort functions
 void sort_lib(uint32_t *num, uint32_t size);
 void sort_lib_d(uint32_t *num, uint32_t size);
 void sort_bubble(uint32_t *num, uint32_t size);
