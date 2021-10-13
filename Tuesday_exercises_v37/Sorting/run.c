@@ -10,16 +10,7 @@
 #include "run.h"
 #include "options.h"
 
-int checkArg(int argc, char *argv[], char arg[]) {
-    for (int i = 1; i < argc; i++) {
-        if (!strcmp(argv[i], arg))
-            { 
-                printf("\n%s found at index %d\n", argv[i], i); 
-                return i;
-            }
-    }
-    return 0;
-}
+
 
 uint32_t elements;
 
@@ -36,9 +27,10 @@ int main(int argc, char* argv[] )
 
 
     // Process args
-    printf("%d args:\n", argc);
-    for (int i = 0; i < argc; i++)
-            printf("%d  %s\n", i, argv[i]);
+
+    // printf("%d args:\n", argc);
+    // for (int i = 0; i < argc; i++)
+    //         printf("%d  %s\n", i, argv[i]);
     
     if (argc >= 2) {
         if (checkArg(argc, argv, "-it")) prt = true;
@@ -58,13 +50,23 @@ int main(int argc, char* argv[] )
         
         int arg_size = checkArg(argc, argv, "-size");
         elements = arg_size ? strtol(argv[arg_size + 1], NULL, 10) : ELEMENTS;
-        int arg_max = checkArg(argc, argv, "-max");
-        rnd_max = arg_max ? strtol(argv[arg_max + 1], NULL, 10) : RND_MAX;
         int arg_run = checkArg(argc, argv, "-run");
         run_len = arg_run ? strtol(argv[arg_run + 1], NULL, 10) : RUN_LEN;
-
-        printf("\nelements: %d    rnd_max: %d    run_len: %d", elements, rnd_max, run_len);
-    
+        
+        int arg_max = checkArg(argc, argv, "-max");
+        if (arg_max) {
+            // char s[10] = argv[arg_run + 1];
+            char* s = argv[arg_max + 1];
+            if (!strcmp(s, "i8"))
+                rnd_max = INT8_MAX;
+            else if (!strcmp(s, "i16"))
+                rnd_max = INT16_MAX;
+            else if (!strcmp(s, "i32"))
+                rnd_max = INT32_MAX;
+            else
+                rnd_max = strtol(argv[arg_max + 1], NULL, 10);           
+        }
+        printf("\nSet size: %d    rnd_max: %d    run_len: %d", elements, rnd_max, run_len);
     }
 
     // Alloc input, working and testing array
@@ -169,6 +171,8 @@ int main(int argc, char* argv[] )
     return 0;
 }
 
+
+
 /* Helper functions */
 void generate_random_array(uint32_t *num, uint32_t size, uint32_t rnd_max)
 {
@@ -232,4 +236,23 @@ void compare_array(uint32_t *num, uint32_t size, uint32_t *comp)
         if (num[i] != comp[i])
             errors++;
     printf("%d errors in %d elements.\n", errors, size);
+}
+
+int checkArg(int argc, char *argv[], char arg[]) {
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], arg))
+            { 
+                // printf("\n%s found at index %d\n", argv[i], i); 
+                return i;
+            }
+    }
+    return 0;
+}
+
+void prep(char* title){
+
+}
+
+void cleanup() {
+    
 }
