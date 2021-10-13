@@ -13,7 +13,7 @@ objects = run.o sorting.o
 
 default : $(objects)
 	cc -o run $(objects)
-	run.o : run.h options.h 
+	run.o : run.h options.h sorts.h
 	sorting.o : sorting.h
 	
 opt :

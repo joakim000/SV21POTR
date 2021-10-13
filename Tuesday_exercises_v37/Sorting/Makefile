@@ -17,7 +17,7 @@ objects = run.o sorting.o
 default : $(objects)
 	cc -o run $(objects)
 
-run.o : run.c run.h options.h
+run.o : run.c options.h run.h sorts.h 
 	cc $(CFLAGS) run.c
 sorting.o : sorting.c sorting.h
 	cc $(CFLAGS) sorting.c

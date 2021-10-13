@@ -26,20 +26,34 @@ void print_array(uint32_t *num, uint32_t size, uint32_t tmax);
 void copy_array(uint32_t *num, uint32_t size, uint32_t *out, bool prt, uint32_t tmax);
 void compare_array(uint32_t *num, uint32_t size, uint32_t *comp);
 
-// sorting.c, Sort functions
-void sort_lib(uint32_t *num, uint32_t size);
-void sort_lib_d(uint32_t *num, uint32_t size);
-void sort_bubble(uint32_t *num, uint32_t size);
-void sort_bubble_d(uint32_t *num, uint32_t size);
-void sort_insertion(uint32_t *num, uint32_t size);
-void sort_insertion_d(uint32_t *num, uint32_t size);
-void sort_selection(uint32_t *num, uint32_t size);
-void sort_selection_d(uint32_t *num, uint32_t size);
-void sort_shell(uint32_t *num, uint32_t size);
-void sort_shell_d(uint32_t *num, uint32_t size);
-void sort_merge(uint32_t *num, uint32_t size);
-void sort_merge_d(uint32_t *num, uint32_t size);
-void sort_quick(uint32_t *num, uint32_t size);
-void sort_quick_d(uint32_t *num, uint32_t size);
+// Sort holder
+typedef struct sort_holder {
+    char* name;
+    char* print_name;
+    bool default_run;
+    void (*sort_ptr)(uint32_t*, uint32_t size); // ptr to sort function
+    bool run;
+} sort;
 
-enum sort_algos{bub, ins, sel, she, mer, qui};
+// Help text
+char* HELPTEXT1 = "\
+ Flags\n \
+  print input tables         -it\n \
+  print result tables        -rt\n \
+  disable testing            -notest\n \
+  timing                     -time\n \
+\n \
+Sorts to run                  ";
+
+char* HELPTEXT2 = "\
+\n\n \
+Sort set\n \
+  Size                         [100]   -size value\n \
+  Biggest random value         [i32]   -max {i8, i16, i32, value}\n \
+  Composition                  [1]     -run value\n \
+    0: all linear\n \
+    1: all random\n \
+    >1: alternating runs\n \
+        of value length.\n \
+\n \
+Print size (sanity check)      [100]   -tmax value\n";

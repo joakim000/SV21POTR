@@ -9,21 +9,26 @@
 
 #include "run.h"
 #include "options.h"
+#include "sorts.h"
 
 uint32_t elements;
 
 int main(int argc, char* argv[] )
 {
-    /* Set default options */
+    /* Defaults from options.h */
     // Flags
-    bool prt = PRT; bool pt = PT;  bool ct = CT; bool t = T;
+    bool prt = PRT; 
+    bool pt = PT;  
+    bool ct = CT; 
+    bool t = T;
     uint32_t tmax = TMAX;
-    // Sorts
-    bool bub = BUBBLE; bool ins = INSERTION; bool sel = SELECTION;
-    bool she = SHELL; bool mer = MERGE; bool qui = QUICK;    
-    // Sort set
-    elements = ELEMENTS;  uint32_t rnd_max = RND_MAX; uint32_t run_len = RUN_LEN;
 
+    // Sort set
+    elements = ELEMENTS;
+    uint32_t rnd_max = RND_MAX; 
+    int32_t run_len = RUN_LEN;
+
+   
     /* Process args */
 
     // printf("%d args:\n", argc);
@@ -31,29 +36,31 @@ int main(int argc, char* argv[] )
     //         printf("%d  %s\n", i, argv[i]);
     
     if (argc >= 2) {
+        // Print help
         if (checkArg(argc, argv, "help") || (checkArg(argc, argv, "-h")) || (checkArg(argc, argv, "--help"))) {
             printf(HELPTEXT1);
-            if (bub) printf("bub ");     if (ins) printf("ins ");     if (sel) printf("sel ");
-            if (she) printf("she ");     if (mer) printf("mer ");     if (qui) printf("qui");
+            printf("[ ");
+            for (int i = 0; i < NUMBER_OF_SORTS; i++) 
+                if (sorts[i].default_run) 
+                    printf("%s ", sorts[i].name);  
+            printf("]\n");
+            for (int i = 0; i < NUMBER_OF_SORTS; i++) 
+                printf("%20s: %3s\n", sorts[i].print_name, sorts[i].name);        
             printf(HELPTEXT2);
             exit(0);
         }
 
+        // Flags
         if (checkArg(argc, argv, "-it")) prt = true;
         if (checkArg(argc, argv, "-rt")) pt = true;
         if (checkArg(argc, argv, "-notest")) ct = false;
         if (checkArg(argc, argv, "-time")) t = true;
 
-        bool arg_sorts[6];
-        arg_sorts[0] = checkArg(argc, argv, "bub"); arg_sorts[1] = checkArg(argc, argv, "ins"); arg_sorts[2] = checkArg(argc, argv, "sel");  
-        arg_sorts[3] = checkArg(argc, argv, "she"); arg_sorts[4] = checkArg(argc, argv, "mer"); arg_sorts[5] = checkArg(argc, argv, "qui");
-        for (int i = 0; i < 6; i++)
-            if ((bool)arg_sorts[i]) {
-                bub = arg_sorts[0]; ins = arg_sorts[1]; sel = arg_sorts[2];
-                she = arg_sorts[3]; mer = arg_sorts[4]; qui = arg_sorts[5];
-                break;
-            }
-        
+        // Sorts to run
+        for (int i = 0; i < NUMBER_OF_SORTS; i++) 
+            sorts[i].run = (bool)checkArg(argc, argv, sorts[i].name); 
+
+        // Numerical value args
         int arg_tmax = checkArg(argc, argv, "-tmax");
         tmax = arg_tmax ? strtol(argv[arg_tmax + 1], NULL, 10) : TMAX;
         int arg_size = checkArg(argc, argv, "-size");
@@ -74,8 +81,19 @@ int main(int argc, char* argv[] )
             else
                 rnd_max = strtol(argv[arg_max + 1], NULL, 10);           
         }
-        printf("\nSet size: %d    rnd_max: %d    run_len: %d", elements, rnd_max, run_len);
+       
     }
+
+    // Print some info
+    printf("\nSet size: %d    Biggest: %d    Composition: %d", elements, rnd_max, run_len);
+
+    // If no sort args then use defaults
+        for (int i = 0; i < NUMBER_OF_SORTS; i++) 
+            if (sorts[i].run) 
+                break;
+            else
+                for (int i = 0; i < NUMBER_OF_SORTS; i++) 
+                    sorts[i].run = sorts[i].default_run; 
 
     // Alloc input, working and testing array
     uint32_t* random = calloc(elements, sizeof(uint32_t));
@@ -90,7 +108,7 @@ int main(int argc, char* argv[] )
     generate_array(random, elements, run_len, rnd_max);
     // print_array(random, elements);
 
-    /* Lib */
+    /* Run libsort if needed for testing or timing */
     if (ct || t) {
         copy_array(random, elements, compare, prt, tmax);
         printf("\nLib qsort: \n"); 
@@ -99,78 +117,22 @@ int main(int argc, char* argv[] )
         timer_end = clock();
         if (pt) print_array(compare, elements, tmax);
         if (t) printf("%d elements in %5.3f seconds.\n", elements, TIMING(timer_start, timer_end));
+        if (!pt && !t) printf("Done.\n");
     }
 
-    /* Bubble */
-    if (bub) {
-        copy_array(random, elements, numbers, prt, tmax);
-        printf("\nBubble sort: \n"); 
-        timer_start = clock();
-            sort_bubble(numbers, elements);
-        timer_end = clock();
-        if (pt) print_array(numbers, elements, tmax);
-        if (t) printf("%d elements in %5.3f seconds.\n", elements, TIMING(timer_start, timer_end));
-        if (ct) compare_array(numbers, elements, compare);
-    }
-
-    /* Insertion */
-    if (ins) {
-        copy_array(random, elements, numbers, prt, tmax);
-        printf("\nInsertion sort: \n"); //Low to High
-        timer_start = clock();
-            sort_insertion(numbers, elements);
-        timer_end = clock();
-        if (pt) print_array(numbers, elements, tmax);
-        if (t) printf("%d elements in %5.3f seconds.\n", elements, TIMING(timer_start, timer_end));
-        if (ct) compare_array(numbers, elements, compare);
-    }
-
-    /* Selection */
-    if (sel) {
-        copy_array(random, elements, numbers, prt, tmax);
-        printf("\nSelection sort: \n"); //Low to High
-        timer_start = clock();
-            sort_selection(numbers, elements);
-        timer_end = clock();
-        if (pt) print_array(numbers, elements, tmax);
-        if (t) printf("%d elements in %5.3f seconds.\n", elements, TIMING(timer_start, timer_end));
-        if (ct) compare_array(numbers, elements, compare);
-    }
-   
-    /* Shell */
-    if (she) {
-        copy_array(random, elements, numbers, prt, tmax);
-        printf("\nShell sort: \n"); //Low to High
-        timer_start = clock();
-            sort_shell(numbers, elements);
-        timer_end = clock();
-        if (pt) print_array(numbers, elements, tmax);
-        if (t) printf("%d elements in %5.3f seconds.\n", elements, TIMING(timer_start, timer_end));
-        if (ct) compare_array(numbers, elements, compare);
-    }
-   
-    /* Merge */
-    if (mer) {
-        copy_array(random, elements, numbers, prt, tmax);
-        printf("\nMerge sort: \n"); //Low to High
-        timer_start = clock();
-            sort_merge(numbers, elements);
-        timer_end = clock();
-        if (pt) print_array(numbers, elements, tmax);
-        if (t) printf("%d elements in %5.3f seconds.\n", elements, TIMING(timer_start, timer_end));
-        if (ct) compare_array(numbers, elements, compare);
-    }
-
-    /* Quick */
-    if (qui) {
-        copy_array(random, elements, numbers, prt, tmax);
-        printf("\nQuick sort: \n"); //Low to High
-        timer_start = clock();
-            sort_quick(numbers, elements);
-        timer_end = clock();
-        if (pt) print_array(numbers, elements, tmax);
-        if (t) printf("%d elements in %5.3f seconds.\n", elements, TIMING(timer_start, timer_end));
-        if (ct) compare_array(numbers, elements, compare);
+    /* Run sorts */
+    for (int i = 0; i < NUMBER_OF_SORTS; i++) {
+        if (sorts[i].run) {
+            copy_array(random, elements, numbers, prt, tmax);
+            printf("\n%s: \n", sorts[i].print_name);
+            timer_start = clock();
+                sorts[i].sort_ptr(numbers, elements);
+            timer_end = clock();
+            if (pt) print_array(numbers, elements, tmax);
+            if (t) printf("%d elements in %5.3f seconds.\n", elements, TIMING(timer_start, timer_end));
+            if (ct) compare_array(numbers, elements, compare);
+            if (!pt && !t && !ct) printf("Done.\n");
+        }
     }
 
     free(random);
@@ -179,8 +141,6 @@ int main(int argc, char* argv[] )
 
     return 0;
 }
-
-
 
 /* Helper functions */
 void generate_random_array(uint32_t *num, uint32_t size, uint32_t rnd_max)
@@ -262,6 +222,8 @@ void prep(char* title){
 
 }
 
-void cleanup() {
-    
-}
+// static inline void cleanup() {
+//      if (pt) print_array(numbers, elements, tmax);
+//      if (t) printf("%d elements in %5.3f seconds.\n", elements, TIMING(timer_start, timer_end));
+//      if (ct) compare_array(numbers, elements, compare);
+// }
