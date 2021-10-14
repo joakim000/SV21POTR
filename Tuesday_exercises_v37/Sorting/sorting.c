@@ -57,7 +57,7 @@ void sort_lib(uint32_t *num, uint32_t size) {
     The algorithm starts at the beginning of the data set.
     It compares the first two elements, and if the first is greater than the second, it swapped them.
     It continues doing this for each pair of adjacent elements to the end of the data set.
-    It then starts again with the first two elements, repeating until no swapped have occurred on the last pass.
+    It then starts again with the first two elements, repeating until no swaps have occurred on the last pass.
 */
 
 void swap(uint32_t *a, uint32_t *b)
@@ -107,10 +107,10 @@ void sort_bubble_d(uint32_t *num, uint32_t size)
     Each insertion overwrites a single value: the value being inserted.
 */
 
-void insert(int index, uint32_t *num, uint32_t size, int direction ) {
+void insert(int index, uint32_t *num, uint32_t size, int ascend0descend1 ) {
     int moveToIndex = index;
     //Find place
-    if (direction == 1) 
+    if (ascend0descend1 == 1) 
         for (int i = index - 1; i >= 0; i--) 
             if (num[i] < num[index])
                 moveToIndex--;
@@ -201,16 +201,16 @@ void sort_selection_d(uint32_t *num, uint32_t size)
     gaps = [1750, 701, 301, 132, 57, 23, 10, 4, 1]  // Extended Ciura gap sequence
                                                     // https://oeis.org/A102549/internal 
 */
-void gapInsert(int index, int gap, uint32_t *num, uint32_t size, int direction ) {
+void gapInsert(int index, int gap, uint32_t *num, uint32_t size, int ascend0descend1 ) {
     int moveToIndex = index;
     //Find place
-    if (direction == 1) 
-        for (int i = index - 1; i >= 0; i--) 
-            if (num[i] < num[index])
-                moveToIndex--;
-            else
-                break;
-    else 
+    // if (ascend0descend1 == 1)   
+    //     for (int i = index - 1; i >= 0; i--)  // Regular insert
+    //         if (num[i] < num[index])
+    //             moveToIndex--;
+    //         else
+    //             break;
+    // else 
         for (int i = index - gap; i >= 0; i -= gap) 
             if (num[i] > num[index])
                 moveToIndex -= gap;
@@ -269,7 +269,7 @@ uint32_t* b;
 
 void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
     // Shouldn't happen
-    assert( ("Illegal array size", size > 0) );
+    assert( ("Zero array size", size > 0) );
 
     // Split into 2 virtual parts    
     int aSize = size / 2;
@@ -285,6 +285,7 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
     if (size > 1) {
 
         /* Copy values to be sorted for this call. */
+        // Note: Cleverer implementations use back-and-forth copying to avoid this step.
         // Begin reading a-values at start index for this call
         for (int i = 0; i < aSize; i++) { 
             a[i] = num[start + i];
@@ -296,12 +297,12 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
         }
 
         /* Compare and write values into sort array. */
-        int p = start; // For this call, start writing here. Later increment p whenever writing value.
+        int p = start; // For this call, start writing here. Later increment p when writing value.
 
         for (int i = 0, j = 0; i < aSize; i++) {
             // Case 1: have more a-values but out of b-values. Continue looping over and writing a-vals.
-            //    Forgetting about this was source of intermittent errors depending on look of random array. 
-            // Case 2: a-val is already < b-val, write and continue to next a-val
+            // Note: Missing case 1 was source of intermittent errors depending on look of random array. 
+            // Case 2: Already sorted (a-val < b-val), write and continue to next a-val
             if (j >= bSize || a[i] < b[j]) {
                 num[p++] = a[i];
                 continue;
