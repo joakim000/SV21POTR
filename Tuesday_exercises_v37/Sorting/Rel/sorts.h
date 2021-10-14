@@ -13,7 +13,7 @@ void sort_shell(uint32_t *num, uint32_t size);
 void sort_merge(uint32_t *num, uint32_t size);
 void sort_quick(uint32_t *num, uint32_t size);
 
-    // Descending variants
+// Descending variants
 void sort_lib_d(uint32_t *num, uint32_t size);
 void sort_bubble_d(uint32_t *num, uint32_t size);
 void sort_insertion_d(uint32_t *num, uint32_t size);
@@ -24,13 +24,26 @@ void sort_quick_d(uint32_t *num, uint32_t size);
 
 
 // Init sorts, using default run setting from options.h
-#define NUMBER_OF_SORTS 6
-sort sorts[NUMBER_OF_SORTS] = {
+#define NUMBER_OF_SORTS 7
+
+sort sorts_a[NUMBER_OF_SORTS] = {
+    {.name="lib", .print_name="Lib qsort", .default_run=true, .sort_ptr = sort_lib},
     {.name="bub", .print_name="Bubble sort", .default_run=BUBBLE, .sort_ptr = sort_bubble},
     {.name="ins", .print_name="Insertion sort", .default_run=INSERTION, .sort_ptr = sort_insertion},
     {.name="sel", .print_name="Selection sort", .default_run=SELECTION, .sort_ptr = sort_selection},
     {.name="she", .print_name="Shell sort", .default_run=SHELL, .sort_ptr = sort_shell},
     {.name="mer", .print_name="Merge sort", .default_run=MERGE, .sort_ptr = sort_merge},
     {.name="qui", .print_name="Quick sort", .default_run=QUICK, .sort_ptr = sort_quick}
-};
+}; 
+
+sort sorts_d[NUMBER_OF_SORTS] = {
+    {.name="lib", .print_name="Lib qsort", .default_run=true, .sort_ptr = sort_lib_d},
+    {.name="bub", .print_name="Bubble sort", .default_run=BUBBLE, .sort_ptr = sort_bubble_d},
+    {.name="ins", .print_name="Insertion sort", .default_run=INSERTION, .sort_ptr = sort_insertion_d},
+    {.name="sel", .print_name="Selection sort", .default_run=SELECTION, .sort_ptr = sort_selection_d},
+    {.name="she", .print_name="Shell sort", .default_run=SHELL, .sort_ptr = sort_shell_d},
+    {.name="mer", .print_name="Merge sort", .default_run=MERGE, .sort_ptr = sort_merge_d},
+    {.name="qui", .print_name="Quick sort", .default_run=QUICK, .sort_ptr = sort_quick_d}
+}; 
+
 

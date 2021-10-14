@@ -23,12 +23,17 @@ int main(int argc, char* argv[] )
     bool t = T;
     uint32_t tmax = TMAX;
 
+    // Sort ascending or descending
+    bool descend = DESCEND;
+    sort* sorts = descend ? sorts_d : sorts_a;
+    
     // Sort set
     elements = ELEMENTS;
     uint32_t rnd_max = RND_MAX; 
     int32_t run_len = RUN_LEN;
 
-   
+     
+      
     /* Process args */
 
     // printf("%d args:\n", argc);
@@ -55,6 +60,8 @@ int main(int argc, char* argv[] )
         if (checkArg(argc, argv, "-rt")) pt = true;
         if (checkArg(argc, argv, "-notest")) ct = false;
         if (checkArg(argc, argv, "-time")) t = true;
+        if (checkArg(argc, argv, "-d")) descend = true;
+        sorts = descend ? sorts_d : sorts_a;
 
         // Sorts to run
         for (int i = 0; i < NUMBER_OF_SORTS; i++) 
@@ -88,13 +95,15 @@ int main(int argc, char* argv[] )
     printf("\nSet size: %d    Biggest: %d    Composition: %d", elements, rnd_max, run_len);
 
     // If no sort args then use defaults
-        for (int i = 0; i < NUMBER_OF_SORTS; i++) 
+        for (int i = 1; i < NUMBER_OF_SORTS; i++) 
             if (sorts[i].run) 
                 break;
             else
-                for (int i = 0; i < NUMBER_OF_SORTS; i++) 
+                for (int i = 1; i < NUMBER_OF_SORTS; i++) 
                     sorts[i].run = sorts[i].default_run; 
 
+    
+   
     // Alloc input, working and testing array
     uint32_t* random = calloc(elements, sizeof(uint32_t));
         assert( ("Memory allocation failed.", random != NULL) );
@@ -113,7 +122,7 @@ int main(int argc, char* argv[] )
         copy_array(random, elements, compare, prt, tmax);
         printf("\nLib qsort: \n"); 
         timer_start = clock();
-            sort_lib(compare, elements);
+            sorts[0].sort_ptr(compare, elements);
         timer_end = clock();
         if (pt) print_array(compare, elements, tmax);
         if (t) printf("%d elements in %5.3f seconds.\n", elements, TIMING(timer_start, timer_end));
@@ -121,7 +130,7 @@ int main(int argc, char* argv[] )
     }
 
     /* Run sorts */
-    for (int i = 0; i < NUMBER_OF_SORTS; i++) {
+    for (int i = 1; i < NUMBER_OF_SORTS; i++) {
         if (sorts[i].run) {
             copy_array(random, elements, numbers, prt, tmax);
             printf("\n%s: \n", sorts[i].print_name);

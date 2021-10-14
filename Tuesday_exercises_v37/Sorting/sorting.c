@@ -43,11 +43,19 @@
     Assumed error-free, use as comparison for functional tests
     and as performance reference.
 */
-int cmpfunc (const void * a, const void * b) {  // From tutorialspoint
+int cmpAscend (const void * a, const void * b) {  // From tutorialspoint
    return ( *(int*)a - *(int*)b );
 }
+
+int cmpDescend (const void * a, const void * b) {  // From tutorialspoint
+   return ( *(int*)b - *(int*)a );
+}
+
 void sort_lib(uint32_t *num, uint32_t size) {
-    qsort(num, size, sizeof(int), cmpfunc);
+    qsort(num, size, sizeof(int), cmpAscend);
+}
+void sort_lib_d(uint32_t *num, uint32_t size) {
+    qsort(num, size, sizeof(int), cmpDescend);
 }
 
 
@@ -204,13 +212,13 @@ void sort_selection_d(uint32_t *num, uint32_t size)
 void gapInsert(int index, int gap, uint32_t *num, uint32_t size, int ascend0descend1 ) {
     int moveToIndex = index;
     //Find place
-    // if (ascend0descend1 == 1)   
-    //     for (int i = index - 1; i >= 0; i--)  // Regular insert
-    //         if (num[i] < num[index])
-    //             moveToIndex--;
-    //         else
-    //             break;
-    // else 
+    if (ascend0descend1 == 1)   
+        for (int i = index - gap; i >= 0; i -= gap)  // Regular insert
+            if (num[i] < num[index])
+                moveToIndex -= gap;
+            else
+                break;
+    else 
         for (int i = index - gap; i >= 0; i -= gap) 
             if (num[i] > num[index])
                 moveToIndex -= gap;
@@ -240,6 +248,15 @@ void sort_shell(uint32_t *num, uint32_t size)
     }   
 }
 
+void sort_shell_d(uint32_t *num, uint32_t size)
+{
+    int gaps[] = {1750, 701, 301, 132, 57, 23, 10, 4, 1};  // Extended Ciura gap sequence
+
+    for (int si = 0; si < COUNT_OF(gaps); si++) { // si: shell iterator
+        for (int i = 1; i < size; i++)
+            gapInsert(i, gaps[si], num, size, 1);
+    }   
+}
 
 
 
@@ -318,6 +335,8 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
     }
 }
 
+
+
 void sort_merge(uint32_t *num, uint32_t size)
 // void sort_merge(uint32_t *num, uint32_t size, uint32_t *random)  //DEBUG
 {
@@ -340,7 +359,9 @@ void sort_merge(uint32_t *num, uint32_t size)
     free(bTemp);
 }
 
-
+void sort_merge_d(uint32_t *num, uint32_t size) {
+   // implement me!
+}
 
 
 
@@ -361,9 +382,12 @@ void sort_merge(uint32_t *num, uint32_t size)
 */
 void sort_quick(uint32_t *num, uint32_t size)
 {
-    //implement me!
+    // implement me!
 }
-
+void sort_quick_d(uint32_t *num, uint32_t size)
+{
+    // implement me!
+}
 
 
 

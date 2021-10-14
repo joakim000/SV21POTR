@@ -5,6 +5,7 @@
 #define PT false  // print result tables        -rt
 #define CT true  // qsort comparison testing    -notest
 #define T false // timing                       -time
+#define DESCEND false    // sort descending     -desc
 
 // Printing sanity check
 #define TMAX 100   // max table size
