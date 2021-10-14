@@ -21,8 +21,17 @@
     same ideas is easier and potentially illuminating.
 
     run.c 
-    is a running script with some helper functions,
+    Running script with some helper functions,
     functionality test and basic timing.
+    
+    options.h
+    Option defaults. Cmd line args also available,
+    check "run --help"
+
+    sorts.h
+    To run additional algorithms, implement in
+    sorting.h and declare here.
+
     stdlib qsort used as test and timing reference.
     Descriptions from Wikipedia.
 */
