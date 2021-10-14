@@ -46,7 +46,6 @@
 int cmpAscend (const void * a, const void * b) {  // From tutorialspoint
    return ( *(int*)a - *(int*)b );
 }
-
 int cmpDescend (const void * a, const void * b) {  // From tutorialspoint
    return ( *(int*)b - *(int*)a );
 }
