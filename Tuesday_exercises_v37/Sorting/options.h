@@ -16,7 +16,7 @@
 #define INSERTION false                     //  ins                
 #define SELECTION false                     //  sel
 #define     SHELL false                     //  she
-#define     MERGE true                      //  mer
+#define     MERGE false                     //  mer
 #define     QUICK false                     //  qui
 
 /* Sort set options */
