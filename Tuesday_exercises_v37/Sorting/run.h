@@ -16,7 +16,7 @@
 #endif
 
 // Timing
-#define TIMING(y, x) ((float)(x - y) / CLOCKS_PER_SEC)
+#define TIMING(y, x) ((double)(x - y) / CLOCKS_PER_SEC)
 clock_t timer_start; clock_t timer_end; 
 
 // Helper functions
@@ -24,7 +24,7 @@ int checkArg(int argc, char *argv[], char arg[]);
 void generate_array(uint32_t *num, uint32_t size, uint32_t run_len, uint32_t rnd_max);
 void print_array(uint32_t *num, uint32_t size, uint32_t tmax);
 void copy_array(uint32_t *num, uint32_t size, uint32_t *out, bool prt, uint32_t tmax);
-void compare_array(uint32_t *num, uint32_t size, uint32_t *comp);
+uint32_t compare_array(uint32_t *num, uint32_t size, uint32_t *comp);
 
 // Sort holder
 typedef struct sort_holder {
@@ -38,10 +38,13 @@ typedef struct sort_holder {
 // Help text
 char* HELPTEXT1 = "\
  Flags\n \
-  print input tables         -it\n \
-  print result tables        -rt\n \
+  print input tables         -prtin\n \
+  print result tables        -prtout\n \
+  verbose output             -v\n \
+  output csv                 -csv\n \
+  output json                -json\n \
+  timing                     -perf\n \
   disable testing            -notest\n \
-  timing                     -time\n \
   sort descending            -d\n \
 \n \
 Sorts to run                  ";
