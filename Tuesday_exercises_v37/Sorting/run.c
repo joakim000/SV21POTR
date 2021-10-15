@@ -20,6 +20,7 @@ int main(int argc, char* argv[] )
     bool prtin = false;
     bool prtout = false;
     bool prterr = false;
+    bool noprtref = false;
     bool csv = false;
     bool json = false;
     bool perf = false;
@@ -46,6 +47,10 @@ int main(int argc, char* argv[] )
     // for (int i = 0; i < argc; i++)
     //         printf("%d  %s\n", i, argv[i]);
     
+    char* fakeargs[] = {"run.exe", "tme", "-prterr", "-noprtref", 
+                        "-size", "1000", "-run", "0", "-tmax", "1000"};
+    // argv = fakeargs;     argc = 10;
+
     if (argc >= 2) {
         // Print help
         if (checkArg(argc, argv, "help") || (checkArg(argc, argv, "-h")) || (checkArg(argc, argv, "--help"))) {
@@ -64,6 +69,7 @@ int main(int argc, char* argv[] )
         if (checkArg(argc, argv, "-prtin")) prtin = true;
         if (checkArg(argc, argv, "-prtout")) prtout = true;
         if (checkArg(argc, argv, "-prterr")) prterr = true;
+        if (checkArg(argc, argv, "-prterr")) noprtref = true;
         if (checkArg(argc, argv, "-csv")) csv = true;
         if (checkArg(argc, argv, "-json")) json = true;
         if (checkArg(argc, argv, "-perf")) perf = true;
@@ -136,7 +142,7 @@ int main(int argc, char* argv[] )
             sorts[0].sort_ptr(compare, elements);
         timer_end = clock();
         libTime = TIMING(timer_start, timer_end);
-        if (prtout || prterr) 
+        if (!noprtref && (prtout || prterr)) 
             print_array(compare, elements, tmax, rnd_max);
         if (perf) 
             printf("%d elements in %5.3f seconds.\n", elements, libTime);
@@ -246,7 +252,7 @@ void compare_print_array(uint32_t *num, uint32_t size, uint32_t *comp, uint32_t 
         if (i != 0 && (i + 1) % 10 == 0 && i + 1 != size)
             printf("\n");
     }
-    printf("\t%d errors printed.\n", errors);
+    printf("\n\t%d errors printed.\n", errors);
 }
 
 void copy_array(uint32_t *num, uint32_t size, uint32_t *out, bool prtin, uint32_t tmax) {
