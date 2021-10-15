@@ -55,7 +55,7 @@ int main(int argc, char* argv[] )
                     printf("%s ", sorts[i].name);  
             printf("]\n");
             for (int i = 0; i < NUMBER_OF_SORTS; i++) 
-                printf("%20s: %3s\n", sorts[i].print_name, sorts[i].name);        
+                printf("%23s: %3s\n", sorts[i].print_name, sorts[i].name);        
             printf(HELPTEXT2);
             exit(0);
         }

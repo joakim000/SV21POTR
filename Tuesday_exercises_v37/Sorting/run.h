@@ -52,7 +52,7 @@ char* HELPTEXT1 = "\
 Sorts to run                  ";
 
 char* HELPTEXT2 = "\
-\n\n \
+\n \
 Sort set\n \
   Size                         [100]   -size value\n \
   Biggest random value         [i32]   -max {i8, i16, i32, value}\n \

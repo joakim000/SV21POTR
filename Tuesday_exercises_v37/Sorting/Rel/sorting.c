@@ -6,8 +6,10 @@
 		b. Insertion  
 		c. Selection 
         d. Shell     
-		e. Merge     
+		e. Merge
+        e2. Threaded merge   
         f. Quick
+        g. Radix
     The idea with this exercise is to encourage fluency in
     translating your your idea of an action into C instructions.
     There are no advanced concepts or standards, just steps
@@ -190,3 +192,43 @@ void sort_quick(uint32_t *num, uint32_t size) {
 void sort_quick_d(uint32_t *num, uint32_t size) {
 
 }
+
+
+
+/*  Threaded merge sort:
+    The splitting into sublists in merge sort should make it an 
+    easy target for threading.
+*/
+void sort_tmerge(uint32_t *num, uint32_t size) {
+
+}
+
+void sort_tmerge_d(uint32_t *num, uint32_t size) {
+
+}
+
+
+
+/*  Radix sort:
+
+*/
+void sort_radix(uint32_t *num, uint32_t size) {
+
+}
+
+void sort_radix_d(uint32_t *num, uint32_t size) {
+
+}
+
+
+/*  Timsort:
+
+*/
+void sort_tim(uint32_t *num, uint32_t size) {
+
+}
+
+void sort_tim_d(uint32_t *num, uint32_t size) {
+
+}
+

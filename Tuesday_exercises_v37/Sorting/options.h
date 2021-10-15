@@ -18,6 +18,8 @@
 #define     SHELL false                     //  she
 #define     MERGE false                     //  mer
 #define     QUICK false                     //  qui
+#define    TMERGE false                     //  tme
+#define     RADIX false                     //  rad
 
 /* Sort set options */
 // Size                                         -size X
