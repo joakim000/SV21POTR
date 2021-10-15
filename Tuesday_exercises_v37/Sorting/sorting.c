@@ -368,8 +368,128 @@ void sort_merge_d(uint32_t *num, uint32_t size) {
     The splitting into sublists in merge sort should make it an 
     easy target for threading.
 */
-void sort_tmerge(uint32_t *num, uint32_t size) {
+struct tmerge_args {
+    uint32_t* num;
+    uint32_t size;
+    uint32_t start;
+};
 
+void *tmerge_recurse(void *params) {
+    // Get args
+    struct tmerge_args *args = params;
+    uint32_t* num = args->num;
+    uint32_t size = args->size;
+    uint32_t start = args->start;
+    
+    // Shouldn't happen
+    assert( ("Zero array size", size > 0) );
+
+    // Split into 2 virtual parts    
+    int aSize = size / 2;
+    int bSize = size / 2 + size % 2;
+ 
+    // Continue splitting    
+    if (size > 2) {
+        int err;
+        pthread_t tId_a;
+        pthread_t tId_b;
+
+        struct tmerge_args args_a = {
+            .num = num,
+            .size = aSize,
+            .start = start
+        };
+        struct tmerge_args args_b = {
+            .num = num,
+            .size = bSize,
+            .start = start + aSize
+        };
+
+        err = 
+            pthread_create(&tId_a, NULL, &tmerge_recurse, (void *)&args_a);
+        assert( ("Thread creation failed.", err == 0) );
+
+        err = 
+            pthread_create(&tId_b, NULL, &tmerge_recurse, (void *)&args_b);
+        assert( ("Thread creation failed.", err == 0) );
+
+
+        pthread_join(tId_a, NULL);
+        pthread_join(tId_b, NULL);
+        
+    
+    }
+
+    // Now we're on the way up. First ignore size 1 (by definition sorted). Then start comparing.
+    if (size > 1) {
+
+        /* Copy values to be sorted for this call. */
+        // Note: Cleverer implementations use back-and-forth copying to avoid this step.
+        // Begin reading a-values at start index for this call
+        for (int i = 0; i < aSize; i++) { 
+            a[i] = num[start + i];
+        }
+
+        // Read b-values at count of a-values further along array 
+        for (int i = 0; i < bSize; i++) { 
+            b[i] = num[start + aSize + i];
+        }
+
+        /* Compare and write values into sort array. */
+        int p = start; // For this call, start writing here. Later increment p when writing value.
+
+        for (int i = 0, j = 0; i < aSize; i++) {
+            // Case 1: have more a-values but out of b-values. Continue looping over and writing a-vals.
+            // Note: Missing case 1 was source of intermittent errors depending on look of random array. 
+            // Case 2: Already sorted (a-val < b-val), write and continue to next a-val
+            if (j >= bSize || a[i] < b[j]) {
+                num[p++] = a[i];
+                continue;
+            }
+            
+            // Case 3: b-val < a-val. Continue writing b-vals until current a-val is smaller or b-vals exhausted.
+            do {
+                num[p++] = b[j++];
+            }  while (j < bSize && b[j] < a[i]);
+            // After 1 or more b-vals, finally write current a-val. 
+            num[p++] = a[i];
+        }
+    }
+}
+
+void sort_tmerge(uint32_t *num, uint32_t size) {
+// void sort_tmerge(uint32_t *num, uint32_t size, uint32_t *random)  //DEBUG
+{
+    // To hold temp values
+    uint32_t* aTemp;
+    aTemp = calloc(size / 2 + 2, sizeof(uint32_t));
+    assert( ("Memory allocation failed.", aTemp != NULL) );
+    a = aTemp;
+
+    uint32_t* bTemp;
+    bTemp = calloc(size / 2 + 2, sizeof(uint32_t));
+    assert( ("Memory allocation failed.", bTemp != NULL) );
+    b = bTemp;
+
+    // totalSize = size; // DEBUG
+    // randomArray = random; // DEBUG
+
+    pthread_t tId;
+    struct tmerge_args args = {
+            .num = num,
+            .size = size,
+            .start = 0
+        };
+
+    int err = 
+        pthread_create(&tId, NULL, &tmerge_recurse, (void *)&args);
+    assert( ("Thread creation failed.", err == 0) );
+
+    pthread_join(tId, NULL);
+
+    free(aTemp);
+    free(bTemp);
+}
 }
 
 void sort_tmerge_d(uint32_t *num, uint32_t size) {
