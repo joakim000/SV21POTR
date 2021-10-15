@@ -22,3 +22,4 @@
 # MSVC Windows builds of rustc generate these, which store debugging information
 **/*.pdb
 Tuesday_exercises_v37/Sorting/run
+Tuesday_exercises_v37/Sorting/gmon.out
