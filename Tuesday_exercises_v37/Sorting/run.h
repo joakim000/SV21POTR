@@ -24,6 +24,7 @@ int checkArg(int argc, char *argv[], char arg[]);
 uint32_t compare_array(uint32_t *num, uint32_t size, uint32_t *comp);
 void copy_array(uint32_t *num, uint32_t size, uint32_t *out, bool prt, uint32_t tmax);
 void generate_array(uint32_t *num, uint32_t size, uint32_t run_len, uint32_t rnd_max);
+void generate_random_array(uint32_t *num, uint32_t size, uint32_t rnd_max);
 void print_array(uint32_t *num, uint32_t size, uint32_t tmax);
 double timeComp(double libTime, double sortTime);
 
