@@ -44,17 +44,17 @@
     and as performance reference.
 */
 int cmpAscend (const void * a, const void * b) {  // From tutorialspoint
-   return ( *(int*)a - *(int*)b );
+   return ( *(uint32_t*)a - *(uint32_t*)b );
 }
 int cmpDescend (const void * a, const void * b) {  // From tutorialspoint
-   return ( *(int*)b - *(int*)a );
+   return ( *(uint32_t*)b - *(uint32_t*)a );
 }
 
 void sort_lib(uint32_t *num, uint32_t size) {
-    qsort(num, size, sizeof(int), cmpAscend);
+    qsort(num, size, sizeof(uint32_t), cmpAscend);
 }
 void sort_lib_d(uint32_t *num, uint32_t size) {
-    qsort(num, size, sizeof(int), cmpDescend);
+    qsort(num, size, sizeof(uint32_t), cmpDescend);
 }
 
 
