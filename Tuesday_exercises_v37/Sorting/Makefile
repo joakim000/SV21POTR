@@ -3,19 +3,22 @@ $(info $(SHELL))
 
 .DELETE_ON_ERROR :
 
-WIN = if windows
-NOWIN = if not windows
-
+LFLAGS = 
+ifdef PROF
+CFLAGS = -c -std=c11 -O3 -pg -g
+LFLAGS = -pg
+else
 ifdef OPT
 CFLAGS = -c -std=c11 -O3
 else
 CFLAGS = -c -std=c11 -O0 -g
 endif
+endif
 
 objects = run.o sorting.o
 
 default : $(objects)
-	cc -o run $(objects)
+	cc $(LFLAGS) -o run $(objects)
 
 run.o : run.c options.h run.h sorts.h 
 	cc $(CFLAGS) run.c
@@ -24,6 +27,9 @@ sorting.o : sorting.c sorting.h
 
 opt :
 	$(MAKE) OPT=1
+
+prof :
+	$(MAKE) PROF=1
 
 .PHONY : clean
 clean : 
