@@ -409,15 +409,14 @@ void *tmerge_recurse(void *params) {
             pthread_create(&tId_a, NULL, &tmerge_recurse, (void *)&args_a);
         assert( ("Thread creation failed.", err == 0) );
 
+        pthread_join(tId_a, NULL);
+
         err = 
             pthread_create(&tId_b, NULL, &tmerge_recurse, (void *)&args_b);
         assert( ("Thread creation failed.", err == 0) );
-
-
-        pthread_join(tId_a, NULL);
-        pthread_join(tId_b, NULL);
         
-    
+        pthread_join(tId_b, NULL);
+            
     }
 
     // Now we're on the way up. First ignore size 1 (by definition sorted). Then start comparing.
