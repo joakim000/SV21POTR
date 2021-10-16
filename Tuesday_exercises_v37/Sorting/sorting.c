@@ -382,12 +382,15 @@ void *tmerge_recurse(void *params) {
     int aSize = size / 2;
     int bSize = size / 2 + size % 2;
  
+    pthread_t tId_a = -1;
+    pthread_t tId_b = -1;
+    pthread_t tId = -1;
+
+
     // Continue splitting    
     if (size > 2) {
         int err;
-        pthread_t tId_a;
-        pthread_t tId_b;
-
+       
         struct tmerge_args args_a = {
             .num = num,
             .size = aSize,
@@ -400,22 +403,25 @@ void *tmerge_recurse(void *params) {
         };
 
         err = 
-            pthread_create(&tId_a, NULL, &tmerge_recurse, (void *)&args_a);
+            pthread_create(&tId, NULL, &tmerge_recurse, (void *)&args_a);
         assert( ("Thread creation failed.", err == 0) );
 
-        pthread_join(tId_a, NULL);
+        // pthread_join(tId_a, NULL);
+        pthread_join(tId, NULL);
+
 
         err = 
-            pthread_create(&tId_b, NULL, &tmerge_recurse, (void *)&args_b);
+            pthread_create(&tId, NULL, &tmerge_recurse, (void *)&args_b);
         assert( ("Thread creation failed.", err == 0) );
-        
-        pthread_join(tId_b, NULL);
-            
+          
+        // pthread_join(tId_b, NULL);
+        pthread_join(tId, NULL);
+      
     }
 
     // Now we're on the way up. First ignore size 1 (by definition sorted). Then start comparing.
     if (size > 1) {
-
+        uint32_t tmp[size];
         /* Copy values to be sorted for this call. */
         // Note: Cleverer implementations use back-and-forth copying to avoid this step.
         // Begin reading a-values at start index for this call
