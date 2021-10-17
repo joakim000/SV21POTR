@@ -281,6 +281,9 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
     // Shouldn't happen
     assert( ("Zero array size", size > 0) );
 
+    printf("call: size %4u start %4u \n", size, start);
+
+
     // Split into 2 virtual parts    
     int aSize = size / 2;
     int bSize = size / 2 + size % 2;
@@ -293,7 +296,8 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
 
     // Now we're on the way up. First ignore size 1 (by definition sorted). Then start comparing.
     if (size > 1) {
-
+        printf("process: size %4u start %4u \n", size, start);
+        // uint32_t a[aSize], b[bSize];
         /* Copy values to be sorted for this call. */
         // Note: Cleverer implementations use back-and-forth copying to avoid this step.
         // Begin reading a-values at start index for this call
@@ -375,6 +379,8 @@ void *tmerge_recurse(void *params) {
     uint32_t size = args->size;
     uint32_t start = args->start;
     
+    printf("call: size %4u start %4u \n", size, start);
+
     // Shouldn't happen
     assert( ("Zero array size", size > 0) );
 
@@ -389,8 +395,16 @@ void *tmerge_recurse(void *params) {
 
     // Continue splitting    
     if (size > 2) {
-        int err;
-       
+        // int err, errA, errB;
+
+        pthread_attr_t attr; 
+        size_t ss = 0x1000000;
+        assert( ("phtread_attr_init error.",
+        pthread_attr_init(&attr) == 0) ); 
+        // err = pthread_attr_init(&attr);
+        assert( ("phtread_attr_setstacksize error.", 
+        pthread_attr_setstacksize(&attr, ss) == 0) );
+
         struct tmerge_args args_a = {
             .num = num,
             .size = aSize,
@@ -402,26 +416,51 @@ void *tmerge_recurse(void *params) {
             .start = start + aSize
         };
 
-        err = 
-            pthread_create(&tId, NULL, &tmerge_recurse, (void *)&args_a);
-        assert( ("Thread creation failed.", err == 0) );
+        /*
+        if (size % 100 == 0) {
+            err = 
+                pthread_create(&tId, &attr, &tmerge_recurse, (void *)&args_a);
+            assert( ("Thread creation failed.", err == 0) );
+            pthread_join(tId, NULL);
 
+            err = 
+                pthread_create(&tId, &attr, &tmerge_recurse, (void *)&args_b);
+            assert( ("Thread creation failed.", err == 0) );
+            pthread_join(tId, NULL);
+
+        }
+        else {
+            merge_recurse(num, aSize, start);
+            merge_recurse(num, bSize, start + aSize);
+        }
+        */
+
+       
+        assert( ("Thread creation error.", 
+        pthread_create(&tId_a, &attr, &tmerge_recurse, (void *)&args_a) == 0) );
+
+        // errA = 
+            // pthread_create(&tId_a, &attr, &tmerge_recurse, (void *)&args_a);
+        // if (errA != 0) printf("Thread creation failed, error:%d", errA);
+        // assert( ("Thread creation failed.", errA == 0) );
+        
+        // pthread_join(tId, NULL);
         // pthread_join(tId_a, NULL);
-        pthread_join(tId, NULL);
+        pthread_detach(tId_a);
 
+        assert( ("Thread creation error.", 
+        pthread_create(&tId_b, &attr, &tmerge_recurse, (void *)&args_b) == 0) );
 
-        err = 
-            pthread_create(&tId, NULL, &tmerge_recurse, (void *)&args_b);
-        assert( ("Thread creation failed.", err == 0) );
-          
+        // pthread_join(tId, NULL);
         // pthread_join(tId_b, NULL);
-        pthread_join(tId, NULL);
-      
-    }
+        pthread_detach(tId_b);
 
+    }
+   
     // Now we're on the way up. First ignore size 1 (by definition sorted). Then start comparing.
     if (size > 1) {
-        uint32_t tmp[size];
+        printf("process: size %4u start %4u \n", size, start);
+        uint32_t a[aSize], b[bSize];
         /* Copy values to be sorted for this call. */
         // Note: Cleverer implementations use back-and-forth copying to avoid this step.
         // Begin reading a-values at start index for this call
@@ -473,6 +512,9 @@ void sort_tmerge(uint32_t *num, uint32_t size) {
     // totalSize = size; // DEBUG
     // randomArray = random; // DEBUG
 
+    // printf("\n%d\n", STACK_ALIGN);
+
+    int err;
     pthread_t tId;
     struct tmerge_args args = {
             .num = num,
@@ -480,15 +522,20 @@ void sort_tmerge(uint32_t *num, uint32_t size) {
             .start = 0
         };
 
-    int err = 
-        pthread_create(&tId, NULL, &tmerge_recurse, (void *)&args);
+    pthread_attr_t attr;    
+    size_t ss = 0x1000000;
+    err = pthread_attr_init(&attr);
+    err = pthread_attr_setstacksize(&attr, ss);
+
+    err = 
+        pthread_create(&tId, &attr, &tmerge_recurse, (void *)&args);
     assert( ("Thread creation failed.", err == 0) );
 
     pthread_join(tId, NULL);
 
     free(aTemp);
     free(bTemp);
-}
+    }
 }
 
 void sort_tmerge_d(uint32_t *num, uint32_t size) {
