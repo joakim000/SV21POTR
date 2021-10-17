@@ -4,15 +4,15 @@ $(info $(SHELL))
 .DELETE_ON_ERROR :
 
 ifdef OPT
-CFLAGS = -c -std=c11 -O3
+CFLAGS = -c -pthread -std=c11 -O3 
 else
-CFLAGS = -c -std=c11 -O0 -g
+CFLAGS = -c -pthread -std=c11 -O0 -g 
 endif
 
 objects = run.o sorting.o
 
 all : $(objects)
-	cc -o run $(objects)
+	cc -pthread -o run $(objects)
 
 run.o : run.c options.h run.h sorts.h
 	cc $(CFLAGS) run.c
