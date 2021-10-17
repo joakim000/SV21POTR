@@ -234,7 +234,8 @@ uint32_t compare_array(uint32_t *num, uint32_t size, uint32_t *comp)
 
 void compare_print_array(uint32_t *num, uint32_t size, uint32_t *comp, uint32_t tmax, uint32_t rnd_max)
 {
-    int orders = (int)log10(rnd_max) + 1;
+    // int orders = (int)log10(rnd_max) + 1;
+    int orders = 10;
     int space = 2;
     char fmt[10], errfmt[10];
     sprintf(fmt, "%%%dd", orders+space);
@@ -295,7 +296,8 @@ void generate_random_array(uint32_t *num, uint32_t size, uint32_t rnd_max)
 
 void print_array(uint32_t *num, uint32_t size, uint32_t tmax, uint32_t rnd_max)
 {
-    int orders = (int)log10(rnd_max) + 1;
+    // int orders = (int)log10(rnd_max) + 1;
+    int orders = 10;
     int space = 2;
     char fmt[10], errfmt[10];
     sprintf(fmt, "%%%dd", orders+space);  
