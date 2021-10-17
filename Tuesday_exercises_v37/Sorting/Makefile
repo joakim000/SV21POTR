@@ -5,20 +5,20 @@ $(info $(SHELL))
 
 LFLAGS = 
 ifdef PROF
-CFLAGS = -c -std=c11 -O3 -pg -g
+CFLAGS = -c -pthread -std=c11 -O3 -pg -g
 LFLAGS = -pg
 else
 ifdef OPT
-CFLAGS = -c -std=c11 -O3
+CFLAGS = -c -pthread -std=c11 -O3
 else
-CFLAGS = -c -std=c11 -O0 -g
+CFLAGS = -c -pthread -std=c11 -O0 -g
 endif
 endif
 
 objects = run.o sorting.o
 
 default : $(objects)
-	cc $(LFLAGS) -o run $(objects)
+	cc $(LFLAGS) -pthread -o run $(objects)
 
 run.o : run.c options.h run.h sorts.h 
 	cc $(CFLAGS) run.c
