@@ -15,7 +15,7 @@ CFLAGS = -c -pthread -std=c11 -O0 -g
 endif
 endif
 
-objects = run.o sorting.o
+objects = run.o sorting.o thpool.o
 
 default : $(objects)
 	cc $(LFLAGS) -pthread -o run $(objects)
@@ -24,6 +24,8 @@ run.o : run.c options.h run.h sorts.h
 	cc $(CFLAGS) run.c
 sorting.o : sorting.c sorting.h
 	cc $(CFLAGS) sorting.c
+thpool.o : thpool.c thpool.h
+	cc $(CFLAGS) thpool.c
 
 opt :
 	$(MAKE) OPT=1

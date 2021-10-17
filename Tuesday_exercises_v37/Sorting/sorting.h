@@ -8,6 +8,7 @@
 
 // #include <unistd.h>  //Header file for sleep(). man 3 sleep for details.
 #include <pthread.h>
+#include "thpool.h"
 
 
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro

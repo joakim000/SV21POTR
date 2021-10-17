@@ -445,15 +445,15 @@ void *tmerge_recurse(void *params) {
         // assert( ("Thread creation failed.", errA == 0) );
         
         // pthread_join(tId, NULL);
-        // pthread_join(tId_a, NULL);
-        pthread_detach(tId_a);
+        pthread_join(tId_a, NULL);
+        // pthread_detach(tId_a);
 
         assert( ("Thread creation error.", 
         pthread_create(&tId_b, &attr, &tmerge_recurse, (void *)&args_b) == 0) );
 
         // pthread_join(tId, NULL);
-        // pthread_join(tId_b, NULL);
-        pthread_detach(tId_b);
+        pthread_join(tId_b, NULL);
+        // pthread_detach(tId_b);
 
     }
    
@@ -495,9 +495,24 @@ void *tmerge_recurse(void *params) {
     }
 }
 
+void print_num(uintptr_t num){
+    printf("%d\n", num);
+}
+    
 void sort_tmerge(uint32_t *num, uint32_t size) {
 // void sort_tmerge(uint32_t *num, uint32_t size, uint32_t *random)  //DEBUG
 {
+    //thpool test
+    puts("Testing thpool");
+    threadpool thpool = thpool_init(4);
+    int testnum = 10;
+    thpool_add_work(thpool, (void*)print_num, (void*)(uintptr_t)testnum);
+    thpool_add_work(thpool, (void*)print_num, (void*)(uintptr_t)testnum+1);
+    thpool_add_work(thpool, (void*)print_num, (void*)(uintptr_t)testnum+2);
+    thpool_wait(thpool);
+    thpool_destroy(thpool);
+    puts("Testing thpool end");
+
     // To hold temp values
     uint32_t* aTemp;
     aTemp = calloc(size / 2 + 2, sizeof(uint32_t));
@@ -513,6 +528,9 @@ void sort_tmerge(uint32_t *num, uint32_t size) {
     // randomArray = random; // DEBUG
 
     // printf("\n%d\n", STACK_ALIGN);
+
+    
+
 
     int err;
     pthread_t tId;
