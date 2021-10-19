@@ -17,8 +17,8 @@
 #define SELECTION false                     //  sel
 #define     SHELL false                     //  she
 #define     MERGE false                     //  mer
-#define     QUICK false                     //  qui
 #define    TMERGE false                     //  tme
+#define     QUICK false                     //  qui
 #define     RADIX false                     //  rad
 
 /* Sort set options */
@@ -35,6 +35,6 @@
 #define RUN_LEN 1                               
 
 // Debugging
-#define DEBUG true
+#define DEBUG false
 
 
