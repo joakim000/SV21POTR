@@ -1,5 +1,9 @@
 #include "sorting.h"
-#include "sorts.h"
+
+#ifndef SORTS_H
+#define SORTS_H
+// #include "sorts.h"
+#endif
 // #include <stdatomic.h>
 
 
@@ -34,6 +38,14 @@
 #define DEBUGWRITE false
 #define DEBUG false
 
+struct sort_args {
+    // Standard args
+    uint32_t* num;
+    uint32_t size;
+    
+    uint16_t maxThreads; // For threaded sorts 
+    int shellSeq[]; // Gap sequence for shell sort
+};
 
 
 
@@ -48,10 +60,16 @@ int cmpDescend (const void * a, const void * b) {  // From tutorialspoint
    return ( *(uint32_t*)b - *(uint32_t*)a );
 }
 
-void sort_lib(uint32_t *num, uint32_t size) {
+void sort_lib(void *params) {
+    struct sort_args *args = params;
+    uint32_t* num = args->num;
+    uint32_t size = args->size;
     qsort(num, size, sizeof(uint32_t), cmpAscend);
 }
-void sort_lib_d(uint32_t *num, uint32_t size) {
+void sort_lib_d(void *params) {
+    struct sort_args *args = params;
+    uint32_t* num = args->num;
+    uint32_t size = args->size;
     qsort(num, size, sizeof(uint32_t), cmpDescend);
 }
 
@@ -73,7 +91,7 @@ void swap(uint32_t *a, uint32_t *b)
 }
 
 
-// void sort_bubble(uint32_t *num, uint32_t size)
+// void sort_bubble(void *params)
 void sort_bubble(void *params) {
     struct sort_args *args = params;
     uint32_t* num = args->num;
@@ -91,8 +109,12 @@ void sort_bubble(void *params) {
     } while (swapped == true);
 }
 
-void sort_bubble_d(uint32_t *num, uint32_t size) {
+void sort_bubble_d(void *params) {
+    struct sort_args *args = params;
+    uint32_t* num = args->num;
+    uint32_t size = args->size;
     bool swapped; 
+    
     do {
         swapped = false;
         for (int i = 0; i < size-1; i++) {
@@ -141,14 +163,22 @@ void insert(int index, uint32_t *num, uint32_t size, int ascend0descend1 ) {
     }
 }
 
-void sort_insertion(uint32_t *num, uint32_t size)
+void sort_insertion(void *params)
 {
+    struct sort_args *args = params;
+    uint32_t* num = args->num;
+    uint32_t size = args->size;
+
     for (int i = 1; i < size; i++)
         insert(i, num, size, 0);
 }
 
-void sort_insertion_d(uint32_t *num, uint32_t size)
+void sort_insertion_d(void *params)
 {
+    struct sort_args *args = params;
+    uint32_t* num = args->num;
+    uint32_t size = args->size;
+
     for (int i = 1; i < size; i++)
         insert(i, num, size, 1);
 }
@@ -177,16 +207,24 @@ int select(int bound, uint32_t *num, uint32_t size, int small0large1) {
     return r;
 }
 
-void sort_selection(uint32_t *num, uint32_t size)
+void sort_selection(void *params)
 {
+    struct sort_args *args = params;
+    uint32_t* num = args->num;
+    uint32_t size = args->size;
+
     for (int bound = 0; bound < size; bound++) {
         int sel = select(bound, num, size, 0);
         swap(&num[bound], &num[sel]);
     }
 }
 
-void sort_selection_d(uint32_t *num, uint32_t size)
+void sort_selection_d(void *params)
 {
+    struct sort_args *args = params;
+    uint32_t* num = args->num;
+    uint32_t size = args->size;
+    
     for (int bound = 0; bound < size; bound++) {
         int sel = select(bound, num, size, 1);
         swap(&num[bound], &num[sel]);
@@ -234,8 +272,12 @@ void gapInsert(int index, int gap, uint32_t *num, uint32_t size, int ascend0desc
     }
 }
 
-void sort_shell(uint32_t *num, uint32_t size)
+void sort_shell(void *params)
 {
+    struct sort_args *args = params;
+    uint32_t* num = args->num;
+    uint32_t size = args->size;
+
     int gaps[] = {1750, 701, 301, 132, 57, 23, 10, 4, 1};  // Extended Ciura gap sequence
     // int gaps[] = {4, 1};  
     // int gaps[] = {5, 3, 1};
@@ -248,8 +290,12 @@ void sort_shell(uint32_t *num, uint32_t size)
     }   
 }
 
-void sort_shell_d(uint32_t *num, uint32_t size)
+void sort_shell_d(void *params)
 {
+    struct sort_args *args = params;
+    uint32_t* num = args->num;
+    uint32_t size = args->size;
+
     int gaps[] = {1750, 701, 301, 132, 57, 23, 10, 4, 1};  // Extended Ciura gap sequence
 
     for (int si = 0; si < COUNT_OF(gaps); si++) { // si: shell iterator
@@ -341,9 +387,13 @@ void merge_recurse(uint32_t *num, uint32_t size, uint32_t start ) {
 
 
 
-void sort_merge(uint32_t *num, uint32_t size)
+void sort_merge(void *params)
 // void sort_merge(uint32_t *num, uint32_t size, uint32_t *random)  //DEBUG
 {
+    struct sort_args *args = params;
+    uint32_t* num = args->num;
+    uint32_t size = args->size;
+
     // To hold temp values
     uint32_t* aTemp;
     aTemp = calloc(size / 2 + 2, sizeof(uint32_t));
@@ -363,7 +413,7 @@ void sort_merge(uint32_t *num, uint32_t size)
     free(bTemp);
 }
 
-void sort_merge_d(uint32_t *num, uint32_t size) {
+void sort_merge_d(void *params) {
    // implement me!
 }
 
@@ -539,8 +589,15 @@ void print_num(uintptr_t num){
     // return sprintf(str, )
 // }
     
-void sort_tmerge(uint32_t *num, uint32_t size) {
+void sort_tmerge(void *params) {
 {
+    struct sort_args *call_args = params;
+    uint32_t* num = call_args->num;
+    uint32_t size = call_args->size;
+    maxthreadCount = call_args->maxThreads;
+
+    printf("Call to tmerge, maxthreads: %d\n", maxthreadCount);
+
     int err;
     pthread_t tId;
     struct tmerge_args args = {
@@ -574,7 +631,7 @@ void sort_tmerge(uint32_t *num, uint32_t size) {
     }
 }
 
-void sort_tmerge_d(uint32_t *num, uint32_t size) {
+void sort_tmerge_d(void *params) {
 
 }
 
@@ -596,11 +653,11 @@ void sort_tmerge_d(uint32_t *num, uint32_t size) {
     possibly excluding from both ranges the element equal to the pivot at the point of division.
     (If the partition produces a possibly larger sub-range near the boundary where all elements are known to be equal to the pivot, these can be excluded as well.)
 */
-void sort_quick(uint32_t *num, uint32_t size)
+void sort_quick(void *params)
 {
     // implement me!
 }
-void sort_quick_d(uint32_t *num, uint32_t size)
+void sort_quick_d(void *params)
 {
     // implement me!
 }
@@ -613,11 +670,11 @@ void sort_quick_d(uint32_t *num, uint32_t size)
 /*  Radix sort:
 
 */
-void sort_radix(uint32_t *num, uint32_t size) {
+void sort_radix(void *params) {
 
 }
 
-void sort_radix_d(uint32_t *num, uint32_t size) {
+void sort_radix_d(void *params) {
 
 }
 
@@ -629,11 +686,11 @@ void sort_radix_d(uint32_t *num, uint32_t size) {
 /*  Timsort:
 
 */
-void sort_tim(uint32_t *num, uint32_t size) {
+void sort_tim(void *params) {
 
 }
 
-void sort_tim_d(uint32_t *num, uint32_t size) {
+void sort_tim_d(void *params) {
 
 }
 
