@@ -29,14 +29,7 @@ void generate_random_array(uint32_t *num, uint32_t size, uint32_t rnd_max);
 void print_array(uint32_t *num, uint32_t size, uint32_t tmax, uint32_t rnd_max);
 double timeComp(double libTime, double sortTime);
 
-// Sort holder
-typedef struct sort_holder {
-    char* name;
-    char* print_name;
-    bool default_run;
-    void (*sort_ptr)(uint32_t*, uint32_t size); // ptr to sort function
-    bool run;
-} sort;
+
 
 // Help text
 char* HELPTEXT1 = "\

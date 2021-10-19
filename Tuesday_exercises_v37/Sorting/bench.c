@@ -6,8 +6,7 @@
     prettyprint tables, functionality test and basic timing.
     stdlib qsort used as reference.
 */
-
-#include "run.h"
+#include "bench.h"
 #include "options.h"
 #include "sorts.h"
 
@@ -26,7 +25,9 @@ int main(int argc, char* argv[] )
     bool perf = false;
     bool verbose = false;
     bool notest = false;
+    bool write = false;
     uint32_t tmax = TMAX;
+    uint16_t threads = 12;
 
     // Sort ascending or descending
     bool descend = DESCEND;
@@ -38,8 +39,9 @@ int main(int argc, char* argv[] )
     int32_t run_len = RUN_LEN;
 
     /* Test / Timing */
-    double libTime, sortTime; 
+    double libTime, sortTime, elem_over_ns, lib_elem_over_ns; 
     uint32_t errorCount;
+    char* fname[FILENAME_MAX];
       
     /* Process args */
 
@@ -47,9 +49,14 @@ int main(int argc, char* argv[] )
     // for (int i = 0; i < argc; i++)
     //         printf("%d  %s\n", i, argv[i]);
     
-    char* fakeargs[] = {"run.exe", "tme", "-prterr", "-noprtref", 
-                        "-size", "1000", "-run", "0", "-tmax", "1000"};
-    // argv = fakeargs;     argc = 10;
+    // char* fakeargs[] = {"run.exe", "tme", "-prterr", "-noprtref", 
+                        // "-size", "1000", "-run", "0", "-tmax", "1000"};
+    // char* fakeargs[] = {"run.exe", "tme", "-perf", "-v", "-size", "8"}; 
+    char* fakeargs[] = {"run.exe", "help"}; 
+    if (argc < 2) {
+        argv = fakeargs;
+        argc = 2;
+    }
 
     if (argc >= 2) {
         // Print help
@@ -82,7 +89,12 @@ int main(int argc, char* argv[] )
         // Sorts to run
         for (int i = 1; i < NUMBER_OF_SORTS; i++) 
             sorts[i].run = (bool)checkArg(argc, argv, sorts[i].name); 
-          
+
+        // Save file  
+        int arg_fname = checkArg(argc, argv, "-file");
+        *fname = arg_fname ? argv[arg_fname + 1] : "";
+        // write = 
+        
         // Numerical value args
         int arg_tmax = checkArg(argc, argv, "-tmax");
         tmax = arg_tmax ? strtol(argv[arg_tmax + 1], NULL, 10) : TMAX;
@@ -90,6 +102,8 @@ int main(int argc, char* argv[] )
         elements = arg_size ? strtol(argv[arg_size + 1], NULL, 10) : ELEMENTS;
         int arg_run = checkArg(argc, argv, "-run");
         run_len = arg_run ? strtol(argv[arg_run + 1], NULL, 10) : RUN_LEN;
+        int arg_thr = checkArg(argc, argv, "-thr");
+        threads = arg_thr ? strtol(argv[arg_thr + 1], NULL, 10) : 12;  // Default 12 threads
         
         int arg_max = checkArg(argc, argv, "-max");
         if (arg_max) {
@@ -133,50 +147,102 @@ int main(int argc, char* argv[] )
     if (verbose)             
         printf("\nSet size: %d    Biggest: %d    Composition: %d", elements, rnd_max, run_len);
 
+    // Open file for writing timing data
+    FILE* fp; 
+    if (*fname != NULL) 
+        fp = fopen(*fname, "a");
+    char jsonOut[0x400] = "";
+
+    // Prepare args
+    struct sort_args args = {
+        .num = compare,
+        .size = elements,
+        .maxThreads = threads,
+        // .shellSeq
+    };
+
     /* Run libsort if needed for testing or timing */
     if (!notest) {
         copy_array(random, elements, compare, prtin, tmax);
         if (!(csv || json)) 
             printf("\nLib qsort: \n"); 
         timer_start = clock();
-            sorts[0].sort_ptr(compare, elements);
+            sorts[0].sort_ptr((void *)&args);
         timer_end = clock();
         libTime = TIMING(timer_start, timer_end);
+        lib_elem_over_ns = libTime > 0 ? elements / libTime / 1000000 : 0; 
         if (!noprtref && (prtout || prterr)) 
             print_array(compare, elements, tmax, rnd_max);
         if (perf) 
-            printf("%d elements in %5.3f seconds.\n", elements, libTime);
+            printf("%d elements in %5.3f seconds, %5.3f ns/element. \n", elements, libTime, lib_elem_over_ns);
         if (!prtout && !prterr && !perf & !csv && !json) 
             printf("Done.\n");
     }
+
+   
 
     // Print some info
     if (csv) {
         printf("%d,%d,%d\n", elements, rnd_max, run_len);   
         printf("%s,%5.3f\n", sorts[0].name, libTime);
     }
-    else if (json) {
+    // else if (json) {
+    //     time_t now = time(0);
+    //     struct tm* dt = localtime(&now);
+    //     printf("{\n\t\"dt\": \"%4d%02d%02d:%02d%02d%02d\",\n", 1900+dt->tm_year, 1+dt->tm_mon, dt->tm_mday, dt->tm_hour, dt->tm_min, dt->tm_sec);
+    //     printf("\t\"size\": %d,\n", elements);
+    //     printf("\t\"maxnum\": %d,\n", rnd_max);
+    //     printf("\t\"composition\": %d,\n", run_len);
+    //     printf("\t\"threads\": %d,\n", args.maxThreads);
+    //     printf("\t\"sorted\": [ {\n");
+    //     printf("\t\t\"name\": \"%s\",\n", sorts[0].name);
+    //     printf("\t\t\"el/us\": %5.3f,\n", elem_over_ns);
+    //     printf("\t\t\"time\": %5.3f\n\t}, ", libTime);
+    // }
+    // if (fp != NULL) {
+    //     time_t now = time(0);
+    //     struct tm* dt = localtime(&now);
+    //     fprintf(fp, "{\n\t\"dt\": \"%4d%02d%02d:%02d%02d%02d\",\n", 1900+dt->tm_year, 1+dt->tm_mon, dt->tm_mday, dt->tm_hour, dt->tm_min, dt->tm_sec);
+    //     fprintf(fp, "\t\"size\": %d,\n", elements);
+    //     fprintf(fp, "\t\"maxnum\": %d,\n", rnd_max);
+    //     fprintf(fp, "\t\"composition\": %d,\n", run_len);
+    //     fprintf(fp, "\t\"threads\": %d,\n", args.maxThreads);
+    //     fprintf(fp, "\t\"sorted\": [ {\n");
+    //     fprintf(fp, "\t\t\"name\": \"%s\",\n", sorts[0].name);
+    //     fprintf(fp, "\t\t\"el/us\": %5.3f,\n", elem_over_ns);
+    //     fprintf(fp, "\t\t\"time\": %5.3f\n\t}, ", libTime);
+
+    // }
+    if (json || (fp != NULL)) {
+        char buf[0x400] = "";
         time_t now = time(0);
         struct tm* dt = localtime(&now);
-        printf("{\n\t\"dt\": \"%4d%02d%02d:%02d%02d%02d\",\n", 1900+dt->tm_year, 1+dt->tm_mon, dt->tm_mday, dt->tm_hour, dt->tm_min, dt->tm_sec);
-        printf("\t\"size\": %d,\n", elements);
-        printf("\t\"maxnum\": %d,\n", rnd_max);
-        printf("\t\"composition\": %d,\n", run_len);
-        printf("\t\"sorted\": {\n");
-        printf("\t\t\"name\": \"%s\",\n", sorts[0].name);
-        printf("\t\t\"time\": %5.3f,\n\t},\n", libTime);
+        sprintf(buf,  "{\n\t\"dt\": \"%4d%02d%02d:%02d%02d%02d\",\n", 1900+dt->tm_year, 1+dt->tm_mon, dt->tm_mday, dt->tm_hour, dt->tm_min, dt->tm_sec); strcat(jsonOut, buf);
+        sprintf(buf,  "\t\"size\": %d,\n", elements); strcat(jsonOut, buf);
+        sprintf(buf,  "\t\"maxnum\": %d,\n", rnd_max); strcat(jsonOut, buf);
+        sprintf(buf,  "\t\"composition\": %d,\n", run_len); strcat(jsonOut, buf);
+        sprintf(buf,  "\t\"threads\": %d,\n", args.maxThreads); strcat(jsonOut, buf);
+        strcat(jsonOut, "\t\"sorted\": [ {\n");
+        sprintf(buf,  "\t\t\"name\": \"%s\",\n", sorts[0].name); strcat(jsonOut, buf);
+        sprintf(buf,  "\t\t\"el/us\": %5.3f,\n", elem_over_ns); strcat(jsonOut, buf);
+        sprintf(buf,  "\t\t\"time\": %5.3f\n\t}, ", libTime); strcat(jsonOut, buf);
     }
-   
     
     /* Run sorts */
+    args.num = numbers;
+    int last_to_run = 0;
+    for (int i = 0; i < NUMBER_OF_SORTS; i++)
+        if (sorts[i].run) last_to_run = i;
+
     for (int i = 1; i < NUMBER_OF_SORTS; i++) {
         if (sorts[i].run) {
             copy_array(random, elements, numbers, prtin, tmax);
             if (!(csv || json)) printf("\n%s: \n", sorts[i].print_name);
             timer_start = clock();
-                sorts[i].sort_ptr(numbers, elements);
+                sorts[i].sort_ptr((void *)&args);
             timer_end = clock();
             sortTime = TIMING(timer_start, timer_end);
+            elem_over_ns = sortTime > 0 ? elements / sortTime / 1000000 : 0;
             errorCount = compare_array(numbers, elements, compare);
             if (!csv && !json && (verbose || (errorCount > 0)))
                 printf("%d errors in %d elements.\n", errorCount, elements);
@@ -185,23 +251,71 @@ int main(int argc, char* argv[] )
             if (prterr) 
                 compare_print_array(numbers, elements, compare, tmax, rnd_max);
             if (perf) 
-                printf("%d elements in %5.3f seconds, %5.3f %% of libsort performance.\n", elements, sortTime, timeComp(libTime, sortTime));
+                printf("%d elements in %5.3f seconds, %5.3f ns/element. %5.3f %% of libsort performance. \n", elements, sortTime, elem_over_ns, timeComp(libTime, sortTime));
             if (!prtout && !prterr && !perf && !csv && !json) 
                 printf("Done.\n");
             if (csv) 
                 printf("%s,%5.3f,%5.3f,%d\n", sorts[i].name, sortTime, timeComp(libTime, sortTime), errorCount);
-            if (json) {
-                printf("\t\"sorted\": {\n");
-                printf("\t\t\"name\": \"%s\",\n", sorts[i].name);
-                printf("\t\t\"time\": %5.3f,\n", sortTime);
-                printf("\t\t\"compare\": %5.3f,\n", timeComp(libTime, sortTime));
-                printf("\t\t\"errors\": %d,\n\t},\n", errorCount);
+            
+            if (json || (fp != NULL)) {
+                char buf[0x400] = "";
+                strcat(jsonOut, "{\n");                
+                sprintf(buf, "\t\t\"name\": \"%s\",\n", sorts[i].name); strcat(jsonOut, buf);                
+                sprintf(buf, "\t\t\"el/us\": %5.3f,\n", elem_over_ns); strcat(jsonOut, buf);
+                sprintf(buf, "\t\t\"time\": %5.3f,\n", sortTime); strcat(jsonOut, buf);
+                sprintf(buf, "\t\t\"compare\": %5.3f,\n", timeComp(libTime, sortTime)); strcat(jsonOut, buf);
+                if (i == last_to_run) {
+                    sprintf(buf, "\t\t\"errors\": %d\n\t}", errorCount); strcat(jsonOut, buf);
+                } else {
+                    sprintf(buf, "\t\t\"errors\": %d\n\t}, ", errorCount); strcat(jsonOut, buf);
+                }
+                
+
             }
+            
+            // if (json) {
+            //     printf("{\n");
+            //     printf("\t\t\"name\": \"%s\",\n", sorts[i].name);
+            //     printf("\t\t\"el/us\": %5.3f,\n", elem_over_ns);
+            //     printf("\t\t\"time\": %5.3f,\n", sortTime);
+            //     printf("\t\t\"compare\": %5.3f,\n", timeComp(libTime, sortTime));
+            //     if (i == NUMBER_OF_SORTS - 2)
+            //         printf("\t\t\"errors\": %d\n\t}", errorCount);
+            //     else
+            //         printf("\t\t\"errors\": %d\n\t}, ", errorCount);
+            // }
+            // if (fp != NULL) {
+            //     fprintf(fp, "{\n");
+            //     fprintf(fp, "\t\t\"name\": \"%s\",\n", sorts[i].name);
+            //     fprintf(fp, "\t\t\"el/us\": %5.3f,\n", elem_over_ns);
+            //     fprintf(fp, "\t\t\"time\": %5.3f,\n", sortTime);
+            //     fprintf(fp, "\t\t\"compare\": %5.3f,\n", timeComp(libTime, sortTime));
+            //     if (i == NUMBER_OF_SORTS - 2)
+            //         fprintf(fp, "\t\t\"errors\": %d\n\t}", errorCount);
+            //     else
+            //         fprintf(fp, "\t\t\"errors\": %d\n\t}, ", errorCount);
+            // }
+            
+
+
         }
     }
 
+    // if (json || (fp != NULL)) 
+    //     strcat(jsonOut, "{\n");  
+
+    if (json || (fp != NULL)) 
+       strcat(jsonOut, " ]\n}\n");
+
     if (json)
-        printf("}\n");
+        puts(jsonOut);
+
+    if (fp != NULL) {
+        fprintf(fp, jsonOut);
+        fclose(fp);
+    }
+
+    
 
     free(random);
     free(numbers);
