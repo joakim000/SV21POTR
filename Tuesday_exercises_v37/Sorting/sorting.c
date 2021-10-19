@@ -1,4 +1,5 @@
 #include "sorting.h"
+#include "sorts.h"
 // #include <stdatomic.h>
 
 
@@ -31,7 +32,7 @@
 // Flags
 #define DEBUGCOPY false
 #define DEBUGWRITE false
-#define DEBUG true
+#define DEBUG false
 
 
 
@@ -71,8 +72,13 @@ void swap(uint32_t *a, uint32_t *b)
     *b = tmp;
 }
 
-void sort_bubble(uint32_t *num, uint32_t size)
-{
+
+// void sort_bubble(uint32_t *num, uint32_t size)
+void sort_bubble(void *params) {
+    struct sort_args *args = params;
+    uint32_t* num = args->num;
+    uint32_t size = args->size;
+
     bool swapped; 
     do {
         swapped = false;
@@ -85,8 +91,7 @@ void sort_bubble(uint32_t *num, uint32_t size)
     } while (swapped == true);
 }
 
-void sort_bubble_d(uint32_t *num, uint32_t size)
-{
+void sort_bubble_d(uint32_t *num, uint32_t size) {
     bool swapped; 
     do {
         swapped = false;
@@ -135,7 +140,6 @@ void insert(int index, uint32_t *num, uint32_t size, int ascend0descend1 ) {
         num[moveToIndex] = tmp;
     }
 }
-
 
 void sort_insertion(uint32_t *num, uint32_t size)
 {
@@ -374,7 +378,6 @@ void sort_merge_d(uint32_t *num, uint32_t size) {
     easy target for threading.
 */
 
-// #define MAP true
 #define MAP false
 #define STACKSIZEDEBUG false
 
@@ -388,112 +391,94 @@ struct tmerge_args {
 
 pthread_mutex_t mtx1 = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mtx2 = PTHREAD_MUTEX_INITIALIZER;
-int maxThreads = 12;
+uint16_t maxthreadCount = 12;
 
-uint16_t maxDetectedThreads = 0;  // Debug
-uint16_t maxDepth = 0;            // Debug
-uint16_t callCount = 0;           // Debug
+// uint16_t maxDetectedthreadCount = 0;  // Debug
+// uint16_t maxDepth = 0;            // Debug
+// uint16_t callCount = 0;           // Debug
 
-// _Atomic long threads = ATOMIC_VAR_INIT(0L);
-int threads;
+// _Atomic long threadCount = ATOMIC_VAR_INIT(0L);
+uint_fast16_t threadCount;
 
 void *tmerge_recurse(void *params) {
-    pthread_mutex_lock(&mtx2); callCount++; pthread_mutex_unlock(&mtx2);
-    int thisCall = callCount;
+    // pthread_mutex_lock(&mtx2); callCount++; pthread_mutex_unlock(&mtx2);
+    // callCount++;
+     
+    // int thisCall;
+    // if (MAP) thisCall = callCount;
+    
     // Get args
     struct tmerge_args *args = params;
     uint32_t* num = args->num;
     uint32_t size = args->size;
     uint32_t start = args->start;
-    uint16_t depth = args->depth + 1;
+    // uint16_t depth = args->depth + 1;
 
-    
-    // if (depth > maxDepth)
-    //     maxDepth = depth;
-    // if (threads > maxDetectedThreads)
-    //     maxDetectedThreads = threads;
-
-    // Thread ID    
-    pthread_t tId_a = -1;
-    pthread_t tId_b = -1;
-    size_t stackSize;
-
-    // Mapping
-    if (MAP) {
-        printf("call: size %4u    start %4u    depth %2u   branch %2c   threads %2d   call# %5d   tId %u\n", size, start, depth, args->branch, threads, thisCall, pthread_self()); 
-    }
-    
-    // Shouldn't happen
+      // Shouldn't happen
     assert( ("Zero array size", size > 0) );
 
+    // if (DEBUG) {
+    //     if (depth > maxDepth)
+    //         maxDepth = depth;
+    //     if (threadCount > maxDetectedthreadCount)
+    //         maxDetectedthreadCount = threadCount;
+    // }
+    // // Mapping
+    // if (MAP) {
+    //     printf("call: size %4u    start %4u    depth %2u   branch %2c   threadCount %2d   call# %5d   tId %u\n", size, start, depth, args->branch, threadCount, thisCall, pthread_self()); 
+    // }
+      
     // Split into 2 virtual parts    
     int aSize = size / 2;
     int bSize = size / 2 + size % 2;
 
     // Continue splitting    
     if (size > 2) {
-        // int err, mtx, errB;
-     
         struct tmerge_args args_a = {
             .num = num,
             .size = aSize,
             .start = start,
-            .depth = depth,
-            .branch = 'a'
+            // .depth = depth,   // Mapping
+            // .branch = 'a'     // Mapping
         };
         struct tmerge_args args_b = {
             .num = num,
             .size = bSize,
             .start = start + aSize,
-            .depth = depth,
-            .branch = 'b'
+            // .depth = depth,   // Mapping
+            // .branch = 'b'     // Mapping
         };
 
-        if (threads <= maxThreads - 2 ) {
+        // When below maxthreadCount create new recursing thread, else recurse in this thread
+        if (threadCount <= maxthreadCount - 2 ) {
+            pthread_t tId_a, tId_b;
             pthread_attr_t attr;
-            assert( ("phtread_attr_init error.",
+            assert( ("Attr init error.",
                 pthread_attr_init(&attr) == 0) );  
 
-            stackSize = aSize * sizeof(uint32_t) + STACK_MIN;
-            if (STACKSIZEDEBUG) printf("\nstackSize: %d", stackSize);
-            if (stackSize < STACK_MIN) stackSize = STACK_MIN;
-            if (STACKSIZEDEBUG) printf("   corrected stackSize: %d", stackSize);
-
-            assert( ("phtread_attr_setstacksize error.", 
+            // Create new thread for branch a
+            assert( ("Setstacksize error.", 
                 pthread_attr_setstacksize(&attr, aSize * sizeof(uint32_t) + STACK_MIN) == 0) );
-
-            if (DEBUG) printf("Create thread a, reqested stacksize: %d  corrected stacksize: %d\n", bSize*sizeof(uint32_t), stackSize);
+            // if (DEBUG) printf("Create thread a, reqested stacksize: %d  corrected stacksize: %d\n", aSize*sizeof(uint32_t), aSize * sizeof(uint32_t) + STACK_MIN);
             assert( ("Thread creation error.", 
                 pthread_create(&tId_a, &attr, &tmerge_recurse, (void *)&args_a) == 0) );
-            if (DEBUG) printf("Created thread a, id: %u\n", tId_a);
-            pthread_mutex_lock(&mtx1); 
-                threads++;
-            pthread_mutex_unlock(&mtx1); 
+            // if (DEBUG) printf("Created thread a, id: %u\n", tId_a);
+            pthread_mutex_lock(&mtx1); threadCount++; pthread_mutex_unlock(&mtx1); 
 
-            stackSize = bSize * sizeof(uint32_t) + STACK_MIN;
-            if (STACKSIZEDEBUG) printf("\nstackSize: %d", stackSize);
-            if (stackSize < STACK_MIN) stackSize = STACK_MIN;
-            if (STACKSIZEDEBUG) printf("   corrected stackSize: %d", stackSize);
-            assert( ("phtread_attr_setstacksize error.", 
+            // Create new thread for branch b
+            assert( ("Setstacksize error.", 
                 pthread_attr_setstacksize(&attr, bSize * sizeof(uint32_t) + STACK_MIN) == 0) );
-
-            if (DEBUG) printf("Create thread b, reqested stacksize: %d  corrected stacksize: %d\n", bSize*sizeof(uint32_t), stackSize);
+            // if (DEBUG) printf("Create thread b, reqested stacksize: %d  corrected stacksize: %d\n", bSize*sizeof(uint32_t), bSize * sizeof(uint32_t) + STACK_MIN);
             assert( ("Thread creation error.", 
                 pthread_create(&tId_b, &attr, &tmerge_recurse, (void *)&args_b) == 0) );
-            if (DEBUG) printf("Created thread b, id: %u\n", tId_b);
-            pthread_mutex_lock(&mtx1); 
-                threads++;
-            pthread_mutex_unlock(&mtx1); 
+            // if (DEBUG) printf("Created thread b, id: %u\n", tId_b);
+            pthread_mutex_lock(&mtx1); threadCount++; pthread_mutex_unlock(&mtx1); 
 
             pthread_join(tId_a, NULL);
-            pthread_mutex_lock(&mtx1); 
-                threads--;
-            pthread_mutex_unlock(&mtx1); 
-            
+            pthread_mutex_lock(&mtx1); threadCount--; pthread_mutex_unlock(&mtx1); 
+
             pthread_join(tId_b, NULL);
-            pthread_mutex_lock(&mtx1); 
-                threads--;
-            pthread_mutex_unlock(&mtx1); 
+            pthread_mutex_lock(&mtx1); threadCount--; pthread_mutex_unlock(&mtx1); 
         }
         else {
             tmerge_recurse((void *)&args_a);
@@ -503,15 +488,13 @@ void *tmerge_recurse(void *params) {
    
     // Now we're on the way up. First ignore size 1 (by definition sorted). Then start comparing.
     if (size > 1) {
-        // maxSizeProcessed = size;
-        
-        // if (MAP) printf("\e[1;32mproc: size %u    start %u    depth %u    maxproc %u   a: %u  b: %u\e[m\n" , size, start, depth, maxSizeProcessed, maxSizeProcessedA, maxSizeProcessedB); // Mapping
-        if (MAP) {
-            printf("\e[1;32mproc: size %4u    start %4u    depth %2u   branch %2c   threads %2d   call# %5d   tId %u\e[m\n", size, start, depth, args->branch,threads, thisCall, pthread_self()); 
-        }
+        // if (MAP) {
+        //     printf("\e[1;32mproc: size %4u    start %4u    depth %2u   branch %2c   threadCount %2d   call# %5d   tId %u\e[m\n", size, start, depth, args->branch,threadCount, thisCall, pthread_self()); 
+        // }
 
         // Work arrays on thread stack
         uint32_t a[aSize], b[bSize];
+        // uint16_t a[aSize], b[bSize];
         
         /* Copy values to be sorted for this call. */
         // Note: Cleverer implementations use back-and-forth copying to avoid this step.
@@ -557,65 +540,37 @@ void print_num(uintptr_t num){
 // }
     
 void sort_tmerge(uint32_t *num, uint32_t size) {
-// void sort_tmerge(uint32_t *num, uint32_t size, uint32_t *random)  //DEBUG
 {
-    // To hold temp values
-    // uint32_t* aTemp;
-    // aTemp = calloc(size / 2 + 2, sizeof(uint32_t));
-    // assert( ("Memory allocation failed.", aTemp != NULL) );
-    // a = aTemp;
-
-    // uint32_t* bTemp;
-    // bTemp = calloc(size / 2 + 2, sizeof(uint32_t));
-    // assert( ("Memory allocation failed.", bTemp != NULL) );
-    // b = bTemp;
-
-    //totalSize = size; // DEBUG
-    //randomArray = random; // DEBUG
-
-    //printf("\n%d\n", STACK_ALIGN);
- 
     int err;
     pthread_t tId;
     struct tmerge_args args = {
             .num = num,
             .size = size,
             .start = 0,
-            .depth = 0
+            // .depth = 0,     // Mapping
+            // .branch = 'm'   // Mapping
         };
 
     pthread_attr_t attr;   
-    size_t stackSize = size * sizeof(uint32_t) + STACK_MIN;
-    if (STACKSIZEDEBUG) printf("\nstackSize: %d", stackSize);
-    if (stackSize < STACK_MIN) stackSize = STACK_MIN;
-    if (STACKSIZEDEBUG) printf("\ncorrected stackSize: %d", stackSize);
-
     assert( ("ptread_attr_init error.",
         pthread_attr_init(&attr) == 0) ); 
     assert( ("phtread_attr_setstacksize error.", 
         pthread_attr_setstacksize(&attr, size * sizeof(uint32_t) + STACK_MIN) == 0) );
 
-    if (DEBUG) printf("Create thread m, reqested stacksize: %d  corrected stacksize: %d\n", size*sizeof(uint32_t), stackSize);
+    // if (DEBUG) printf("Create thread m, reqested stacksize: %d  corrected stacksize: %d\n", size*sizeof(uint32_t), size * sizeof(uint32_t) + STACK_MIN);
     assert( ("Thread creation failed.", 
         pthread_create(&tId, &attr, &tmerge_recurse, (void *)&args) == 0) );
-    // atomic_store(&threads, threads + 1);
-     if (DEBUG) printf("Created thread m, id: %u\n", tId);
-    pthread_mutex_lock(&mtx1); 
-        threads++;
-    pthread_mutex_unlock(&mtx1); 
+    // atomic_store(&threadCount, threadCount + 1);
+    //  if (DEBUG) printf("Created thread m, id: %u\n", tId);
+    pthread_mutex_lock(&mtx1); threadCount++; pthread_mutex_unlock(&mtx1);
     
     pthread_join(tId, NULL);
-    // atomic_store(&threads, threads - 1);
-    pthread_mutex_lock(&mtx1); 
-        threads--;
-    pthread_mutex_unlock(&mtx1); 
+    // atomic_store(&threadCount, threadCount - 1);
+    pthread_mutex_lock(&mtx1); threadCount--; pthread_mutex_unlock(&mtx1); 
 
-    if (DEBUG) printf("\nMax depth: %d\n", maxDepth);
-    if (DEBUG) printf("\nMax detected threads: %d\n", maxDetectedThreads);
+    // if (DEBUG) printf("\nMax depth: %d\n", maxDepth);
+    // if (DEBUG) printf("\nMax detected threadCount: %d\n", maxDetectedthreadCount);
 
-
-    // free(aTemp);
-    // free(bTemp);
     }
 }
 
