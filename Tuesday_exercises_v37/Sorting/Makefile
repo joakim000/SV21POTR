@@ -5,27 +5,26 @@ $(info $(SHELL))
 
 LFLAGS = 
 ifdef PROF
-CFLAGS = -c -pthread -std=c11 -O3 -pg -g
+CFLAGS = -pthread -std=c11 -O3 -pg -g
 LFLAGS = -pg
 else
 ifdef OPT
-CFLAGS = -c -pthread -std=c11 -O3
+CFLAGS = -pthread -std=c11 -O3
 else
-CFLAGS = -c -pthread -std=c11 -O0 -g
+CFLAGS = -pthread -std=c11 -O0 -g
 endif
 endif
 
-objects = run.o sorting.o thpool.o
+objects = bench.o sorting.o
 
 default : $(objects)
-	cc $(LFLAGS) -pthread -o run $(objects)
+	cc $(LFLAGS) -pthread -o bench $(objects)
 
-run.o : run.c options.h run.h sorts.h 
-	cc $(CFLAGS) run.c
+bench.o : bench.c options.h bench.h sorts.h 
+	cc -c $(CFLAGS) bench.c
 sorting.o : sorting.c sorting.h
-	cc $(CFLAGS) sorting.c
-thpool.o : thpool.c thpool.h
-	cc $(CFLAGS) thpool.c
+	cc -c $(CFLAGS) sorting.c
+
 
 opt :
 	$(MAKE) OPT=1
@@ -38,12 +37,13 @@ clean :
 	$(info $(OS))
 #	ifeq ($(OS),Windows_NT)
 #	clean ::
-#		$(info "if windows")
 		powershell rm *.exe 
 		powershell rm *.o
 #	else
 #	clean ::
-#		$(info "if not windows")
-#		rm run *.o
+#		rm -f bench *.o
 #	endif
 	
+.PHONY : debclean
+debclean : 
+	rm -f bench *.o
