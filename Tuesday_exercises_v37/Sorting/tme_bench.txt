@@ -1,0 +1,308 @@
+{
+	"dt": "20211019:140134",
+	"size": 10000000,
+	"maxnum": 2147483647,
+	"composition": 1,
+	"sorted": {
+		"name": "lib",
+		"time": 1.219,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 1.106,
+		"compare": 110.217,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.265,
+		"compare": 460.000,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140142",
+	"size": 10000000,
+	"maxnum": 2147483647,
+	"composition": 10,
+	"sorted": {
+		"name": "lib",
+		"time": 1.157,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.750,
+		"compare": 154.267,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.234,
+		"compare": 494.444,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140147",
+	"size": 10000000,
+	"maxnum": 2147483647,
+	"composition": 100,
+	"sorted": {
+		"name": "lib",
+		"time": 1.120,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.725,
+		"compare": 154.483,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.235,
+		"compare": 476.596,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140152",
+	"size": 10000000,
+	"maxnum": 2147483647,
+	"composition": 1000,
+	"sorted": {
+		"name": "lib",
+		"time": 1.119,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.704,
+		"compare": 158.949,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.219,
+		"compare": 510.959,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140157",
+	"size": 10000000,
+	"maxnum": 2147483647,
+	"composition": 10000,
+	"sorted": {
+		"name": "lib",
+		"time": 1.088,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.687,
+		"compare": 158.370,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.219,
+		"compare": 496.804,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140202",
+	"size": 10000000,
+	"maxnum": 2147483647,
+	"composition": 100000,
+	"sorted": {
+		"name": "lib",
+		"time": 1.051,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.672,
+		"compare": 156.399,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.203,
+		"compare": 517.734,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140211",
+	"size": 10000000,
+	"maxnum": 2147483647,
+	"composition": 0,
+	"sorted": {
+		"name": "lib",
+		"time": 0.406,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.235,
+		"compare": 172.766,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.157,
+		"compare": 258.599,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140407",
+	"size": 10000000,
+	"maxnum": 32767,
+	"composition": 1,
+	"sorted": {
+		"name": "lib",
+		"time": 0.750,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.875,
+		"compare": 85.714,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.218,
+		"compare": 344.037,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140417",
+	"size": 10000000,
+	"maxnum": 32767,
+	"composition": 10,
+	"sorted": {
+		"name": "lib",
+		"time": 0.844,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.627,
+		"compare": 134.609,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.171,
+		"compare": 493.567,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140423",
+	"size": 10000000,
+	"maxnum": 32767,
+	"composition": 100,
+	"sorted": {
+		"name": "lib",
+		"time": 0.797,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.609,
+		"compare": 130.870,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.156,
+		"compare": 510.897,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140427",
+	"size": 10000000,
+	"maxnum": 32767,
+	"composition": 1000,
+	"sorted": {
+		"name": "lib",
+		"time": 0.759,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.583,
+		"compare": 130.189,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.156,
+		"compare": 486.538,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140431",
+	"size": 10000000,
+	"maxnum": 32767,
+	"composition": 10000,
+	"sorted": {
+		"name": "lib",
+		"time": 0.782,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.563,
+		"compare": 138.899,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.188,
+		"compare": 415.957,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140436",
+	"size": 10000000,
+	"maxnum": 32767,
+	"composition": 100000,
+	"sorted": {
+		"name": "lib",
+		"time": 0.704,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.563,
+		"compare": 125.044,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.157,
+		"compare": 448.408,
+		"errors": 0,
+	},
+}
+{
+	"dt": "20211019:140441",
+	"size": 10000000,
+	"maxnum": 32767,
+	"composition": 0,
+	"sorted": {
+		"name": "lib",
+		"time": 0.406,
+	},
+	"sorted": {
+		"name": "mer",
+		"time": 0.235,
+		"compare": 172.766,
+		"errors": 0,
+	},
+	"sorted": {
+		"name": "tme",
+		"time": 0.125,
+		"compare": 324.800,
+		"errors": 0,
+	},
+}
