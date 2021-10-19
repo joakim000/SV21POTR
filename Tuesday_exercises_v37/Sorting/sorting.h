@@ -1,14 +1,23 @@
 #include <assert.h>
+#include <limits.h>
 // #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 // #include <time.h>
 
 // #include <unistd.h>  //Header file for sleep(). man 3 sleep for details.
 #include <pthread.h>
-#include "thpool.h"
+
+#ifndef PTHREAD_STACK_MIN
+#define PTHREAD_STACK_MIN 16384
+#endif
+
+// #define STACK_MIN PTHREAD_STACK_MIN + 0x4000
+#define STACK_MIN PTHREAD_STACK_MIN
+
 
 
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
