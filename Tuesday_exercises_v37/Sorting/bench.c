@@ -1,4 +1,4 @@
-/*  Sorting exercise
+/*  Sorting exercise bench
 
     Main file: sorting.c
 
@@ -8,7 +8,8 @@
 */
 #include "bench.h"
 #include "options.h"
-#include "sorts.h"
+#include "sort_struct.h"
+#include "sort_init.h"
 
 uint32_t elements;
 

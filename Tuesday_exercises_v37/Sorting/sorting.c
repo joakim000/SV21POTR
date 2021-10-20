@@ -1,10 +1,5 @@
 #include "sorting.h"
-
-#ifndef SORTS_H
-#define SORTS_H
-// #include "sorts.h"
-#endif
-// #include <stdatomic.h>
+#include "sort_struct.h"
 
 
 /* Tuesday exercises
@@ -38,14 +33,14 @@
 #define DEBUGWRITE false
 #define DEBUG false
 
-struct sort_args {
-    // Standard args
-    uint32_t* num;
-    uint32_t size;
+// struct sort_args {
+//     // Standard args
+//     uint32_t* num;
+//     uint32_t size;
     
-    uint16_t maxThreads; // For threaded sorts 
-    int shellSeq[]; // Gap sequence for shell sort
-};
+//     uint16_t maxThreads; // For threaded sorts 
+//     int shellSeq[]; // Gap sequence for shell sort
+// };
 
 
 

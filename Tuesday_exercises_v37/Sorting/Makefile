@@ -20,9 +20,9 @@ objects = bench.o sorting.o
 default : $(objects)
 	cc $(LFLAGS) -pthread -o bench $(objects)
 
-bench.o : bench.c options.h bench.h sorts.h 
+bench.o : bench.c bench.h options.h sort_struct.h sort_init.h
 	cc -c $(CFLAGS) bench.c
-sorting.o : sorting.c sorting.h
+sorting.o : sorting.c sorting.h sort_struct.h
 	cc -c $(CFLAGS) sorting.c
 
 
