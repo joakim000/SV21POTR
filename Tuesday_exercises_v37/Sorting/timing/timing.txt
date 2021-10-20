@@ -1,0 +1,236 @@
+// Random max 32k, -O0
+Bubble sort:
+10000 elements in 0.259 seconds
+Insertion sort:
+10000 elements in 0.088 seconds
+Selection sort:
+10000 elements in 0.110 seconds
+
+// Random max 32k, -O0
+Bubble sort:
+100000 elements in 31.382 seconds
+Insertion sort:
+100000 elements in 8.675 seconds
+Selection sort:
+100000 elements in 10.798 seconds
+
+// Random max 32k, -O3, shell gaps: 5, 3, 1
+Bubble sort:
+50000 elements in 4.092 seconds
+Insertion sort:
+50000 elements in 0.216 seconds
+Selection sort:
+50000 elements in 1.211 seconds
+Shell sort:
+50000 elements in 0.104 seconds
+
+// Random max 32k, -O3, shell gaps: 5, 3, 1
+Bubble sort:
+100000 elements in 17.022 seconds
+Insertion sort:
+100000 elements in 0.860 seconds
+Selection sort:
+100000 elements in 4.852 seconds
+Shell sort:
+100000 elements in 0.417 seconds
+
+// Random max 32k, -O3, shell gaps: 5, 3, 1
+Insertion sort:
+250000 elements in 5.418 seconds
+Shell sort:
+250000 elements in 2.641 seconds
+
+// Random max 32k, -O3, shell gaps: Ciura sequence
+Lib qsort:
+250000 elements in 0.031 seconds
+Bubble sort:
+250000 elements in 107.550 seconds
+Insertion sort:
+250000 elements in 5.422 seconds
+Selection sort:
+250000 elements in 30.263 seconds
+Shell sort:
+250000 elements in 1.594 seconds
+
+
+// Random max 32k, -O3, shell gaps: Ciura sequence
+Lib qsort:
+130000 elements in 0.010 seconds
+Bubble sort:
+130000 elements in 28.956 seconds
+Insertion sort:
+130000 elements in 1.465 seconds
+Selection sort:
+130000 elements in 8.230 seconds
+Shell sort:
+130000 elements in 0.501 seconds
+Merge sort:
+130000 elements in 0.011 seconds
+
+
+// Random max 32k, -O3, shell gaps: Ciura sequence, 500k elements
+Lib qsort:
+500000 elements in 0.040 seconds
+Shell sort:
+500000 elements in 6.400 seconds
+Merge sort:
+500000 elements in 0.039 seconds
+
+
+// Random max 32k, -O3, shell gaps: Ciura sequence, 1M elements
+Lib qsort:
+1000000 elements in 0.080 seconds.
+Insertion sort:
+1000000 elements in 87.235 seconds.
+Selection sort:
+1000000 elements in 483.906 seconds.
+Shell sort:
+1000000 elements in 25.016 seconds.
+Merge sort:
+1000000 elements in 0.086 seconds.
+
+
+// Random max 32k, -O3, 10M elements
+Lib qsort:
+10000000 elements in 0.762 seconds
+Merge sort:
+10000000 elements in 0.862 seconds
+
+
+// Random max 32k, -O3, 100M elements
+Lib qsort:
+100000000 elements in 7.658 seconds
+Merge sort:
+100000000 elements in 8.906 seconds
+
+// Random max 2^32, -O3, 100M elements
+Lib qsort:
+100000000 elements in 13.721 seconds.
+Merge sort:
+100000000 elements in 12.709 seconds.
+
+// Random max 32k, -O3, 200M elements
+Lib qsort:
+200000000 elements in 14.844 seconds.
+Merge sort:
+200000000 elements in 18.086 seconds.
+
+// Random max 32k, -O3, 300M elements
+Lib qsort:
+300000000 elements in 22.218 seconds.
+Merge sort:
+300000000 elements in 27.217 seconds.
+
+// Random max 2^32, -O3, 300M elements
+Lib qsort:
+300000000 elements in 43.597 seconds.
+Merge sort:
+300000000 elements in 40.192 seconds.
+
+// Random max 32k, -O3, 400M elements
+Lib qsort:
+400000000 elements in 29.750 seconds.
+Merge sort:
+400000000 elements in 36.859 seconds.
+
+// Random max 32k, -O3, 500M elements
+Lib qsort:
+500000000 elements in 36.487 seconds.
+Merge sort:
+500000000 elements in 46.175 seconds.
+
+// Random max 2^32, -O3, 500M elements
+Lib qsort:
+500000000 elements in 73.786 seconds.
+Merge sort:
+500000000 elements in 68.913 seconds.
+
+
+==============================================
+// Mixed runsize 1001, max 2^32, -O3, shell gaps: Ciura sequence, 100k elements
+Lib qsort:
+100000 elements in 0.009 seconds.
+Bubble sort:
+100000 elements in 13.111 seconds.
+Insertion sort:
+100000 elements in 0.872 seconds.
+Selection sort:
+100000 elements in 4.841 seconds.
+Shell sort:
+100000 elements in 0.370 seconds.
+Merge sort:
+100000 elements in 0.004 seconds.
+// Random, max 2^32, -O3, shell gaps: Ciura sequence, 100k elements
+Lib qsort:
+100000 elements in 0.009 seconds.
+Bubble sort:
+100000 elements in 17.679 seconds.
+Insertion sort:
+100000 elements in 0.901 seconds.
+Selection sort:
+100000 elements in 4.855 seconds.
+Shell sort:
+100000 elements in 0.313 seconds.
+Merge sort:
+100000 elements in 0.008 seconds.
+
+// Mixed runsize 1001, max 2^32, -O3, shell gaps: Ciura sequence, 1M elements
+Lib qsort:
+1000000 elements in 0.097 seconds.
+Shell sort:
+1000000 elements in 28.301 seconds.
+Merge sort:
+1000000 elements in 0.063 seconds.
+// Random, max 2^32, -O3, shell gaps: Ciura sequence, 1M elements
+Lib qsort:
+1000000 elements in 0.108 seconds.
+Insertion sort:
+1000000 elements in 86.712 seconds.
+Shell sort:
+1000000 elements in 25.099 seconds.
+Merge sort:
+1000000 elements in 0.097 seconds.
+
+
+// Random, max 32k, -O3, 100M elements
+    Lib qsort:
+    100000000 elements in 7.435 seconds.
+    Merge sort:
+    100000000 elements in 9.472 seconds.
+// Mixed, runsize 1001, max 32k, -O3, 100M elements
+    Lib qsort:
+    100000000 elements in 8.503 seconds.
+    Merge sort:
+    100000000 elements in 6.378 seconds.
+// Random, max 2^32, -O3, 100M elements
+    Lib qsort:
+    100000000 elements in 13.751 seconds.
+    Merge sort:
+    100000000 elements in 12.675 seconds.
+// Mixed, runsize 1001, max 2^32, -O3, 100M elements
+    Lib qsort:
+    100000000 elements in 12.412 seconds.
+    Merge sort:
+    100000000 elements in 8.150 seconds.
+// Mixed, runsize 10001, max 2^32, -O3, 100M elements
+    Lib qsort:
+    100000000 elements in 12.395 seconds.
+    Merge sort:
+    100000000 elements in 7.970 seconds.
+// Mixed, runsize 100001, max 2^32, -O3, 100M elements
+    Lib qsort:
+    100000000 elements in 12.146 seconds.
+    Merge sort:
+    100000000 elements in 7.891 seconds.
+// Mixed, runsize 100001, max 2^32, -O0, 100M elements, debian
+    Lib qsort:
+    100000000 elements in 10.422 seconds.
+    Merge sort:
+    100000000 elements in 16.594 seconds.
+    100000000 errors in 100000000 elements.
+// Mixed, runsize 100001, max 2^32, -O3, 100M elements, debian
+    Lib qsort:
+    100000000 elements in 8.484 seconds.
+    Merge sort:
+    100000000 elements in 7.500 seconds.
+    100000000 errors in 100000000 elements.

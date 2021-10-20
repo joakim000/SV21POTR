@@ -1,0 +1,117 @@
+// Random max 32k, -O0, shell gaps: Ciura sequence, 100k elements
+Lib qsort:
+100000 elements in 0.010 seconds
+Bubble sort:
+100000 elements in 32.569 seconds
+Insertion sort:
+100000 elements in 8.671 seconds
+Selection sort:
+100000 elements in 10.580 seconds
+Shell sort:
+100000 elements in 4.701 seconds
+Merge sort:
+100000 elements in 0.013 seconds
+
+// Random max 32k, -O3, shell gaps: Ciura sequence, 100k elements
+Lib qsort:
+100000 elements in 0.009 seconds
+Bubble sort:
+100000 elements in 17.024 seconds
+Insertion sort:
+100000 elements in 0.863 seconds
+Selection sort:
+100000 elements in 4.833 seconds
+Shell sort:
+100000 elements in 0.312 seconds
+Merge sort:
+100000 elements in 0.008 seconds
+
+// Random max 2^32, -O3, shell gaps: Ciura sequence, 100k elements
+Lib qsort:
+100000 elements in 0.010 seconds.
+Bubble sort:
+100000 elements in 17.247 seconds.
+Insertion sort:
+100000 elements in 0.862 seconds.
+Selection sort:
+100000 elements in 4.841 seconds.
+Shell sort:
+100000 elements in 0.321 seconds.
+Merge sort:
+100000 elements in 0.008 seconds.
+
+// Random max 32k, -O3, shell gaps: Ciura sequence, 250k elements
+Lib qsort:
+250000 elements in 0.022 seconds
+Bubble sort:
+250000 elements in 107.550 seconds
+Insertion sort:
+250000 elements in 5.422 seconds
+Selection sort:
+250000 elements in 30.263 seconds
+Shell sort:
+250000 elements in 1.594 seconds
+Merge sort:
+250000 elements in 0.020 seconds
+
+// Random max 2^32, -O3, shell gaps: Ciura sequence, 250k elements
+Lib qsort:
+250000 elements in 0.024 seconds.
+Bubble sort:
+250000 elements in 108.891 seconds.
+Insertion sort:
+250000 elements in 5.432 seconds.
+Selection sort:
+250000 elements in 30.263 seconds.
+Shell sort:
+250000 elements in 1.703 seconds.
+Merge sort:
+250000 elements in 0.022 seconds.
+
+// Random max 32k, -O3, shell gaps: Ciura sequence, 1M elements
+Lib qsort:
+1000000 elements in 0.080 seconds.
+Insertion sort:
+1000000 elements in 87.235 seconds.
+Selection sort:
+1000000 elements in 483.906 seconds.
+Shell sort:
+1000000 elements in 25.016 seconds.
+Merge sort:
+1000000 elements in 0.086 seconds.
+
+// Random max 2^32, -O3, shell gaps: Ciura sequence, 1M elements
+Lib qsort:
+1000000 elements in 0.108 seconds.
+Insertion sort:
+1000000 elements in 86.783 seconds.
+Selection sort:
+1000000 elements in 484.268 seconds.
+Shell sort:
+1000000 elements in 25.186 seconds.
+Merge sort:
+1000000 elements in 0.096 seconds.
+
+// Random max 32k, -O3, 100M elements
+Lib qsort:
+100000000 elements in 7.658 seconds
+Merge sort:
+100000000 elements in 8.906 seconds
+
+// Random max 2^32, -O3, 100M elements
+Lib qsort:
+100000000 elements in 13.721 seconds.
+Merge sort:
+100000000 elements in 12.709 seconds.
+
+// Random max 32k, -O3, 500M elements
+Lib qsort:
+500000000 elements in 36.487 seconds.
+Merge sort:
+500000000 elements in 46.175 seconds.
+
+// Random max 2^32, -O3, 500M elements
+Lib qsort:
+500000000 elements in 73.786 seconds.
+Merge sort:
+500000000 elements in 68.913 seconds.
