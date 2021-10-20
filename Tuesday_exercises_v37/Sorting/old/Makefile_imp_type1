@@ -1,0 +1,33 @@
+$(info $(SHELL))
+# $(info $(PATH))
+
+.DELETE_ON_ERROR :
+
+ifdef OPT
+CFLAGS = -std=c11 -O3
+else
+CFLAGS = -std=c11 -O0 -g
+endif
+
+objects = run.o sorting.o
+
+default : $(objects)
+	cc -o run $(objects)
+	run.o : run.h options.h sorts.h
+	sorting.o : sorting.h
+	
+opt :
+	$(MAKE) OPT=1
+
+.PHONY : clean
+clean : 
+	@echo '$(OS)'
+#	ifeq ($(OS),Windows_NT)
+#	clean ::
+	powershell rm *.exe 
+	powershell rm *.o
+#	else
+#	clean ::
+#   rm run *.o
+#	endif
+
