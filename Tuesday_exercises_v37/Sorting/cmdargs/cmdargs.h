@@ -1,6 +1,8 @@
 /**
- Usage
- =====
+ @brief 
+ Process command line args into variables
+ 
+ @example
  ** Define command line arguments **
     argdef_t argdefs[] = {
         {
@@ -13,13 +15,13 @@
             .isInt = true,
             .var = &anInt1,
             .str = "-int1",
-            .defaultInt = 101   // Optional
+            .defaultInt = 101   // Optional, default default: 0
         },
         {
             .isString = true,
             .var = &aString1,
             .str = "-as1"
-            .defaultString = "default string"  // Optional
+            .defaultString = "default string"  // Optional, default default: ""
         }
     }
 
@@ -41,7 +43,7 @@
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 
 // Max string lengths
-#define MAXLEN_FLAG 20
+#define MAXLEN_FLAG 32
 #define MAXLEN_DEFAULTSTRING 1024
 
 // Definition of a command line argument
@@ -51,10 +53,11 @@ typedef struct argdef_struct {
     void* var;
     
     int defaultInt;
+    double defaultFloat;
     char defaultString[MAXLEN_DEFAULTSTRING];
 } argdef_t;
 
 int processArgs(char* argv[], int argc, argdef_t defs[], int defcount);
-int checkArg(int argc, char *argv[], char arg[]);  // Available for separate use
+int checkArg(int argc, char* argv[], char arg[]);  // Available for separate use
 
 
