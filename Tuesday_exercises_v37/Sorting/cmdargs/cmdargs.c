@@ -21,15 +21,21 @@ int processArgs(char* argv[], int argc, argdef_t defs[], int defcount) {
             if (defs[i].isInt) {
                 int* p = (int*)defs[i].var;
                 int index = checkArg(argc, argv, defs[i].str);
-                *p = index ? strtol(argv[index + 1], NULL, 10) : defs[i].defaultInt; //TODO strtol errorchecking
+                *p = index ? strtol(argv[index + 1], NULL, 10) : defs[i].defaultInt; //TODO errorchecking. Sets 0 on error now which is sort of ok.
             } 
-
+            if (defs[i].isFloat) {
+                double* p = (double*)defs[i].var;
+                int index = checkArg(argc, argv, defs[i].str);
+                *p = index ? strtod(argv[index + 1], NULL) : defs[i].defaultFloat; //TODO errorchecking. Sets 0 on error now which is sort of ok.
+            } 
             if (defs[i].isString) {
                 char* p = (char*)defs[i].var;
                 int index = checkArg(argc, argv, defs[i].str);
                 strcpy(p, index ? argv[index + 1] : defs[i].defaultString);
             }
         }
+       return 0;
     }
-    return 0;
+    else
+        return 1; // No arguments
 }
