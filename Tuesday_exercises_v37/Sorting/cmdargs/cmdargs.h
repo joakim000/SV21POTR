@@ -46,6 +46,10 @@
 #define MAXLEN_FLAG 32
 #define MAXLEN_DEFAULTSTRING 1024
 
+// Process with no cmdline arguments, useful for setting defaults.
+// If set to false; returns error code 1 on no arguments.
+#define PROCESS_EMPTY true
+
 // Definition of a command line argument
 typedef struct argdef_struct {
     char str[MAXLEN_FLAG];
