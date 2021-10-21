@@ -97,32 +97,11 @@ int main(int argc, char* argv[] )
     };
 
     argdef_t defs2[] = {
-        {
-            .isFlag = true,
-            .var = &aFlag1,
-            .str = "-flag1" 
-        },
-        {
-            .isInt = true,
-            .var = &anInt1,
-            .str = "-int1",
-            .defaultInt = 101
-        },
-        {
-            .isString = true,
-            .var = &aString1,
-            .str = "-as1"
-            // .defaultString = ""
-        },
-         {
-            .isFlag = true,
-            .var = &aFlag2,
-            .str = "-flag2" 
-        },
-        {
-            .isInt = true,
-            .var = &anInt2,
-            .str = "-int2",
+        { .isFlag = true, .var = &aFlag1, .str = "-flag1" },
+        { .isInt = true,  .var = &anInt1, .str = "-int1", .defaultInt = 101 },
+        { .var = &aString1, .str = "-as1",.isString = true  /*, .defaultString = "" */ },
+        { .var = &aFlag2, .str = "-flag2", .isFlag = true },
+        { .isInt = true, .var = &anInt2, .str = "-int2",
             // .defaultInt = 201
         },
         {
