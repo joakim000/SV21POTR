@@ -1,0 +1,60 @@
+/**
+ Usage
+ =====
+ ** Define command line arguments **
+    argdef_t argdefs[] = {
+        {
+            .isFlag = true,
+            .var = &aFlag1,
+            .str = "-flag1" 
+            // Default: false
+        },
+        {
+            .isInt = true,
+            .var = &anInt1,
+            .str = "-int1",
+            .defaultInt = 101   // Optional
+        },
+        {
+            .isString = true,
+            .var = &aString1,
+            .str = "-as1"
+            .defaultString = "default string"  // Optional
+        }
+    }
+
+ ** Set variables from args **
+    processArgs(argv, argc, defs, COUNT_OF(defs));
+
+ ** Command line **
+    out -flag1 -int1 100 -as1 "a string"
+
+*/
+
+#include <stdbool.h>
+// #include <stdint.h>
+// #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Utility
+#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
+
+// Max string lengths
+#define MAXLEN_FLAG 20
+#define MAXLEN_DEFAULTSTRING 1024
+
+// Definition of a command line argument
+typedef struct argdef_struct {
+    char str[MAXLEN_FLAG];
+    bool isFlag, isInt, isFloat, isString;
+    void* var;
+    
+    int defaultInt;
+    char defaultString[MAXLEN_DEFAULTSTRING];
+} argdef_t;
+
+int processArgs(char* argv[], int argc, argdef_t defs[], int defcount);
+int checkArg(int argc, char *argv[], char arg[]);  // Available for separate use
+
+

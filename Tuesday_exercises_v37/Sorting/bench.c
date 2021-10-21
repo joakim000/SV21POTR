@@ -10,6 +10,7 @@
 #include "options.h"
 #include "sort_struct.h"
 #include "sort_init.h"
+#include "cmdargs/cmdargs.h"
 
 uint32_t elements;
 
@@ -42,7 +43,7 @@ int main(int argc, char* argv[] )
     /* Test / Timing */
     double libTime, sortTime, elem_over_ns, lib_elem_over_ns; 
     uint32_t errorCount;
-    char* fname[FILENAME_MAX];
+    char fname[FILENAME_MAX];
       
     /* Process args */
 
@@ -73,6 +74,52 @@ int main(int argc, char* argv[] )
             printf(HELPTEXT2);
             exit(0);
         }
+        
+        struct benchargs {
+            bool prtin,
+                prtout,
+                prterr,
+                noprtref,
+                csv,
+                json,
+                perf;
+
+            char* fname[FILENAME_MAX];
+
+            int tmax,
+                size,
+                compo,
+                maxThreads,
+                maxNum;
+        } ba;
+        
+        argdef_t defs[] = {
+            {
+                .isFlag = true,
+                .var = (bool*)&ba.prtin,
+                .str = "-prtin" 
+            },
+            {
+                .isInt = true,
+                .var = (int*)&ba.size,
+                .str = "-size",
+                .defaultInt = 100
+            },
+            {
+                .isString = true,
+                .var = (char*)&ba.fname,
+                .str = "-file"
+                // .defaultString = ""
+            }
+        };
+
+
+        processArgs(argv, argc, defs, COUNT_OF(defs));
+
+        if (ba.prtin) puts("prtin true"); else puts("prtin false");
+        printf("-size %d\n", ba.size);
+        printf("-file %s\n", ba.fname);
+
 
         if (checkArg(argc, argv, "-prtin")) prtin = true;
         if (checkArg(argc, argv, "-prtout")) prtout = true;
@@ -93,8 +140,7 @@ int main(int argc, char* argv[] )
 
         // Save file  
         int arg_fname = checkArg(argc, argv, "-file");
-        *fname = arg_fname ? argv[arg_fname + 1] : "";
-        // write = 
+        strcpy(fname, arg_fname ? argv[arg_fname + 1] : "");
         
         // Numerical value args
         int arg_tmax = checkArg(argc, argv, "-tmax");
@@ -150,11 +196,11 @@ int main(int argc, char* argv[] )
 
     // Open file for writing timing data
     FILE* fp; 
-    if (*fname != NULL) 
-        fp = fopen(*fname, "a");
+    if (fname != NULL) 
+        fp = fopen(fname, "a");
     char jsonOut[0x400] = "";
 
-    // Prepare args
+    // Prepare args for sort functions
     struct sort_args args = {
         .num = compare,
         .size = elements,
@@ -326,16 +372,16 @@ int main(int argc, char* argv[] )
 }
 
 /* Helper functions */
-int checkArg(int argc, char *argv[], char arg[]) {
-    for (int i = 1; i < argc; i++) {
-        if (!strcmp(argv[i], arg))
-            { 
-                // printf("\n%s found at index %d\n", argv[i], i); 
-                return i;
-            }
-    }
-    return 0;
-}
+// int checkArg(int argc, char *argv[], char arg[]) {
+//     for (int i = 1; i < argc; i++) {
+//         if (!strcmp(argv[i], arg))
+//             { 
+//                 // printf("\n%s found at index %d\n", argv[i], i); 
+//                 return i;
+//             }
+//     }
+//     return 0;
+// }
 
 uint32_t compare_array(uint32_t *num, uint32_t size, uint32_t *comp)
 {
