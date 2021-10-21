@@ -29,7 +29,7 @@ void tcp(char title[], char str1[], char str2[]);
         
        
         for (int i = 0; i < defcount; i++) {            
-            if (defs[i].isBool) {
+            if (defs[i].isFlag) {
                 bool* p = (bool*)defs[i].var;
                 *p = checkArg(argc, argv, defs[i].str) ? true : false;               
                 // defs[i].val = checkArg(argc, argv, defs[i].str) ? (bool*)true : (bool*)false;   
@@ -131,9 +131,9 @@ int main(int argc, char* argv[] )
     };
 
     
-    argdef defs[] = {
+    argdef_t defs[] = {
         {
-            .isBool = true,
+            .isFlag = true,
             .var = &ca.prtin,
             .str = "-prtin" 
         },
