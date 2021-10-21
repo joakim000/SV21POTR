@@ -82,79 +82,80 @@ int main(int argc, char* argv[] )
                 noprtref,
                 csv,
                 json,
-                perf;
+                perf,
+                verbose,
+                notest,
+                descend;
 
             char* fname[FILENAME_MAX];
 
             int tmax,
-                size,
-                compo,
-                maxThreads,
-                maxNum;
+                size, //elements, 
+                compo, //run_len,
+                maxThreads; //threads;
         } ba;
         
         argdef_t defs[] = {
-            {
-                .isFlag = true,
-                .var = (bool*)&ba.prtin,
-                .str = "-prtin" 
-            },
-            {
-                .isInt = true,
-                .var = (int*)&ba.size,
-                .str = "-size",
-                .defaultInt = 100
-            },
-            {
-                .isString = true,
-                .var = (char*)&ba.fname,
-                .str = "-file"
-                // .defaultString = ""
-            }
+            { .isFlag = true, .var = (bool*)&ba.prtin, .str = "-prtin" },
+            { .isFlag = true, .var = (bool*)&ba.prtout, .str = "-prtout" },
+            { .isFlag = true, .var = (bool*)&ba.prterr, .str = "-prterr" },
+            { .isFlag = true, .var = (bool*)&ba.prterr, .str = "-prterr" },
+            { .isFlag = true, .var = (bool*)&ba.csv, .str = "-csv" },
+            { .isFlag = true, .var = (bool*)&ba.json, .str = "-json" },
+            { .isFlag = true, .var = (bool*)&ba.perf, .str = "-perf" },
+            { .isFlag = true, .var = (bool*)&ba.verbose, .str = "-v" },
+            { .isFlag = true, .var = (bool*)&ba.notest, .str = "-notest" },
+            { .isFlag = true, .var = (bool*)&ba.descend, .str = "-d" },
+            
+            { .isInt = true,  .var = (int*)&ba.tmax, .str = "-tmax", .defaultInt = TMAX },
+            { .isInt = true,  .var = (int*)&ba.size, .str = "-size", .defaultInt = ELEMENTS },
+            { .isInt = true,  .var = (int*)&ba.compo, .str = "-run", .defaultInt = RUN_LEN },
+            { .isInt = true,  .var = (int*)&ba.maxThreads, .str = "-thr", .defaultInt = 12 },
+            
+            { .isString = true, .var = (char*)&ba.fname, .str = "-file" }
         };
-
-
         processArgs(argv, argc, defs, COUNT_OF(defs));
-
-        if (ba.prtin) puts("prtin true"); else puts("prtin false");
-        printf("-size %d\n", ba.size);
-        printf("-file %s\n", ba.fname);
-
-
-        if (checkArg(argc, argv, "-prtin")) prtin = true;
-        if (checkArg(argc, argv, "-prtout")) prtout = true;
-        if (checkArg(argc, argv, "-prterr")) prterr = true;
-        if (checkArg(argc, argv, "-prterr")) noprtref = true;
-        if (checkArg(argc, argv, "-csv")) csv = true;
-        if (checkArg(argc, argv, "-json")) json = true;
-        if (checkArg(argc, argv, "-perf")) perf = true;
-        if (checkArg(argc, argv, "-v")) verbose = true;
-        if (checkArg(argc, argv, "-notest")) notest = true;
         
-        if (checkArg(argc, argv, "-d")) descend = true;
-        sorts = descend ? sorts_d : sorts_a;
 
-        // Sorts to run
+        // Old argument checking - replace
+        // if (checkArg(argc, argv, "-prtin")) prtin = true;
+        // if (checkArg(argc, argv, "-prtout")) prtout = true;
+        // if (checkArg(argc, argv, "-prterr")) prterr = true;
+        // if (checkArg(argc, argv, "-prterr")) noprtref = true;
+        // if (checkArg(argc, argv, "-csv")) csv = true;
+        // if (checkArg(argc, argv, "-json")) json = true;
+        // if (checkArg(argc, argv, "-perf")) perf = true;
+        // if (checkArg(argc, argv, "-v")) verbose = true;
+        // if (checkArg(argc, argv, "-notest")) notest = true;
+        // if (checkArg(argc, argv, "-d")) descend = true;
+
+        // // Save file  
+        // int arg_fname = checkArg(argc, argv, "-file");
+        // strcpy(fname, arg_fname ? argv[arg_fname + 1] : "");
+        
+        // // Numerical value args
+        // int arg_tmax = checkArg(argc, argv, "-tmax");
+        // tmax = arg_tmax ? strtol(argv[arg_tmax + 1], NULL, 10) : TMAX;
+        // int arg_size = checkArg(argc, argv, "-size");
+        // elements = arg_size ? strtol(argv[arg_size + 1], NULL, 10) : ELEMENTS;
+        // int arg_run = checkArg(argc, argv, "-run");
+        // run_len = arg_run ? strtol(argv[arg_run + 1], NULL, 10) : RUN_LEN;
+        // int arg_thr = checkArg(argc, argv, "-thr");
+        // threads = arg_thr ? strtol(argv[arg_thr + 1], NULL, 10) : 12;  // Default 12 threads
+        // // end Old argument checking - replace
+        
+        /* cmdline args that need special handling */
+        int ai; // argv index
+        
+        // Special argument: Sorts to run
+        sorts = descend ? sorts_d : sorts_a;  // Needs to be set before
         for (int i = 1; i < NUMBER_OF_SORTS; i++) 
             sorts[i].run = (bool)checkArg(argc, argv, sorts[i].name); 
 
-        // Save file  
-        int arg_fname = checkArg(argc, argv, "-file");
-        strcpy(fname, arg_fname ? argv[arg_fname + 1] : "");
-        
-        // Numerical value args
-        int arg_tmax = checkArg(argc, argv, "-tmax");
-        tmax = arg_tmax ? strtol(argv[arg_tmax + 1], NULL, 10) : TMAX;
-        int arg_size = checkArg(argc, argv, "-size");
-        elements = arg_size ? strtol(argv[arg_size + 1], NULL, 10) : ELEMENTS;
-        int arg_run = checkArg(argc, argv, "-run");
-        run_len = arg_run ? strtol(argv[arg_run + 1], NULL, 10) : RUN_LEN;
-        int arg_thr = checkArg(argc, argv, "-thr");
-        threads = arg_thr ? strtol(argv[arg_thr + 1], NULL, 10) : 12;  // Default 12 threads
-        
-        int arg_max = checkArg(argc, argv, "-max");
-        if (arg_max) {
-            char* s = argv[arg_max + 1];
+        // Special argument: Has aliases
+        ai = checkArg(argc, argv, "-max");
+        if (ai) {
+            char* s = argv[ai + 1];
             if (!strcmp(s, "i8"))
                 rnd_max = INT8_MAX;
             else if (!strcmp(s, "i16"))
@@ -162,7 +163,7 @@ int main(int argc, char* argv[] )
             else if (!strcmp(s, "i32"))
                 rnd_max = INT32_MAX;
             else
-                rnd_max = strtol(argv[arg_max + 1], NULL, 10);           
+                rnd_max = strtol(argv[ai + 1], NULL, 10);           
         }
     }
 
