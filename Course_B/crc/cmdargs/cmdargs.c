@@ -12,7 +12,7 @@ int checkArg(int argc, char *argv[], char arg[]) {
 }
 
 int processArgs(char* argv[], int argc, argdef_t defs[], int defcount) {
-    if (argc >= 2) {
+    if (argc >= 2 || PROCESS_EMPTY) {
         for (int i = 0; i < defcount; i++) {            
             if (defs[i].isFlag) {
                 bool* p = (bool*)defs[i].var;
@@ -34,7 +34,7 @@ int processArgs(char* argv[], int argc, argdef_t defs[], int defcount) {
                 strcpy(p, index ? argv[index + 1] : defs[i].defaultString);
             }
         }
-       return 0;
+        return 0;
     }
     else
         return 1; // No arguments
