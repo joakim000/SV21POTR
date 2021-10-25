@@ -1,11 +1,11 @@
 /* Options for sorting exercise run            args    */
 
 // Flags    true: disregard arg, always run
-#define PRT false  // print input tables        -it
-#define PT false  // print result tables        -rt
-#define CT true  // qsort comparison testing    -notest
-#define T false // timing                       -time
-#define DESCEND false    // sort descending     -desc
+#define PRT false  // print input tables        
+#define PT false  // print result tables        
+#define CT true  // qsort comparison testing    
+#define T false // timing                       
+#define DESCEND false    // sort descending     
 
 // Printing sanity check
 #define TMAX 100   // max table size
@@ -34,7 +34,9 @@
 // 0: all linear, 1: all random
 #define RUN_LEN 1                               
 
+/* Other */
 // Debugging
 #define DEBUG false
 
-
+// Threading
+#define MAXTHREADS 12      
