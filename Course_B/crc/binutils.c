@@ -117,8 +117,11 @@ void ints2bitsLSF(size_t const size, size_t const type_size, void const * const 
     }
     if (padSize) {
         size_t bitCount = size * type_size * 8 + padSize; 
-        for (int i = (bitCount - 1); i > (bitCount - padSize - 1); i--)
-            out[i] = 0; 
+        for (int i = (bitCount - 1), j = (padSize - 1); i > (bitCount - padSize - 1); i--, j--)
+            if (padBits == NULL) 
+                out[i] = 0;
+            else
+                out[i] = padBits[j]; 
     }
 }   
 
@@ -159,7 +162,7 @@ void ints2bitsMSF(size_t const size, size_t const type_size, void const * const 
     }
 }
 
-void bits2intsMSFtest(size_t const total_bits, size_t const type_size, uint8_t const bits[], void const * const out_ptr) {
+void bits2intsMSF(size_t const total_bits, size_t const type_size, uint8_t const bits[], void const * const out_ptr) {
     uint8_t bitsArray[type_size * 8];
     size_t elem_total = total_bits / (type_size * 8);
     
@@ -197,7 +200,7 @@ void bits2intsMSFtest(size_t const total_bits, size_t const type_size, uint8_t c
     } 
 }   
 
-void bits2intsMSF(size_t const total_bits, size_t const type_size, uint8_t const bits[], uint32_t out[]) {
+void bits2intsLSF(size_t const total_bits, size_t const type_size, uint8_t const bits[], void const * const out_ptr) {
     uint8_t bitsArray[type_size * 8];
     size_t elem_total = total_bits / (type_size * 8);
     
@@ -205,60 +208,36 @@ void bits2intsMSF(size_t const total_bits, size_t const type_size, uint8_t const
     size_t bitsArray_iter = 0;
     size_t out_iter = 0;
     
+    uint8_t*  out8  = (uint8_t*) out_ptr;
+    uint16_t* out16 = (uint16_t*) out_ptr;
+    uint32_t* out32 = (uint32_t*) out_ptr;
+
     while (bits_iter <= total_bits) {      
         if (bitsArray_iter < (type_size * 8 )) {
             bitsArray[bitsArray_iter] = bits[bits_iter];
             bitsArray_iter++; bits_iter++;
         }
         else {
-            out[out_iter++] = bits2intMSF(type_size * 8, bitsArray);
+             switch (type_size) {
+        case 1:
+            out8[out_iter++] = bits2intLSF(type_size * 8, bitsArray);
+            break;
+        case 2:
+            out16[out_iter++] = bits2intLSF(type_size * 8, bitsArray);
+            break;
+        case 4:
+            out32[out_iter++] = bits2intLSF(type_size * 8, bitsArray);
+            break;
+        default:
+            fprintf(stderr, "Unsupported type size, exiting.");
+            exit(EXIT_FAILURE);
+        }
+            
             bitsArray_iter = 0;
         }
     } 
 }   
-
-void bits2intsLSF(size_t const total_bits, size_t const type_size, uint8_t const bits[], uint32_t out[]) {
-    uint8_t bitsArray[type_size * 8];
-    size_t elem_total = total_bits / (type_size * 8);
-    
-    // puts("\n\nInside bits2intsLSF");
-    // printf("Elem total: %d\n", elem_total);
-
-    size_t bits_iter = 0;
-    size_t bitsArray_iter = 0;
-    size_t out_iter = 0;
-
-    // puts("\nbits array inputs: ");
-    // for (int i = 0; i < total_bits; i++) 
-    //     printf("%d", bits[i]);
-    // puts("");
-
-    while (bits_iter <= total_bits) {      
-        if (bitsArray_iter < (type_size * 8 )) {
-            bitsArray[bitsArray_iter] = bits[bits_iter];
-
-            // printf("\nIn 1st conditional: bits_iter:%d bits[i]:%d bitsarray_i:%d bitsarray[i]:%d",
-            // bits_iter, bits[bits_iter], bitsArray_iter, bitsArray[bitsArray_iter]);
-
-            // puts("\ninternal bits array in bits2ints 1st conditional: ");
-            // for (int i = 0; i <= bitsArray_iter; i++) 
-            //     printf("%d", bitsArray[i]);
-            // puts("");
-
-            bitsArray_iter++; bits_iter++;
-        }
-        else {
-            // puts("\ninternal bits array in bits2ints 2st conditional: ");
-            // for (int i = 0; i < bitsArray_iter; i++) 
-            //     printf("%d", bitsArray[i]);
-            // puts("");
-    
-            out[out_iter++] = bits2intLSF(type_size * 8, bitsArray);
-            bitsArray_iter = 0;
-        }
-    } 
-}   
-
+  
 void setMSF() {
     int2bits = int2bitsMSF;
     bits2int = bits2intMSF;
@@ -287,8 +266,8 @@ void charArrayToString(char ca[], size_t size, char* out) {
 
 void bitSlice(int start, int count, void const * const ptr, size_t size, uint8_t out[]) {
     uint8_t* in = (uint8_t*) ptr;
-    if (start == -1) 
-        for (int i = size - 1, j = count - 1; i > size - count - 1; i--, j--)
+    if (start < 0) 
+        for (int i = size + (start), j = count - 1; i > size - count + (start); i--, j--)
             out[j] = in[i];
     else
         for (int i = start, j = 0; j < count; i++, j++)
@@ -305,6 +284,17 @@ void i2p(void const * const ptr, size_t size, char separator, int newline){
             printf("%d", nums[i]);
     for (int i = 0; i < newline; i++)
         printf("\n");
+}
+
+void printBits(char label[], uint8_t bits[], size_t size) {
+        if (size > 40) {
+            printf("%10s bits (%d):\n", label, size);
+            i2p(bits, size, 0, 2); 
+        }
+        else {
+            printf("%10s bits (%d): ", label, size);
+            i2p(bits, size, 0, 1);
+        } 
 }
 
 // char* i2s(void const * const ptr, size_t size, char separator){

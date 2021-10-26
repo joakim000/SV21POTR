@@ -52,9 +52,8 @@ void ints2bitsMSF(size_t const size, size_t const type_size, void const * const 
     uint32_t nums[total_bits / type_size * 8];      // Count of nums based on expected type size
     bits2ints(total_bits, type_size, bitValues, nums);
 */
-void bits2intsLSF(size_t const size, size_t const type_size, uint8_t const bits[], uint32_t out[]);
-void bits2intsMSF(size_t const size, size_t const type_size, uint8_t const bits[], uint32_t out[]);
-void bits2intsMSFTest(size_t const total_bits, size_t const type_size, uint8_t const bits[], void const * const out_ptr);
+void bits2intsMSF(size_t const total_bits, size_t const type_size, uint8_t const bits[], void const * const out_ptr);
+void bits2intsLSF(size_t const total_bits, size_t const type_size, uint8_t const bits[], void const * const out_ptr);
 
 
 /**
@@ -63,7 +62,7 @@ void bits2intsMSFTest(size_t const total_bits, size_t const type_size, uint8_t c
 typedef void (*int2bits_t)(size_t const size, void const * const ptr, uint8_t out[]); 
 typedef uint32_t (*bits2int_t)(size_t const len, uint8_t* bits);
 typedef void (*ints2bits_t)(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]); 
-typedef void (*bits2ints_t)(size_t const total_bits, size_t const type_size, uint8_t const bits[], uint32_t out[]);
+typedef void (*bits2ints_t)(size_t const total_bits, size_t const type_size, uint8_t const bits[], void const * const out_ptr);
 int2bits_t int2bits;
 bits2int_t bits2int;
 ints2bits_t ints2bits;
@@ -95,6 +94,11 @@ void bitSlice(int start, int count, void const * const ptr, size_t size, uint8_t
 void i2p(void const * const ptr, size_t size, char separator, int newline); 
 // char* i2s(void const * const ptr, size_t size, char separator);
 
+/**
+  @brief Print formatted bits  
+  @note For no separator use 0
+*/
+void printBits(char label[], uint8_t bits[], size_t size);
 
 /**
   @brief Various (failed) experiments for reducing memory usage 
