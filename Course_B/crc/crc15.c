@@ -19,7 +19,7 @@
 
 #define POLYNOMIAL 0xC599U // The CAN protocol uses the CRC-15 with this polynomial
 #define PAD 15
-#define MSGLSF true
+#define MSGLSF false
     // Hex    Dec    LSF                MSF               
     // 0xC599 50585  1001100110100011   1100010110011001                
     //                                  1100010110011001
@@ -33,10 +33,7 @@
 // #define POLYNOMIAL 0xD5
 // #define POLYNOMIAL 0x107 // 100000111
 
-
-
 // #define PAD 16
-// #define POLYNOMIAL 0x8005
 // #define POLYNOMIAL 0x8005
 
 // #define PAD 32
@@ -46,8 +43,7 @@
 void checksumMsg(uint8_t message[], size_t msgSize, int32_t checksum, size_t padSize, uint8_t msgBits[]);
 int32_t getRem(uint8_t msgBits[], size_t msgSize, uint8_t genBits[], size_t genSize, size_t padSize );
 void messageLengthCheck(size_t len);
-bool validate(uint8_t message[], size_t msgSize, int32_t checksum, size_t padSize, uint8_t genBits[], size_t genSize);
-bool validate_new(uint8_t msgBits[], size_t msgBitsCount, size_t padSize, uint8_t genBits[], size_t genSize);
+bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t padSize, uint8_t genBits[], size_t genSize);
 void validPrint(uint8_t msg[], size_t msgSize, bool valid);
 
 
@@ -165,25 +161,17 @@ int main(void)
     // otherwise print "The data is not OK\n"
     bool valid;
 
-    valid = validate_new(msgBitsCS, COUNT_OF(msgBitsCS), padSize, genBits, COUNT_OF(genBits));
+    valid = validate(msgBitsCS, COUNT_OF(msgBitsCS), padSize, genBits, COUNT_OF(genBits));
     validPrint(message, COUNT_OF(message), valid);
 
-
-    // Test: Validate original message
-    // valid = validate(message, COUNT_OF(message), checksum, padSize, genBits, COUNT_OF(genBits));   
-    // validPrint(message, COUNT_OF(message), valid);
   
     // Changed message
     message[1] = 'a';
     checksumMsg(message, COUNT_OF(message), checksum, padSize, msgBitsCS);
-    valid = validate_new(msgBitsCS, COUNT_OF(msgBitsCS), padSize, genBits, COUNT_OF(genBits));
+    valid = validate(msgBitsCS, COUNT_OF(msgBitsCS), padSize, genBits, COUNT_OF(genBits));
     validPrint(message, COUNT_OF(message), valid);
 
 
-
-    // valid = validate(message, COUNT_OF(message), checksum, padSize, genBits, COUNT_OF(genBits));   
-    // validPrint(message, COUNT_OF(message), valid);
-    
     return 0;
 }
 
@@ -263,49 +251,9 @@ void checksumMsg(uint8_t message[], size_t msgSize, int32_t checksum, size_t pad
 
 
 
-bool validate_old(uint8_t message[], size_t msgSize, int32_t checksum, size_t padSize, uint8_t genBits[], size_t genSize) {
-    // Create working copy
-    uint8_t msg[msgSize];
-    for (int i = 0; i < msgSize; i++)
-        msg[i] = message[i];
 
-    // Convert checksum to array of bit values
-    uint8_t checksumBitsRaw[sizeof(checksum) * 8];
-    int2bits(sizeof(checksum), &checksum, checksumBitsRaw);
 
-    // Crop to padding size
-    uint8_t checksumBits[padSize];
-
-    for (int i = COUNT_OF(checksumBits) - 1, j = COUNT_OF(checksumBitsRaw) - 1; i >= 0; i--, j--)
-        checksumBits[i] = checksumBitsRaw[j];
-    // bitSlice(-1, padSize, checksumBitsRaw, COUNT_OF(checksumBitsRaw), checksumBits);
-
-    if (VERBOSE) printf("Checksum: 0x%x\n", checksum);
-    if (VERBOSE) printBits("Checksum", checksumBits, COUNT_OF(checksumBits));
-    
-    // Extra checking step: Convert checksum bits back to checksum, check that it matches provided checksum
-    uint32_t checksumRecon = (uint32_t)bits2int(COUNT_OF(checksumBits), checksumBits);
-    if (VERBOSE) printf("Cs recon: 0x%x\n", checksumRecon);
-    assert( ("Checksum error", checksumRecon == checksum) );
-
-    // Convert msg to array of bit values, add remainder bits as padding
-    uint8_t msgBits[sizeof(msg) * 8 + padSize];
-    if (MSGLSF)
-        ints2bitsLSF(sizeof(msg), sizeof(msg[0]), &msg, msgBits, padSize, checksumBits);
-    else
-        ints2bits(sizeof(msg), sizeof(msg[0]), &msg, msgBits, padSize, checksumBits);
-    if (VERBOSE) printBits("Checksummed message", msgBits, COUNT_OF(msgBits));
-
-    int32_t rem = getRem(msgBits, COUNT_OF(msgBits), genBits, genSize, padSize);
-    // if (VERBOSE) printf("Remainder: 0x%x\n", rem);
-
-    if (!rem) 
-        return true;
-    else
-        return false;
-}
-
-bool validate_new(uint8_t msgBits[], size_t msgBitsCount, size_t padSize, uint8_t genBits[], size_t genSize) {
+bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t padSize, uint8_t genBits[], size_t genSize) {
     int32_t rem = getRem(msgBits, msgBitsCount, genBits, genSize, padSize);
     // if (VERBOSE) printf("Remainder: 0x%x\n", rem);
     if (!rem) 
