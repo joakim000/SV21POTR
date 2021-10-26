@@ -20,9 +20,9 @@
 
 // Tests
 void test_byte();
-void test_int2bits2int(int2bits_ptr_t int2bits_ptr, bits2int_ptr_t bits2int_ptr);
-void test_int2bits2int_multi(int2bits_ptr_t int2bits_ptr, bits2int_ptr_t bits2int_ptr, bits2ints_ptr_t bits2ints_ptr);
-void test_ints2bits(ints2bits_ptr_t ints2bits_ptr, bits2ints_ptr_t bits2ints_ptr);
+void test_int2bits2int(int2bits_t int2bits, bits2int_t bits2int);
+void test_int2bits2int_multi(int2bits_t int2bits, bits2int_t bits2int, bits2ints_t bits2ints);
+void test_ints2bits(ints2bits_t ints2bits, bits2ints_t bits2ints);
 
 // Test values
 // uint8_t message[] = {2};
@@ -49,31 +49,26 @@ int main(void)
     // test_byte();
    
 
-    int2bits_ptr_t int2bits_ptr;
-    bits2int_ptr_t bits2int_ptr;
-    ints2bits_ptr_t ints2bits_ptr;
-    bits2ints_ptr_t bits2ints_ptr;
+    int2bits = int2bitsLSF; //uint8 ok, uint16 ok, uint32 ok  
+    bits2int = bits2intLSF; //uint8 ok, uint16 ok, uint32 ok  
+    bits2ints = bits2intsLSF; //uint8 ok, uint16 ok, uint32 ok
+    ints2bits = ints2bitsLSF; //uint8 ok, uint16 ok, uint32 ok  
 
-    int2bits_ptr = int2bitsLSF; //uint8 ok, uint16 ok, uint32 ok  
-    bits2int_ptr = bits2intLSF; //uint8 ok, uint16 ok, uint32 ok  
-    bits2ints_ptr = bits2intsLSF; //uint8 ok, uint16 ok, uint32 ok
-    ints2bits_ptr = ints2bitsLSF; //uint8 ok, uint16 ok, uint32 ok  
+    test_int2bits2int_multi(int2bits, bits2int, bits2ints);
+    test_ints2bits(ints2bits, bits2ints); 
 
-    test_int2bits2int_multi(int2bits_ptr, bits2int_ptr, bits2ints_ptr);
-    test_ints2bits(ints2bits_ptr, bits2ints_ptr); 
-
-    int2bits_ptr = int2bitsMSF; //uint8 ok, uint16 ok, uint32 ok  
-    bits2int_ptr = bits2intMSF; //uint8 ok, uint16 ok, uint32 ok
-    bits2ints_ptr = bits2intsMSF; //uint8 ok, uint16 ok, uint32 ok
-    ints2bits_ptr = ints2bitsMSF; //uint8 ok, uint16 ok, uint32 ok 
+    int2bits = int2bitsMSF; //uint8 ok, uint16 ok, uint32 ok  
+    bits2int = bits2intMSF; //uint8 ok, uint16 ok, uint32 ok
+    bits2ints = bits2intsMSF; //uint8 ok, uint16 ok, uint32 ok
+    ints2bits = ints2bitsMSF; //uint8 ok, uint16 ok, uint32 ok 
     
-    test_int2bits2int_multi(int2bits_ptr, bits2int_ptr, bits2ints_ptr);
-    test_ints2bits(ints2bits_ptr, bits2ints_ptr); 
+    test_int2bits2int_multi(int2bits, bits2int, bits2ints);
+    test_ints2bits(ints2bits, bits2ints); 
 
 
 }
 
-void test_int2bits2int(int2bits_ptr_t int2bits_ptr, bits2int_ptr_t bits2int_ptr) {
+void test_int2bits2int(int2bits_t int2bits, bits2int_t bits2int) {
     size_t type_size = sizeof(testval);
     size_t type_bits = type_size * 8; 
 
@@ -85,13 +80,13 @@ void test_int2bits2int(int2bits_ptr_t int2bits_ptr, bits2int_ptr_t bits2int_ptr)
         printf("\t%8d %8x %c\t", testval, testval, testval);
 
         // Call int2bits
-        int2bits_ptr(type_size, &testval, bitsArray);
+        int2bits(type_size, &testval, bitsArray);
         // Print result
         for  (int i = 0; i < (type_bits); i++) 
             printf("%d", bitsArray[i]);
         
         // Call bits2int, print result
-        printf("   reconst: %d", bits2int_ptr(type_bits, bitsArray));
+        printf("   reconst: %d", bits2int(type_bits, bitsArray));
 
         // Concat bitsArrays to messageBits 
         size_t el_start_index = 0 * type_bits;
@@ -108,7 +103,7 @@ void test_int2bits2int(int2bits_ptr_t int2bits_ptr, bits2int_ptr_t bits2int_ptr)
 }
 
 
-void test_int2bits2int_multi(int2bits_ptr_t int2bits_ptr, bits2int_ptr_t bits2int_ptr, bits2ints_ptr_t bits2ints_ptr) {
+void test_int2bits2int_multi(int2bits_t int2bits, bits2int_t bits2int, bits2ints_t bits2ints) {
     size_t type_size = sizeof(message[0]); 
     size_t type_bits = type_size * 8;
     size_t msg_size = (sizeof(message));
@@ -124,13 +119,13 @@ void test_int2bits2int_multi(int2bits_ptr_t int2bits_ptr, bits2int_ptr_t bits2in
         printf("%8d %8x %c\t", message[i], message[i], message[i]);
         
         // Call int2bits
-        int2bits_ptr(type_size, &message[i], bitsArray);
+        int2bits(type_size, &message[i], bitsArray);
         // Print result
         for  (int i = 0; i < (type_size * 8); i++) 
             printf("%d", bitsArray[i]);
         
         // Call bits2int, print result
-        printf("   reconst: %d\n", bits2int_ptr(type_size * 8, bitsArray));
+        printf("   reconst: %d\n", bits2int(type_size * 8, bitsArray));
 
         // Concat bitsArrays to messageBits 
         size_t el_start_index = i * type_size * 8;
@@ -151,7 +146,7 @@ void test_int2bits2int_multi(int2bits_ptr_t int2bits_ptr, bits2int_ptr_t bits2in
     size_t total_bits = COUNT_OF(messageBits);
     size_t total_nums = total_bits / type_bits;
     uint32_t nums[total_nums];
-    bits2ints_ptr(total_bits, type_size, messageBits, nums);
+    bits2ints(total_bits, type_size, messageBits, nums);
     // puts("\nPrint reconst ints from messageBits");
     printf("\t");
     for (int i = 0; i < COUNT_OF(nums); i++) {
@@ -160,13 +155,13 @@ void test_int2bits2int_multi(int2bits_ptr_t int2bits_ptr, bits2int_ptr_t bits2in
     // puts("\n");
 }
 
-void test_ints2bits(ints2bits_ptr_t ints2bits_ptr, bits2ints_ptr_t bits2ints_ptr) {
+void test_ints2bits(ints2bits_t ints2bits, bits2ints_t bits2ints) {
     size_t type_size = sizeof(message[0]); 
     size_t msg_size = (sizeof(message));
 
     uint8_t messageBits[sizeof(message) * 8];
 
-    ints2bits_ptr(msg_size, type_size, &message, messageBits);
+    ints2bits(msg_size, type_size, &message, messageBits, 0, NULL);
     // puts("\nPrint messageBits from ints2bits:");
     puts("");
     for  (int i = 0; i < COUNT_OF(messageBits); i++) 
@@ -180,7 +175,7 @@ void test_ints2bits(ints2bits_ptr_t ints2bits_ptr, bits2ints_ptr_t bits2ints_ptr
     size_t total_bits = COUNT_OF(messageBits);
     size_t total_nums = total_bits / (type_size * 8);
     uint32_t nums[total_nums];
-    bits2ints_ptr(total_bits, type_size, messageBits, nums);
+    bits2ints(total_bits, type_size, messageBits, nums);
     // puts("\nPrint reconst ints from messageBits");
     printf("\t");
     for (int i = 0; i < COUNT_OF(nums); i++) {
