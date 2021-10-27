@@ -13,9 +13,9 @@
 #define EACH (size_t i = 0; i < size; i++)
 
 // Flags
-#define VERBOSE true
+#define VERBOSE false
 #define PRINTMSG true
-#define PRINTSTEPS true
+#define PRINTSTEPS false
 
 #define POLYNOMIAL 0xC599U // The CAN protocol uses the CRC-15 with this polynomial
 #define PAD 15
