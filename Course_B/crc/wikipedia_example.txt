@@ -112,7 +112,7 @@ Message: AB (LSF) 0xC599 n=15
                         1 100010110011001
   step9                 0 100100010110001 0x48B1
 
-Message: AB (LSF) 0xC599 n=16
+Message: AB (LSF) 0xC599 n=15 but 16 zeroes added
  Before: 1000001001000010 0000000000000000
          1100010110011001  
   step0  0100011111011011 0000000000000000
