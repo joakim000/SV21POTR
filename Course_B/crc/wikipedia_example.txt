@@ -110,10 +110,11 @@ Message: AB (LSF) 0xC599 n=15
                      1100 010110011001
   step8              0001 000110100101000
                         1 100010110011001
-  step9                 0 100100010110001 0x48B1
+  step9                 0 100100010110001 
+                           = 0x48B1
 
-Message: AB (LSF) 0xC599 n=15 but 16 zeroes added
- Before: 1000001001000010 0000000000000000
+Message: AB (LSF) 0xC599 n=15 
+ Before: 1000001001000010 0000000000000000 <- Error 1: Over-padding (16 zeroes added)
          1100010110011001  
   step0  0100011111011011 0000000000000000
           110001011001100 1  
@@ -133,9 +134,10 @@ Message: AB (LSF) 0xC599 n=15 but 16 zeroes added
                      1100 010110011001
   step8              0001 0001101001010000
                         1 100010110011001
-  step9                 0 1001000101100010
+  step9                 0 1001000101100010 <- All message bits have been zeroed, processing should stop
                           1100010110011001
-  step10                  0101010011111011 0x54FB
+  step10                  0101010011111011 <- Error 2: Over-processing
+                            = 0x54FB
 
 
 
