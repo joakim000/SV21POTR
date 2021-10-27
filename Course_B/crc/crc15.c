@@ -19,7 +19,7 @@
 
 #define POLYNOMIAL 0xC599U // The CAN protocol uses the CRC-15 with this polynomial
 #define PAD 15
-#define MSGLSF false
+#define MSGLSF true
     // Hex    Dec    LSF                MSF               
     // 0xC599 50585  1001100110100011   1100010110011001                
     //                                  1100010110011001
@@ -41,11 +41,10 @@
 // #define POLYNOMIAL 0x814141AB
 
 void checksumMsg(uint8_t message[], size_t msgSize, int32_t checksum, size_t padSize, uint8_t msgBits[]);
-int32_t getRem(uint8_t msgBits[], size_t msgSize, uint8_t genBits[], size_t genSize, size_t padSize );
+int32_t getRem(uint8_t msgBits[], size_t msgSize, uint8_t genBits[], size_t genSize, size_t padSize, size_t orginalMsgSize );
 void messageLengthCheck(size_t len);
-bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t padSize, uint8_t genBits[], size_t genSize);
+bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t padSize, uint8_t genBits[], size_t genSize, size_t originalMsgSize);
 void validPrint(uint8_t msg[], size_t msgSize, bool valid);
-
 
 int main(void)
 {
@@ -57,10 +56,10 @@ int main(void)
     uint8_t padSize = PAD;
 
     // uint8_t message[] = {'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\n'};
-    // uint8_t message[] = {'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!'};
-    // expected = 0xB35;
+    uint8_t message[] = {'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!'};
+    expected = 0xB35;
     // expected = EXPECTED;
-    uint8_t message[] = {'A', 'B', 'C'}; // 15 zeros have been appended to the message
+    // uint8_t message[] = {'A', 'B'}; // 15 zeros have been appended to the message
     // expected = 0x54FB;
 
     // uint8_t message[] = {'@'};
@@ -98,10 +97,15 @@ int main(void)
     for (int i = 0; i < COUNT_OF(message); i++)
         msg[i] = message[i];
 
+    // Store message size before padding to avoid errors arising from over-padding
+    size_t originalMsgSize = sizeof(msg) * 8;
+
     // Convert msg to array of bit values, add padding zeroes
     uint8_t msgBits[sizeof(msg) * 8 + padSize];
+    // uint8_t msgBits[sizeof(msg) * 8 + padSize +1];
     if (MSGLSF)
-        ints2bitsLSF(sizeof(msg), sizeof(msg[0]), &msg, msgBits, padSize, NULL);
+        ints2bitsLSF(sizeof(msg), sizeof(msg[0]), &msg, msgBits, padSize,  NULL);
+        // ints2bitsLSF(sizeof(msg), sizeof(msg[0]), &msg, msgBits, padSize +1,  NULL);
     else
         ints2bits(sizeof(msg), sizeof(msg[0]), &msg, msgBits, padSize, NULL);
     if (VERBOSE) printBits("Message", msgBits, COUNT_OF(msgBits));
@@ -135,7 +139,7 @@ int main(void)
         printf("\nOriginal message:\n%s\n", msgStr);
     }
     // Get checksum
-    int32_t checksum = getRem(msgBits, COUNT_OF(msgBits), genBits, COUNT_OF(genBits), padSize);
+    int32_t checksum = getRem(msgBits, COUNT_OF(msgBits), genBits, COUNT_OF(genBits), padSize, originalMsgSize);
     printf("Checksum: 0x%X\n", checksum);
 
     // Compare to expected checksum
@@ -160,59 +164,16 @@ int main(void)
     // If the remainder is zero print "The data is OK\n";
     // otherwise print "The data is not OK\n"
     bool valid;
-
-    valid = validate(msgBitsCS, COUNT_OF(msgBitsCS), padSize, genBits, COUNT_OF(genBits));
+    valid = validate(msgBitsCS, COUNT_OF(msgBitsCS), padSize, genBits, COUNT_OF(genBits), originalMsgSize);
     validPrint(message, COUNT_OF(message), valid);
-
   
     // Changed message
     message[1] = 'a';
     checksumMsg(message, COUNT_OF(message), checksum, padSize, msgBitsCS);
-    valid = validate(msgBitsCS, COUNT_OF(msgBitsCS), padSize, genBits, COUNT_OF(genBits));
+    valid = validate(msgBitsCS, COUNT_OF(msgBitsCS), padSize, genBits, COUNT_OF(genBits), originalMsgSize);
     validPrint(message, COUNT_OF(message), valid);
 
-
     return 0;
-}
-
-int32_t getRem(uint8_t msgBits[], size_t msgSize, uint8_t genBits[], size_t genSize, size_t padSize ) {
-    if (PRINTSTEPS) {
-        printf(" Before: "); i2p(msgBits, msgSize, 0, 1); 
-        for (int i = 0; i < msgSize - padSize; i++) 
-            if (msgBits[i]) {
-                for (int j = 0, k = i; j < genSize; j++, k++) 
-                    msgBits[k] = msgBits[k] ^ genBits[j];
-                printf("Step %2d: ", i); i2p(msgBits, msgSize, 0, 1);   
-            }   
-        printf("  After: "); i2p(msgBits, msgSize, 0, 1);
-    }
-    else 
-        for (int i = 0; i < msgSize - padSize; i++) 
-            if (msgBits[i]) 
-                for (int j = 0, k = i; j < genSize; j++, k++) 
-                    msgBits[k] = msgBits[k] ^ genBits[j];
-
-    if (VERBOSE) { puts("Message post calculation"); i2p(msgBits, msgSize, 0, 2);  }
-
-    uint8_t remBits[padSize];
-    bitSlice(-1, padSize, msgBits, msgSize, remBits);
-    if (VERBOSE) printBits("Remainder", remBits, COUNT_OF(remBits));
-
-    uint32_t rem = (uint32_t)bits2int(COUNT_OF(remBits), remBits);
-    if (VERBOSE) printf("Remainder: 0x%x\n", rem);
-    
-    return rem;
-}
-
-void messageLengthCheck(size_t len) { 
-    if (len < 1) {
-        fprintf(stderr, "Message subceeds 1 characters (%d), exiting.", len);
-        exit(EXIT_FAILURE);
-    }
-    if (len > 14) {
-        fprintf(stderr, "Message exceeds 14 characters (%d), exiting.", len);
-        exit(EXIT_FAILURE);
-    }
 }
 
 void checksumMsg(uint8_t message[], size_t msgSize, int32_t checksum, size_t padSize, uint8_t msgBits[]) {
@@ -249,19 +210,55 @@ void checksumMsg(uint8_t message[], size_t msgSize, int32_t checksum, size_t pad
     if (VERBOSE) printBits("Checksummed message", msgBits, sizeof(msg) * 8 + padSize);
 }
 
+int32_t getRem(uint8_t msgBits[], size_t msgSize, uint8_t genBits[], size_t genSize, size_t padSize, size_t orginalMsgSize ) {
+    if (PRINTSTEPS) {
+        printf(" Before: "); i2p(msgBits, msgSize, 0, 1); 
+        // for (int i = 0; i < msgSize - padSize; i++) 
+        for (int i = 0; i < orginalMsgSize; i++) 
+            if (msgBits[i]) {
+                for (int j = 0, k = i; j < genSize; j++, k++) 
+                    msgBits[k] = msgBits[k] ^ genBits[j];
+                printf("Step %2d: ", i); i2p(msgBits, msgSize, 0, 1);   
+            }   
+        printf("  After: "); i2p(msgBits, msgSize, 0, 1);
+    }
+    else 
+        for (int i = 0; i < orginalMsgSize; i++)  
+            if (msgBits[i]) 
+                for (int j = 0, k = i; j < genSize; j++, k++) 
+                    msgBits[k] = msgBits[k] ^ genBits[j];
 
+    if (VERBOSE) { puts("Message post calculation"); i2p(msgBits, msgSize, 0, 2);  }
 
+    uint8_t remBits[padSize];
+    bitSlice(-1, padSize, msgBits, msgSize, remBits);
+    if (VERBOSE) printBits("Remainder", remBits, COUNT_OF(remBits));
 
+    uint32_t rem = (uint32_t)bits2int(COUNT_OF(remBits), remBits);
+    if (VERBOSE) printf("Remainder: 0x%x\n", rem);
+    
+    return rem;
+}
 
-bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t padSize, uint8_t genBits[], size_t genSize) {
-    int32_t rem = getRem(msgBits, msgBitsCount, genBits, genSize, padSize);
+void messageLengthCheck(size_t len) { 
+    if (len < 1) {
+        fprintf(stderr, "Message subceeds 1 characters (%d), exiting.", len);
+        exit(EXIT_FAILURE);
+    }
+    if (len > 14) {
+        fprintf(stderr, "Message exceeds 14 characters (%d), exiting.", len);
+        exit(EXIT_FAILURE);
+    }
+}
+
+bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t padSize, uint8_t genBits[], size_t genSize, size_t originalMsgSize) {
+    int32_t rem = getRem(msgBits, msgBitsCount, genBits, genSize, padSize, originalMsgSize);
     // if (VERBOSE) printf("Remainder: 0x%x\n", rem);
     if (!rem) 
         return true;
     else
         return false;
 }
-
 
 void validPrint(uint8_t msg[], size_t msgSize, bool valid) {
     if (PRINTMSG) {
