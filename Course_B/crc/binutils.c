@@ -286,6 +286,48 @@ void i2p(void const * const ptr, size_t size, char separator, int newline){
         printf("\n");
 }
 
+void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, uint32_t space) {
+    uint8_t *nums = (uint8_t*) ptr;
+
+    char* fmt_ptr;
+    char* fmt_final_ptr;
+    char fmt[] = "%d%c"; 
+    char fmt_final[] = "%d";
+
+    char colfmt[16]; 
+    char colfmt_final[16]; 
+    sprintf(colfmt, "\e[1;%dm%%d%%c\e[m", col);
+    sprintf(colfmt_final, "\e[1;%dm%%d\e[m", col);
+    // char colfmt[] = "\e[1;36m%d%c\e[m"; // cyan
+    // char colfmt[] = colstr; 
+    // char colfmt_final[] = colstr_final; 
+    
+    for EACH {
+        if (i == space)
+            printf(" ");
+        fmt_ptr       = (colStart <= i && i < (colStart + colLen)) ? colfmt : fmt;
+        fmt_final_ptr = (colStart <= i && i < (colStart + colLen)) ? colfmt_final : fmt_final;
+        if (i < size - 1)
+            printf(fmt_ptr, nums[i], separator);
+        else 
+            printf(fmt_final_ptr, nums[i]);
+       
+    }
+    for (int i = 0; i < newline; i++)
+        printf("\n");
+
+    /* Terminal colors
+            #define KNRM  "\x1B[0m"
+            #define KRED  "\x1B[31m"
+            #define KGRN  "\x1B[32m"
+            #define KYEL  "\x1B[33m"
+            #define KBLU  "\x1B[34m"
+            #define KMAG  "\x1B[35m"
+            #define KCYN  "\x1B[36m"
+            #define KWHT  "\x1B[37m"
+     */
+}
+
 void printBits(char label[], uint8_t bits[], size_t size) {
         if (size > 40) {
             printf("%10s bits (%d):\n", label, size);
