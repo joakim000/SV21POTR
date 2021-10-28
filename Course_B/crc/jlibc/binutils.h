@@ -12,8 +12,8 @@
     uint8_t bitArray[type_size * 8];
     int2bits(type_size, &testval, bitArray);
 */
-void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[]);
-void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[]);
+void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[], bool leading1);
+void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool leading1);
 
 
 /**
@@ -43,6 +43,7 @@ uint32_t bits2intMSF(size_t const len, uint8_t* bits);
 void ints2bitsLSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]);
 void ints2bitsMSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]);
 
+
 /**
  @brief Convert an array bit values to array of ints 
  @note Variants for Most / Least Significant First 
@@ -59,7 +60,7 @@ void bits2intsLSF(size_t const total_bits, size_t const type_size, uint8_t const
 /**
   @brief Function pointer types and pointers for calling from MSF/LSF generalized functions  
  */
-typedef void (*int2bits_t)(size_t const size, void const * const ptr, uint8_t out[]); 
+typedef void (*int2bits_t)(size_t const size, void const * const ptr, uint8_t out[], bool leading1); 
 typedef uint32_t (*bits2int_t)(size_t const len, uint8_t* bits);
 typedef void (*ints2bits_t)(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]); 
 typedef void (*bits2ints_t)(size_t const total_bits, size_t const type_size, uint8_t const bits[], void const * const out_ptr);
@@ -88,17 +89,43 @@ void charArrayToString(char ca[], size_t size, char* out);
 void bitSlice(int start, int count, void const * const ptr, size_t size, uint8_t out[]);
 
 /**
-  @brief Print array  
-  @note For no separator use 0
+  @brief Print array of ints
+  @param ptr     pointer to array
+@param size      size of array
+@param separator a sepator char, set 0 for none
+@param newline   number of newlines at end
 */
-void i2p(void const * const ptr, size_t size, char separator, int newline); 
-// char* i2s(void const * const ptr, size_t size, char separator);
+void i2p(void const * const ptr, size_t size, size_t cropTo, char separator, int newline); 
+
+/**
+  @brief Print array of ints; with colors and a space somewhere  
+  @note Terminal colors:
+          NRM   0
+          RED  31
+          GRN  32
+          YEL  33
+          BLU  34
+          MAG  35
+          CYN  36
+          WHT  37
+  @param ptr       pointer to array of ints
+  @param size      size of array
+  @param separator a sepator char, set 0 for none
+  @param newline   number of newlines at end
+  @param col       color code
+  @param colStart  index to start coloring
+  @param colLen    length to color
+  @param space     insert a space before this index, set -1 for no space 
+*/
+void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space, size_t lead);
+// void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space); 
+
 
 /**
   @brief Print formatted bits  
-  @note For no separator use 0
+  @note 
 */
-void printBits(char label[], uint8_t bits[], size_t size);
+void printBits(char label[], uint8_t bits[], size_t size, size_t cropTo) ;
 
 /**
   @brief Various (failed) experiments for reducing memory usage 

@@ -17,15 +17,19 @@
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 #define EACH (size_t i = 0; i < size; i++)
 
-void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[]) {
+void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[], bool leading1) {
     int  byte_index, 
          bit_index;
  
     uint8_t *byte = (uint8_t*) ptr;
     uint8_t bit;
 
-    for (byte_index = 0; byte_index < size; byte_index++) {        //LSF
-        for (bit_index = 0; bit_index < 8; bit_index++) {       // LSF
+    size_t modifiedSize = size;
+    if (leading1)
+        modifiedSize--;
+
+    for (byte_index = 0; byte_index < modifiedSize; byte_index++) {        //LSF
+        for (bit_index = 0; bit_index < 8; bit_index++) {                  // LSF
             bit = (byte[byte_index] >> bit_index) & 1;
             if (!bit)
                 out[byte_index * 8 + bit_index] = 0;
@@ -33,9 +37,12 @@ void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[]) {
                 out[byte_index * 8 + bit_index] = 1;
         }
     }
+    // if (leading1)
+    //     out[modifiedSize] = 1;  // For LSF, leading 1 is placed at end
+
 }
 
-void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[]) {
+void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool leading1) {
     int  byte_index, 
          bit_index,
          byte_write_index = 0,
@@ -44,15 +51,17 @@ void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[]) {
     uint8_t *byte = (uint8_t*) ptr;
     uint8_t bit;
 
+    uint8_t displace = leading1 ? 1 : 0;
+
     for (byte_index = size-1; byte_index >= 0; byte_index--) {   //MSF
         bit_write_index = 0;
         for (bit_index = 7; bit_index >= 0; bit_index--) {         // MSF
             bit = (byte[byte_index] >> bit_index) & 1;
             if (!bit) {
-                out[byte_write_index * 8 + bit_write_index++] = 0;
+                out[byte_write_index * 8 + bit_write_index++ + displace] = 0;
             }
             else {
-                out[byte_write_index * 8 + bit_write_index++] = 1;
+                out[byte_write_index * 8 + bit_write_index++ + displace] = 1;
             }
         }
         byte_write_index++;
@@ -98,13 +107,13 @@ void ints2bitsLSF(size_t const size, size_t const type_size, void const * const 
     for (int i = 0; i < (size / type_size); i++) {
         switch (type_size) {
         case 1:
-            int2bitsLSF(type_size, &ints8[i], bitsArray);
+            int2bitsLSF(type_size, &ints8[i], bitsArray, false);
             break;
         case 2:
-            int2bitsLSF(type_size, &ints16[i], bitsArray);
+            int2bitsLSF(type_size, &ints16[i], bitsArray, false);
             break;
         case 4:
-            int2bitsLSF(type_size, &ints32[i], bitsArray);
+            int2bitsLSF(type_size, &ints32[i], bitsArray, false);
             break;
         default:
             fprintf(stderr, "Unsupported type size, exiting.");
@@ -135,13 +144,13 @@ void ints2bitsMSF(size_t const size, size_t const type_size, void const * const 
     for (int i = 0; i < (size / type_size); i++) {
         switch (type_size) {
         case 1:
-            int2bitsMSF(type_size, &ints8[i], bitsArray);
+            int2bitsMSF(type_size, &ints8[i], bitsArray, false);
             break;
         case 2:
-            int2bitsMSF(type_size, &ints16[i], bitsArray);
+            int2bitsMSF(type_size, &ints16[i], bitsArray, false);
             break;
         case 4:
-            int2bitsMSF(type_size, &ints32[i], bitsArray);
+            int2bitsMSF(type_size, &ints32[i], bitsArray, false);
             break;
         default:
             fprintf(stderr, "Unsupported type size, exiting.");
@@ -274,10 +283,12 @@ void bitSlice(int start, int count, void const * const ptr, size_t size, uint8_t
             out[j] = in[i];
 }
 
-void i2p(void const * const ptr, size_t size, char separator, int newline){
+void i2p(void const * const ptr, size_t size, size_t cropTo, char separator, int newline){
     // uint32_t *nums = (uint32_t*) ptr;
+    if (cropTo == 0)
+        cropTo = size;
     uint8_t *nums = (uint8_t*) ptr;
-    for EACH 
+    for (int i = size - cropTo; i < size; i++)
         if (i < size - 1)
             printf("%d%c", nums[i], separator);
         else 
@@ -286,7 +297,7 @@ void i2p(void const * const ptr, size_t size, char separator, int newline){
         printf("\n");
 }
 
-void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, uint32_t space) {
+void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space, size_t lead) {
     uint8_t *nums = (uint8_t*) ptr;
 
     char* fmt_ptr;
@@ -298,10 +309,12 @@ void i2pc(void const * const ptr, size_t size, char separator, int newline, uint
     char colfmt_final[16]; 
     sprintf(colfmt, "\e[1;%dm%%d%%c\e[m", col);
     sprintf(colfmt_final, "\e[1;%dm%%d\e[m", col);
-    // char colfmt[] = "\e[1;36m%d%c\e[m"; // cyan
-    // char colfmt[] = colstr; 
-    // char colfmt_final[] = colstr_final; 
     
+    // Leading spaces
+    char leadfmt[20];
+    sprintf(leadfmt, "%%%ds", lead);
+    printf(leadfmt, "");
+
     for EACH {
         if (i == space)
             printf(" ");
@@ -316,26 +329,18 @@ void i2pc(void const * const ptr, size_t size, char separator, int newline, uint
     for (int i = 0; i < newline; i++)
         printf("\n");
 
-    /* Terminal colors
-            #define KNRM  "\x1B[0m"
-            #define KRED  "\x1B[31m"
-            #define KGRN  "\x1B[32m"
-            #define KYEL  "\x1B[33m"
-            #define KBLU  "\x1B[34m"
-            #define KMAG  "\x1B[35m"
-            #define KCYN  "\x1B[36m"
-            #define KWHT  "\x1B[37m"
-     */
 }
 
-void printBits(char label[], uint8_t bits[], size_t size) {
+void printBits(char label[], uint8_t bits[], size_t size, size_t cropTo) {
+        if (cropTo == 0)
+            cropTo = size;
         if (size > 40) {
-            printf("%10s bits (%d):\n", label, size);
-            i2p(bits, size, 0, 2); 
+            printf("%10s bits (%d):\n", label, cropTo);
+            i2p(bits, size, cropTo, 0, 2); 
         }
         else {
-            printf("%10s bits (%d): ", label, size);
-            i2p(bits, size, 0, 1);
+            printf("%10s bits (%d): ", label, cropTo);
+            i2p(bits, size, cropTo, 0, 1);
         } 
 }
 

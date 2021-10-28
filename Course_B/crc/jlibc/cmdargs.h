@@ -33,14 +33,15 @@
 
 */
 
-#include <stdbool.h>
 // #include <stdint.h>
 // #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
+
 // Utility
-#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
+// #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 
 // Max string lengths
 #define MAXLEN_FLAG 32
