@@ -1,16 +1,6 @@
 
+
 #include "crc.h"
-#define DA_TYPE uint8_t
-
-prog_t* prog;
-crc_t* crc;  
-msg_t* msg;
-expect_t* expect;
-
-
-
-
-
 
 int main(void)
 {
@@ -124,7 +114,7 @@ int main(void)
 
     // Get checksum
     // int32_t checksum = getRem(msgBits, COUNT_OF(msgBits), (*crc).gbits, (*crc).gbits_size, (*crc).n, originalMsgSize);
-    int32_t checksum = getRem_new(msgBits, COUNT_OF(msgBits), originalMsgSize);
+    int32_t checksum = getRem(msgBits, COUNT_OF(msgBits), originalMsgSize);
     printf("Checksum: 0x%X\n", checksum);
 
     // Compare to expected checksum

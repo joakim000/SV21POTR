@@ -8,8 +8,10 @@
 
 #include "jlibc/binutils.h"
 #include "jlibc/cmdargs.h"
+#define DA_TYPE uint8_t
 #include "jlibc/da.h"
 
+// #define MATCH_EXAMPLES
 #include "errors.h"
 
 // Utility

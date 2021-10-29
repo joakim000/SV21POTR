@@ -8,7 +8,6 @@
     "Hello World!" 0xB35           0x6756
     "Faroch"       0x2535          0x7056
 */
-#define MATCH_EXAMPLES
 #if defined(MATCH_EXAMPLES)
 #define PADSIZE (*crc).n + 1             // Overpad by 1 bit
 #define REMLOOPEND msgSize - (*crc).n    // Allow processing to continue after message end, 1 step / overpadding bit.
