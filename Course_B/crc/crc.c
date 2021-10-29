@@ -6,7 +6,7 @@ crc_t* crc;
 msg_t* msg;
 expect_t* expect;
 
-// Set aliases to MSF as default
+// Set aliases to MSF as default    
 int2bits_t int2bits = int2bitsMSF;
 bits2int_t bits2int = bits2intMSF;
 ints2bits_t ints2bits = ints2bitsMSF;
@@ -114,7 +114,7 @@ bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t padSize, uint8_t ge
 //         return true;
 //     else
 //         return false;
-// }
+}
 
 void validPrint(uint8_t msg[], size_t msgSize, bool valid) {
     if (PRINTMSG) {
