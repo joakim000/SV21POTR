@@ -133,8 +133,7 @@ void checksumMsg(uint8_t message[], size_t msgSize, int32_t checksum, size_t pad
   @brief
   @return  
 */
-int32_t getRem(uint8_t msgBits[], size_t msgSize, uint8_t genBits[], size_t genSize, size_t padSize, size_t orginalMsgSize );
-int32_t getRem_new(uint8_t msgBits[], size_t msgSize, size_t orginalMsgSize );
+int32_t getRem(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize );
 
 /**
   @brief

@@ -1,6 +1,12 @@
 #include "crc.h"
 
-// Set aliases 
+// Data structures 
+prog_t* prog;
+crc_t* crc;  
+msg_t* msg;
+expect_t* expect;
+
+// Set aliases to MSF as default
 int2bits_t int2bits = int2bitsMSF;
 bits2int_t bits2int = bits2intMSF;
 ints2bits_t ints2bits = ints2bitsMSF;
@@ -40,7 +46,7 @@ void checksumMsg(uint8_t message[], size_t msgSize, int32_t checksum, size_t pad
     if (VERBOSE) printBits("Checksummed message", msgBits, sizeof(msg) * 8 + padSize, 0);
 }
 
-int32_t getRem_new(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize ) {
+int32_t getRem(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize ) {
     size_t n = (*crc).n;
     size_t gbits_size = (*crc).gbits_size;
 
@@ -88,44 +94,7 @@ int32_t getRem_new(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize ) {
     return rem;
 }
 
-int32_t getRem(uint8_t msgBits[], size_t msgSize, uint8_t genBits[], size_t genSize, size_t padSize, size_t originalMsgSize ) {
-    if (PRINTSTEPS) {
-        printf("\n Before: "); i2pc(msgBits, msgSize, 0, 1, 34, originalMsgSize, padSize,  originalMsgSize, 0); 
-        // for (int i = 0; i < msgSize - padSize; i++) 
-        for (int i = 0; i < originalMsgSize; i++) 
-            if (msgBits[i]) {
-                if (PRINTSTEPSGEN)
-                    i2pc(genBits, genSize, 0, 1, 33, 0, genSize, originalMsgSize-i, i+9); 
-                for (int j = 16, k = i; j < genSize; j++, k++) 
-                    msgBits[k] = msgBits[k] ^ genBits[j];
-                printf("  @ %3d: ", i); i2pc(msgBits, msgSize, 0, 1, 36, i, genSize, originalMsgSize, 0);
-            }
-        printf("  After: "); i2pc(msgBits, msgSize, 0, 1, 35, originalMsgSize, padSize,  originalMsgSize, 0); 
-        // printf("  After: "); i2pc(msgBits, msgSize, 0, 1, 35, originalMsgSize, padSize,  -1, 0); // no space
-    } 
-    else 
-        for (int i = 0; i < originalMsgSize; i++)  
-            if (msgBits[i]) 
-                for (int j = 0, k = i; j < genSize; j++, k++) 
-                    msgBits[k] = msgBits[k] ^ genBits[j];
-        
 
-    if (VERBOSE) { puts("Message post calculation"); i2p(msgBits, msgSize, 0, 2, 0);  }
-
-    uint8_t remBits[padSize];
-    bitSlice(-1, padSize, msgBits, msgSize, remBits);
-    if (VERBOSE) printBits("Remainder", remBits, COUNT_OF(remBits), padSize);
-
-    uint32_t rem;
-    if ( (*crc).resultLSF )
-        rem = (uint32_t)bits2intLSF(COUNT_OF(remBits), remBits);
-    else
-        rem = (uint32_t)bits2int(COUNT_OF(remBits), remBits);
-
-    if (VERBOSE) printf("Remainder: 0x%x\n", rem);
-    
-    return rem;
-}
 
 void messageLengthCheck(size_t len) { 
     if (len < 1) {
@@ -139,13 +108,13 @@ void messageLengthCheck(size_t len) {
 }
 
 bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t padSize, uint8_t genBits[], size_t genSize, size_t originalMsgSize) {
-    int32_t rem = getRem(msgBits, msgBitsCount, genBits, genSize, padSize, originalMsgSize);
+    // int32_t rem = getRem(msgBits, msgBitsCount, genBits, genSize, padSize, originalMsgSize);
     // if (VERBOSE) printf("Remainder: 0x%x\n", rem);
-    if (!rem) 
-        return true;
-    else
-        return false;
-}
+//     if (!rem) 
+//         return true;
+//     else
+//         return false;
+// }
 
 void validPrint(uint8_t msg[], size_t msgSize, bool valid) {
     if (PRINTMSG) {
