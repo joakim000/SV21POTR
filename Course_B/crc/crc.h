@@ -10,6 +10,8 @@
 #include "jlibc/cmdargs.h"
 #include "jlibc/da.h"
 
+#include "errors.h"
+
 // Utility
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 #define EACH (size_t i = 0; i < size; i++)
@@ -19,41 +21,6 @@
 #define PRINTMSG true
 #define PRINTSTEPS true
 #define PRINTSTEPSGEN true
-
-#define POLYNOMIAL 0xC599U // The CAN protocol uses the CRC-15 with this polynomial
-#define PAD 15
-#define MSGLSF true
-#define CRCLSF false
-    // Hex    Dec    LSF                MSF               
-    // 0xC599 50585  1001100110100011   1100010110011001                
-    //                                  1100010110011001
-
-#define INITIAL 0x0
-
-#define IMPLICIT_LEADING_1 0
-// #define PAD 3
-// #define POLYNOMIAL 0xB
-
-// #define PAD 8
-// #define POLYNOMIAL 0x07  // i1 0111      = 0x17
-// #define POLYNOMIAL 0x39  // i1 0011 1001 = 0x139
-// #define POLYNOMIAL 0xD5  // i1 1101 0101 = 0x1D5
-// #define POLYNOMIAL 0x107 //  1 0000 0111
-// #define POLYNOMIAL 0x1D
-
-// #define PAD 16
-// #define POLYNOMIAL 0x8005
-// #define POLYNOMIAL 0x1021
-
-
-// #define PAD 32
-// #define POLYNOMIAL 0x04C11DB7
-// #define POLYNOMIAL 0x814141AB
-// #define POLYNOMIAL 0xAF
-
-
-
-
 
 // Program fields
 typedef struct prog_s {
@@ -69,20 +36,20 @@ typedef struct crc_s {
     // Definition
     uint32_t n;          // Width of CRC (8, 16 or 32 bit)
     uint32_t g;          // Generator polynomial
-    bool il1;            // implicit_leading_1
+    uint8_t il1;         // implicit_leading_1
     uint32_t initial;    // Initial CRC value
     uint32_t xor;        // Final XOR value
-    bool inputLSF;       // Input reflected
-    bool resultLSF;      // Result reflected
+    uint8_t inputLSF;    // Input reflected
+    uint8_t resultLSF;   // Result reflected
     uint32_t check;      // Expected result from 123456789
     uint32_t checkAB;    // Expected result from "AB"
 
 
     // Work
-    uint8_t gbits[32];
+    uint8_t gbits[33];
     // uint8_t* gbits;
     size_t gbits_size;      // n+1;
-    uint8_t padbits[32];
+    uint8_t initbits[32];
     // size_t padbits_size; // = n
     uint8_t xorbits[32];
     // size_t xorbits_size; // = n
@@ -149,11 +116,10 @@ typedef struct expect_s {
     size_t expectedbits_size;
 } expect_t;
 
-
-prog_t* prog;
-crc_t* crc;  
-msg_t* msg;
-expect_t* expect;
+extern prog_t* prog;
+extern crc_t* crc;  
+extern msg_t* msg;
+extern expect_t* expect;
 
 
 

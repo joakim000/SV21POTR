@@ -12,9 +12,8 @@
     uint8_t bitArray[type_size * 8];
     int2bits(type_size, &testval, bitArray);
 */
-void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[], bool leading1);
-void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool leading1);
-
+void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool extraBit);
+void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[], bool extraBit);
 
 /**
  @brief Convert an array of bit values to a single int 
@@ -25,8 +24,8 @@ void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool 
     // size is length of bitArray
     bits2int(size, bitArray));
 */
-uint32_t bits2intLSF(size_t const len, uint8_t* bits);
 uint32_t bits2intMSF(size_t const len, uint8_t* bits);
+uint32_t bits2intLSF(size_t const len, uint8_t* bits);
 
 
 /**
@@ -40,8 +39,8 @@ uint32_t bits2intMSF(size_t const len, uint8_t* bits);
 
     ints2bits(msg_size, type_size, &message, messageBits, 8);
 */
-void ints2bitsLSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]);
 void ints2bitsMSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]);
+void ints2bitsLSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]);
 
 
 /**
@@ -58,22 +57,18 @@ void bits2intsLSF(size_t const total_bits, size_t const type_size, uint8_t const
 
 
 /**
-  @brief Function pointer types and pointers for calling from MSF/LSF generalized functions  
+  @brief Function pointer types and pointers for calling from MSF/LSF generalized functions 
+  @note  Needs to be set before using
  */
-typedef void (*int2bits_t)(size_t const size, void const * const ptr, uint8_t out[], bool leading1); 
+typedef void (*int2bits_t)(size_t const size, void const * const ptr, uint8_t out[], bool extraBit); 
 typedef uint32_t (*bits2int_t)(size_t const len, uint8_t* bits);
 typedef void (*ints2bits_t)(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]); 
 typedef void (*bits2ints_t)(size_t const total_bits, size_t const type_size, uint8_t const bits[], void const * const out_ptr);
-int2bits_t int2bits;
-bits2int_t bits2int;
-ints2bits_t ints2bits;
-bits2ints_t bits2ints;
+extern int2bits_t int2bits;
+extern bits2int_t bits2int;
+extern ints2bits_t ints2bits;
+extern bits2ints_t bits2ints;
 
-/**
-  @brief Set function pointers to MSF or LSF functions  
-*/
-void setMSF();
-void setLSF();
 
 /**
   @brief Convert array of chars to null-terminated string  
@@ -130,30 +125,30 @@ void printBits(char label[], uint8_t bits[], size_t size, size_t cropTo) ;
 /**
   @brief Various (failed) experiments for reducing memory usage 
 */
-typedef union byte_union {
-    struct byte_struct
-    {
-        int b0 : 1;
-        int b1 : 1;
-        int b2 : 1;
-        int b3 : 1;
-        int b4 : 1;
-        int b5 : 1;
-        int b6 : 1;
-        int b7 : 1;
-    } bit;
-    int get[8];
-} byte;
+// typedef union byte_union {
+//     struct byte_struct
+//     {
+//         int b0 : 1;
+//         int b1 : 1;
+//         int b2 : 1;
+//         int b3 : 1;
+//         int b4 : 1;
+//         int b5 : 1;
+//         int b6 : 1;
+//         int b7 : 1;
+//     } bit;
+//     int get[8];
+// } byte;
 
- struct byte_struct2
- {
-     int b0 : 1;
-     int b1 : 1;
-     int b2 : 1;
-     int b3 : 1;
-     int b4 : 1;
-     int b5 : 1;
-     int b6 : 1;
-     int b7 : 1;
-     int* next;
- } bit2;
+//  struct byte_struct2
+//  {
+//      int b0 : 1;
+//      int b1 : 1;
+//      int b2 : 1;
+//      int b3 : 1;
+//      int b4 : 1;
+//      int b5 : 1;
+//      int b6 : 1;
+//      int b7 : 1;
+//      int* next;
+//  } bit2;

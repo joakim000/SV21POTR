@@ -186,20 +186,20 @@ void test_ints2bits(ints2bits_t ints2bits, bits2ints_t bits2ints) {
 
 
 
-void test_byte() {
-    byte b = {
-        .bit.b0 = 1,
-        .bit.b1 = 0,
-        .bit.b2 = 1,
-        .bit.b3 = 0,
-        .bit.b4 = 1,
-        .bit.b5 = 0,
-        .bit.b6 = 1,
-        .bit.b7 = 0,        
-    };
-    for (int i = 0; i < 8; i++) {
-        printf("byte %d val %d\n", i, b.get[i]);
-    }
-    printf("\nsize of byte_union: %d\n", sizeof(b));
-    printf("\nsize of byte_struct: %d\n", sizeof(bit2));
-}
+// void test_byte() {
+//     byte b = {
+//         .bit.b0 = 1,
+//         .bit.b1 = 0,
+//         .bit.b2 = 1,
+//         .bit.b3 = 0,
+//         .bit.b4 = 1,
+//         .bit.b5 = 0,
+//         .bit.b6 = 1,
+//         .bit.b7 = 0,        
+//     };
+//     for (int i = 0; i < 8; i++) {
+//         printf("byte %d val %d\n", i, b.get[i]);
+//     }
+//     printf("\nsize of byte_union: %d\n", sizeof(b));
+//     printf("\nsize of byte_struct: %d\n", sizeof(bit2));
+// }

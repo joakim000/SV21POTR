@@ -1,5 +1,11 @@
 #include "crc.h"
 
+// Set aliases 
+int2bits_t int2bits = int2bitsMSF;
+bits2int_t bits2int = bits2intMSF;
+ints2bits_t ints2bits = ints2bitsMSF;
+bits2ints_t bits2ints = bits2intsMSF;
+
 void checksumMsg(uint8_t message[], size_t msgSize, int32_t checksum, size_t padSize, uint8_t msgBits[]) {
      // Create working copy
     uint8_t msg[msgSize];
@@ -27,37 +33,39 @@ void checksumMsg(uint8_t message[], size_t msgSize, int32_t checksum, size_t pad
 
     // Convert msg to array of bit values, add remainder bits as padding
     // uint8_t msgBits[msgSize * 8 + padSize];
-    if (MSGLSF)
+    if ( (*crc).inputLSF )
         ints2bitsLSF(sizeof(msg), sizeof(msg[0]), &msg, msgBits, padSize, checksumBits);
     else
         ints2bits(sizeof(msg), sizeof(msg[0]), &msg, msgBits, padSize, checksumBits);
     if (VERBOSE) printBits("Checksummed message", msgBits, sizeof(msg) * 8 + padSize, 0);
 }
 
-int32_t getRem_new(uint8_t msgBits[], size_t msgSize, size_t orginalMsgSize ) {
+int32_t getRem_new(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize ) {
     size_t n = (*crc).n;
     size_t gbits_size = (*crc).gbits_size;
 
+    printBits("gbits från *crc", (*crc).gbits, COUNT_OF((*crc).gbits), 0);
     uint8_t gbits[gbits_size];
     for (int i = gbits_size - 1, j = COUNT_OF((*crc).gbits) - 1; i >= 0; i--, j--)
         gbits[i] = (*crc).gbits[j];
     
     if (PRINTSTEPS) {
-        printf("\n Before: "); i2pc(msgBits, msgSize, 0, 1, 34, orginalMsgSize, n,  orginalMsgSize, 0); 
+        printf("\n Before: "); i2pc(msgBits, msgSize, 0, 1, 34, originalMsgSize, n,  originalMsgSize, 0); 
         // for (int i = 0; i < msgSize - padSize; i++) 
-        for (int i = 0; i < orginalMsgSize; i++) 
+        for (int i = 0; i < REMLOOPEND; i++) 
+        // for (int i = 0; i < originalMsgSize; i++) 
             if (msgBits[i]) {
                 if (PRINTSTEPSGEN)
-                    i2pc(gbits, gbits_size, 0, 1, 33, 0, gbits_size, orginalMsgSize-i, i+9); 
+                    i2pc(gbits, gbits_size, 0, 1, 33, 0, gbits_size, originalMsgSize-i, i+9); 
                 for (int j = 0, k = i; j < gbits_size; j++, k++) 
                     msgBits[k] = msgBits[k] ^ gbits[j];
-                printf("  @ %3d: ", i); i2pc(msgBits, msgSize, 0, 1, 36, i, gbits_size, orginalMsgSize, 0);
+                printf("  @ %3d: ", i); i2pc(msgBits, msgSize, 0, 1, 36, i, gbits_size, originalMsgSize, 0);
             }   
-        printf("  After: "); i2pc(msgBits, msgSize, 0, 1, 35, orginalMsgSize, n,  orginalMsgSize, 0); 
-        // printf("  After: "); i2pc(msgBits, msgSize, 0, 1, 35, orginalMsgSize, n,  -1, 0); // no space
+        printf("  After: "); i2pc(msgBits, msgSize, 0, 1, 35, originalMsgSize, n,  originalMsgSize, 0); 
+        // printf("  After: "); i2pc(msgBits, msgSize, 0, 1, 35, originalMsgSize, n,  -1, 0); // no space
     } 
     else 
-        for (int i = 0; i < orginalMsgSize; i++)  
+        for (int i = 0; i < originalMsgSize; i++)  
             if (msgBits[i]) 
                 for (int j = 0, k = i; j < gbits_size; j++, k++) 
                     msgBits[k] = msgBits[k] ^ gbits[j];
@@ -70,7 +78,7 @@ int32_t getRem_new(uint8_t msgBits[], size_t msgSize, size_t orginalMsgSize ) {
     if (VERBOSE) printBits("Remainder", remBits, COUNT_OF(remBits), n);
 
     uint32_t rem;
-    if (CRCLSF)
+    if ( (*crc).resultLSF )
         rem = (uint32_t)bits2intLSF(COUNT_OF(remBits), remBits);
     else
         rem = (uint32_t)bits2int(COUNT_OF(remBits), remBits);
@@ -80,23 +88,23 @@ int32_t getRem_new(uint8_t msgBits[], size_t msgSize, size_t orginalMsgSize ) {
     return rem;
 }
 
-int32_t getRem(uint8_t msgBits[], size_t msgSize, uint8_t genBits[], size_t genSize, size_t padSize, size_t orginalMsgSize ) {
+int32_t getRem(uint8_t msgBits[], size_t msgSize, uint8_t genBits[], size_t genSize, size_t padSize, size_t originalMsgSize ) {
     if (PRINTSTEPS) {
-        printf("\n Before: "); i2pc(msgBits, msgSize, 0, 1, 34, orginalMsgSize, padSize,  orginalMsgSize, 0); 
+        printf("\n Before: "); i2pc(msgBits, msgSize, 0, 1, 34, originalMsgSize, padSize,  originalMsgSize, 0); 
         // for (int i = 0; i < msgSize - padSize; i++) 
-        for (int i = 0; i < orginalMsgSize; i++) 
+        for (int i = 0; i < originalMsgSize; i++) 
             if (msgBits[i]) {
                 if (PRINTSTEPSGEN)
-                    i2pc(genBits, genSize, 0, 1, 33, 0, genSize, orginalMsgSize-i, i+9); 
+                    i2pc(genBits, genSize, 0, 1, 33, 0, genSize, originalMsgSize-i, i+9); 
                 for (int j = 16, k = i; j < genSize; j++, k++) 
                     msgBits[k] = msgBits[k] ^ genBits[j];
-                printf("  @ %3d: ", i); i2pc(msgBits, msgSize, 0, 1, 36, i, genSize, orginalMsgSize, 0);
-            }   
-        printf("  After: "); i2pc(msgBits, msgSize, 0, 1, 35, orginalMsgSize, padSize,  orginalMsgSize, 0); 
-        // printf("  After: "); i2pc(msgBits, msgSize, 0, 1, 35, orginalMsgSize, padSize,  -1, 0); // no space
+                printf("  @ %3d: ", i); i2pc(msgBits, msgSize, 0, 1, 36, i, genSize, originalMsgSize, 0);
+            }
+        printf("  After: "); i2pc(msgBits, msgSize, 0, 1, 35, originalMsgSize, padSize,  originalMsgSize, 0); 
+        // printf("  After: "); i2pc(msgBits, msgSize, 0, 1, 35, originalMsgSize, padSize,  -1, 0); // no space
     } 
     else 
-        for (int i = 0; i < orginalMsgSize; i++)  
+        for (int i = 0; i < originalMsgSize; i++)  
             if (msgBits[i]) 
                 for (int j = 0, k = i; j < genSize; j++, k++) 
                     msgBits[k] = msgBits[k] ^ genBits[j];
@@ -109,7 +117,7 @@ int32_t getRem(uint8_t msgBits[], size_t msgSize, uint8_t genBits[], size_t genS
     if (VERBOSE) printBits("Remainder", remBits, COUNT_OF(remBits), padSize);
 
     uint32_t rem;
-    if (CRCLSF)
+    if ( (*crc).resultLSF )
         rem = (uint32_t)bits2intLSF(COUNT_OF(remBits), remBits);
     else
         rem = (uint32_t)bits2int(COUNT_OF(remBits), remBits);
@@ -162,13 +170,20 @@ void loadDef(struct crc_def zoo[], size_t index, crc_t* out) {
     out->resultLSF = zoo[index].specs[6];
     out->xor = zoo[index].specs[7];
     out->il1 = zoo[index].specs[8];
-    
-    int2bitsMSF(sizeof(out->g), &out->g, out->gbits, out->il1 );            // uint8_t gbits[32];
-    out->gbits_size = out->n + 1;                                          // size_t gbits_size;
-    int2bitsMSF(sizeof(out->initial), &out->initial, out->padbits, 0 );     // uint8_t padbits[32];
-    // out->padbits_size = out->n; // size_t padbits_size;                 // = n 
+
+    // Convert generator polynomial to array of bit values  
+    int2bitsMSF(sizeof(out->g), &out->g, out->gbits, true );            // uint8_t gbits[32];
+    out->gbits_size = out->n + 1;      
+    printBits("gbits before il1", out->gbits, COUNT_OF((*crc).gbits), 0);          
+    out->gbits[COUNT_OF((*crc).gbits) - out->n - 1] = out->il1;             // Set implicit leading 1
+    printf("\nout->il1:%d  ind COUNT_OF((*crc).gbits) - out->n:%d\n", out->il1,  COUNT_OF((*crc).gbits) - out->n);
+    printBits(" gbits after il1", out->gbits, COUNT_OF((*crc).gbits), 0);          
+
+
+    int2bitsMSF(sizeof(out->initial), &out->initial, out->initbits, 0 );    // uint8_t padbits[32];
+    // out->padbits_size = out->n; // size_t padbits_size;                  // = n 
     int2bitsMSF(sizeof(out->xor), &out->xor, out->xorbits, 0 );             // uint8_t xorbits[32];
-    // out->xorbits_size = out->n; // size_t xorbits_size;                 // = n 
+    // out->xorbits_size = out->n; // size_t xorbits_size;                  // = n 
     
     // uint8_t gbitsRaw[32];
     // size_t gbitsRaw_size;

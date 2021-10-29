@@ -11,24 +11,29 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "binutils.h"
+// #include "binutils.h"
 
 // Utility
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 #define EACH (size_t i = 0; i < size; i++)
 
-void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[], bool leading1) {
+void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[], bool extraBit) {
     int  byte_index, 
          bit_index;
  
     uint8_t *byte = (uint8_t*) ptr;
     uint8_t bit;
 
+    // This is MEANT to allow n+1 output (9 bits from 8, etc.)
+    // used for CRC generators with implicit leading 1.
+    //    As I have yet to come across a CRC spec with LSF 
+    // generator it has not been tested. For now, recommend only
+    // using this function with extraBit set to false.
     size_t modifiedSize = size;
-    if (leading1)
+    if (extraBit)
         modifiedSize--;
 
-    for (byte_index = 0; byte_index < modifiedSize; byte_index++) {        //LSF
+    for (byte_index = 0; byte_index < modifiedSize; byte_index++) {        // LSF
         for (bit_index = 0; bit_index < 8; bit_index++) {                  // LSF
             bit = (byte[byte_index] >> bit_index) & 1;
             if (!bit)
@@ -37,12 +42,9 @@ void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[], bool 
                 out[byte_index * 8 + bit_index] = 1;
         }
     }
-    // if (leading1)
-    //     out[modifiedSize] = 1;  // For LSF, leading 1 is placed at end
-
 }
 
-void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool leading1) {
+void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool extraBit) {
     int  byte_index, 
          bit_index,
          byte_write_index = 0,
@@ -51,7 +53,9 @@ void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool 
     uint8_t *byte = (uint8_t*) ptr;
     uint8_t bit;
 
-    uint8_t displace = leading1 ? 1 : 0;
+    // This is to allow n+1 output (9 bits from 8, etc.)
+    // used for CRC generators with implicit leading 1.
+    uint8_t displace = extraBit ? 1 : 0;
 
     for (byte_index = size-1; byte_index >= 0; byte_index--) {   //MSF
         bit_write_index = 0;
@@ -246,20 +250,6 @@ void bits2intsLSF(size_t const total_bits, size_t const type_size, uint8_t const
         }
     } 
 }   
-  
-void setMSF() {
-    int2bits = int2bitsMSF;
-    bits2int = bits2intMSF;
-    ints2bits = ints2bitsMSF;
-    bits2ints = bits2intsMSF;
-}
-
-void setLSF() {
-    int2bits = int2bitsLSF;
-    bits2int = bits2intLSF;
-    ints2bits = ints2bitsLSF;
-    bits2ints = bits2intsLSF;
-}
 
 void charArrayToString(char ca[], size_t size, char* out) {
     // char buf[size + 1];
