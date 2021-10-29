@@ -19,17 +19,24 @@
 #define EACH (size_t i = 0; i < size; i++)
 
 // Flags
-#define VERBOSE false
-#define PRINTMSG true
-#define PRINTSTEPS true
+#define VERBOSE       false
+#define PRINTMSG      true
+#define PRINTSTEPS    false
 #define PRINTSTEPSGEN true
+#define SELFTEST      true
+
+#define TESTMSG {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
 // Program fields
 typedef struct prog_s {
     // Flags
-    bool verbose;
-    bool printmsg;
-    bool printsteps;
+    uint8_t verbose;
+    uint8_t printMsg;
+    uint8_t printSteps;
+    uint8_t printStepsGen;
+    uint8_t selfTest;
+
+    uint8_t testMsg[9];
 } prog_t;
 
 // CRC fields
@@ -39,22 +46,18 @@ typedef struct crc_s {
     uint32_t n;          // Width of CRC (8, 16 or 32 bit)
     uint32_t g;          // Generator polynomial
     uint8_t il1;         // implicit_leading_1
-    uint32_t initial;    // Initial CRC value
+    uint32_t init;    // Initial CRC value
     uint32_t xor;        // Final XOR value
     uint8_t inputLSF;    // Input reflected
     uint8_t resultLSF;   // Result reflected
     uint32_t check;      // Expected result from 123456789
     uint32_t checkAB;    // Expected result from "AB"
 
-
     // Work
-    uint8_t gbits[33];
-    // uint8_t* gbits;
-    size_t gbits_size;      // n+1;
-    uint8_t initbits[32];
-    // size_t padbits_size; // = n
-    uint8_t xorbits[32];
-    // size_t xorbits_size; // = n
+    uint8_t gBits[33];
+    size_t gBits_size;      // n+1;
+    uint8_t initBits[32];
+    uint8_t xorBits[32];
 
     // uint8_t padbitsRaw[32];
     // size_t padbitsRaw_size; 
@@ -72,13 +75,13 @@ struct crc_def {
 // Message fields
 typedef struct msg_s {
     // uint8_t* origmsg;       // Original message
-    char* msgstr;              // Message as string
-    size_t origmsg_size;   
+    char* msgStr;              // Message as string
+    size_t origMsg_size;   
     
     da msg;                    // Working copy
-    da msgbits;
-    da csmsg;                  // Checksummed message
-    da csmsgbits;
+    da msgBits;
+    da msg_cs;                  // Checksummed message
+    da msgBits_cs;
     
     // uint8_t* msg;           // Working copy
     // size_t  msg_size;
@@ -91,14 +94,14 @@ typedef struct msg_s {
 
     // CRC result    
     int32_t  res;
-    uint8_t resbits[32];
+    uint8_t resBits[32];
     // size_t resbits_size;      // = n;
     // uint8_t resbitsRaw[32];
     // size_t resbitsRaw_size;
 
     // Validation
     int32_t  rem;
-    uint8_t rembits[32];
+    uint8_t remBits[32];
     // size_t rembits_size;        // = n;
     bool valid;
     // // Calculation testing
@@ -122,7 +125,11 @@ extern prog_t* prog;
 extern crc_t* crc;  
 extern msg_t* msg;
 extern expect_t* expect;
-
+// Macros for readability and keystroke-saving
+#define PROG (*prog)
+#define  CRC (*crc)
+#define  MSG (*msg)
+#define EXPECT (*expect)
 
 
 /**
@@ -147,7 +154,9 @@ void messageLengthCheck(size_t len);
   @brief
   @return  
 */
-bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t padSize, uint8_t genBits[], size_t genSize, size_t originalMsgSize);
+// bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t padSize, uint8_t genBits[], size_t genSize, size_t originalMsgSize);
+bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t originalMsgSize);
+
 
 /**
   @brief

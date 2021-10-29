@@ -121,7 +121,7 @@ Message: AB (LSF) 0xC599 n=15
                             = 0x54FB
 ```
 
-I'm not sure exactly what goes on in the example implementation, but since making these errors reliably replicates the available example results (cf. table), I'd say some analogue of this is happening.
+I'm not sure exactly what goes on in the example implementation, but since making these errors reliably replicates the available example results (cf. table), I would guess some analogue of this is happening.
 
 | Message       | Example | Spec result|
 |:---           |     ---:|        ---:|
