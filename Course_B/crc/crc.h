@@ -17,15 +17,20 @@
 // Utility
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 #define EACH (size_t i = 0; i < size; i++)
+#define TOWIDTH(x)  uint8_t x[CRC.n]; bitSlice(COUNT_OF(CRC.x) - CRC.n, CRC.n, &CRC.x, 0, x);
+
 
 // Flags
 #define VERBOSE       false
+#define VERBOSELOAD   false
 #define PRINTMSG      true
 #define PRINTSTEPS    false
 #define PRINTSTEPSGEN true
-#define SELFTEST      true
 
-#define TESTMSG {1, 2, 3, 4, 5, 6, 7, 8, 9};
+#define SELFTEST      true
+#define SELFTESTSTEPS true
+
+
 
 // Program fields
 typedef struct prog_s {
@@ -35,6 +40,7 @@ typedef struct prog_s {
     uint8_t printSteps;
     uint8_t printStepsGen;
     uint8_t selfTest;
+    uint8_t timing;
 
     uint8_t testMsg[9];
 } prog_t;
@@ -67,10 +73,10 @@ typedef struct crc_s {
     // size_t xorbitsRaw_size; 
 } crc_t;
 // Compact format 
-struct crc_def {
+typedef struct crcdef_s {
         char name[100];
         uint32_t specs[9];
-};
+} crcdef_t;
 
 // Message fields
 typedef struct msg_s {
@@ -95,15 +101,12 @@ typedef struct msg_s {
     // CRC result    
     int32_t  res;
     uint8_t resBits[32];
-    // size_t resbits_size;      // = n;
-    // uint8_t resbitsRaw[32];
-    // size_t resbitsRaw_size;
-
+   
     // Validation
     int32_t  rem;
     uint8_t remBits[32];
-    // size_t rembits_size;        // = n;
     bool valid;
+
     // // Calculation testing
     // int32_t expected;
     // uint8_t* expectedbits;
@@ -168,4 +171,17 @@ void validPrint(uint8_t msg[], size_t msgSize, bool valid);
   @brief
   @return  
 */
-void loadDef(struct crc_def zoo[], size_t index, crc_t* out);
+void loadDef(crcdef_t zoo[], size_t index, crc_t* out);
+// void loadDef(struct crc_def zoo[], size_t index, crc_t* out);
+
+/**
+  @brief
+  @return  
+*/
+void loadSpec(crcdef_t zoo[], size_t index, crc_t* out, bool compact);
+
+/**
+  @brief Print CRC inventory
+  @return  
+*/
+void zooTour(crcdef_t zoo[], size_t zoo_size);
