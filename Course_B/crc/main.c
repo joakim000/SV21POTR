@@ -4,7 +4,7 @@
 
 
 
-int main(void)
+int main(int argc, char* argv[] )
 {
     /* Setup */
     #include "crc_zoo.c" // Unconventional use of #include, just a convenient way to put the CRC definitions in a separate file.
@@ -19,37 +19,64 @@ int main(void)
     };
     prog = &new_prog;    
 
+    /* cmd args */
+    struct benchargs {
+        bool zoo, enc, valid,               // Command
+            printSteps, verbose, timing,    // Flags
+            refIn, refOut;                  // Custom spec
+
+        char* inFile[FILENAME_MAX];
+        char* outFile[FILENAME_MAX];
+
+        int crc_spec, n, g, init, xor;
+    } ca;
+    if (argc < 2) {
+        // Print help if no args
+        puts("Help:");
+        exit(EXIT_SUCCESS);
+    }
+    argdef_t defs[] = {
+        // Commands
+        { .isFlag = true, .var = (bool*)&ca.zoo, .str = "zoo" },                     // zoo
+        { .isFlag = true, .var = (bool*)&ca.enc, .str = "enc" },                     // encode
+        { .isFlag = true, .var = (bool*)&ca.valid, .str = "val" },                     // validate
+
+        // Flags
+        { .isFlag = true, .var = (bool*)&ca.printSteps, .str = "-steps" },                   // print steps
+        { .isFlag = true, .var = (bool*)&ca.verbose, .str = "-v" },                       // verbose
+        { .isFlag = true, .var = (bool*)&ca.timing, .str = "-t" },                       // timing
+
+        // Spec
+        { .isInt = true,  .var = (int*)&ca.crc_spec, .str = "-s", .defaultString = 0 },    // spec X
+        // Custom spec
+        { .isInt = true,  .var = (int*)&ca.n, .str = "-n", .defaultInt = 8 },    // bit width
+        { .isInt = true,  .var = (int*)&ca.g, .str = "-g", .defaultInt = 0x07 }, // generator polynomial
+        { .isInt = true,  .var = (int*)&ca.init, .str = "-i", .defaultInt = 0 },    // init value
+        { .isInt = true,  .var = (int*)&ca.xor, .str = "-x", .defaultInt = 0 },    // final xor
+        { .isFlag = true, .var = (bool*)&ca.refIn, .str = "-ri" },                      // inRef
+        { .isFlag = true, .var = (bool*)&ca.refOut, .str = "-ro" },                      // outRef
+
+        { .isString = true, .var = (char*)&ca.inFile, .str = "-in", .defaultString = "input.txt" },    // output file
+        { .isString = true, .var = (char*)&ca.outFile, .str = "-out", .defaultString = "output.txt" },    // output file
+    };
+    processArgs(argv, argc, defs, COUNT_OF(defs));
+    // Set flags
+    if (ca.printSteps) PROG.printSteps = true;
+    if (ca.verbose) PROG.verbose = true;
+    if (ca.timing) PROG.timing = true;
+    /* end cmd args */
+
+    // Show CRC inventory
+    if (ca.zoo) {
+        zooTour(zoo, COUNT_OF(zoo));
+        exit(EXIT_SUCCESS);
+    }
+
     /* Load CRC spec */
     crc_t new_crc;
-    loadDef(zoo, 10, &new_crc);
     crc = &new_crc;
-    printf("CRC spec: %s\n", CRC.description);
-    printf("n:%d   g:0x%X   init:0x%X   ", CRC.n, CRC.g, CRC.init);
-    printf("xor:0x%X   inRef:%d   outRef:%d\n", CRC.xor, CRC.inputLSF, CRC.resultLSF);
-    printf("     gBits: "); i2p(&CRC.gBits, COUNT_OF(CRC.gBits), CRC.gBits_size, 0, 1);
-    // if (VERBOSE || expected) printBits("Generator",  CRC.gBits, COUNT_OF( CRC.gBits ), CRC.gBits_size);
-    printf("  initBits:  "); i2p(&CRC.initBits, COUNT_OF(CRC.initBits), CRC.n, 0, 1);
-    printf("   xorBits:  "); i2p(&CRC.xorBits, COUNT_OF(CRC.xorBits), CRC.n, 0, 1);
+    loadSpec(zoo, ca.crc_spec, &new_crc, false); 
     
-    // Self test for this spec
-    uint8_t test_msg[9];
-    uint8_t test_msgBits[9 * sizeof(uint8_t) * 8 + CRC.n];
-    for (int i = 0; i < 9; i++) test_msg[i] = i + 1; // Std check input: {1, 2, 3, 4, 5, 6, 7, 8, 9}
-    if ( CRC.inputLSF )
-        ints2bitsLSF(sizeof(test_msg), sizeof(test_msg[0]), &test_msg, test_msgBits, CRC.n,  CRC.initBits); 
-    else
-        ints2bitsMSF(sizeof(test_msg), sizeof(test_msg[0]), &test_msg, test_msgBits, CRC.n,  CRC.initBits); 
-    uint8_t tmp_printSteps = PROG.printSteps; PROG.printSteps = 0;    
-    uint8_t tmp_printStepsGen = PROG.printStepsGen; PROG.printStepsGen = 0;
-    
-    uint32_t test_res = getRem(test_msgBits, COUNT_OF(test_msgBits), 9 * sizeof(uint8_t) * 8);
-    if (test_res == CRC.check)
-        printf("\e[1;32mPassed self-test for %s;\e[m result 0x%X == check 0x%X", CRC.description, test_res, CRC.check);
-    else 
-        printf("\e[1;31mFailed self-test for %s;\e[m result 0x%X != check 0x%X", CRC.description, test_res, CRC.check);
-    PROG.printSteps = tmp_printSteps; PROG.printStepsGen = tmp_printSteps;
-    // End self test
-
 
     msg_t new_msg = {
         // .resbits = &new_msg_resbits,
@@ -76,7 +103,7 @@ int main(void)
     uint32_t expected = 1; 
 
     uint8_t message[] = {'A', 'B'}; 
-    // expected = 0x48B1;  // Spec
+    expected = CRC.checkAB;  // Spec
     // expected = 0x54FB;  // Example
     // uint8_t message[] = {'A', 'B', 'C'};
     // expected = 0xD59;  // Example
@@ -86,7 +113,7 @@ int main(void)
     // expected = 0x3556;  // Example
     // uint8_t message[] = {'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!'};
     // expected = 0xB35;  // Example
-    // uint8_t message[] = {1, 2, 3, 4, 5, 6, 7, 8, 9}; // 0x59E
+    // uint8_t message[] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'}; 
     // expected = 0x59E;  // Should match example implementation
     // uint8_t message[] = {'F', 'a', 'r', 'o', 'c', 'h'};  // Example impl: 0x2535, spec: 
 
@@ -98,36 +125,50 @@ int main(void)
     uint8_t msg[COUNT_OF(message)];
     for (int i = 0; i < COUNT_OF(message); i++)
         msg[i] = message[i];
+    // memcpy(msg, message, sizeof(msg));
 
     // Store message size before padding to avoid errors arising from over-padding
     size_t originalMsgSize = sizeof(msg) * 8;
 
     // Prepare padding bits
-    // uint32_t initial = INITIAL;
-    uint32_t init = CRC.init;
-    uint8_t padBitsRaw[sizeof(init) * 8];
-    int2bits(sizeof(init), &init, padBitsRaw, false );
-    if (VERBOSE) printBits("Pad raw", padBitsRaw, COUNT_OF(padBitsRaw), 0);
-    // Crop to size
-    uint8_t padBits[CRC.n];
-    for (int i = COUNT_OF(padBits) - 1, j = COUNT_OF(padBitsRaw) - 1; i >= 0; i--, j--)
-        padBits[i] = padBitsRaw[j];
-    if (VERBOSE) printBits("Pad", padBits, COUNT_OF(padBits), CRC.n);
+    TOWIDTH(initBits);
 
     // Convert msg to array of bit values, add padding 
     // uint8_t msgBits[sizeof(msg) * 8 + CRC.n];       // Spec
-    // uint8_t msgBits[sizeof(msg) * 8 + CRC.n +1];    // CRC-15/CANT
     uint8_t msgBits[sizeof(msg) * 8 + PADSIZE];           // Flag toggle 
-
 
     if ( CRC.inputLSF )
         // ints2bitsLSF(sizeof(msg), sizeof(msg[0]), &msg, msgBits, CRC.n,  padBits);    // Spec
-        // ints2bitsLSF(sizeof(msg), sizeof(msg[0]), &msg, msgBits, CRC.n +1,  NULL);    // CRC-15/CANT
-        ints2bitsLSF(sizeof(msg), sizeof(msg[0]), &msg, msgBits, PADSIZE,  padBits);        // Flag toggle 
+        ints2bitsLSF(sizeof(msg), sizeof(msg[0]), &msg, msgBits, PADSIZE,  initBits);        // Flag toggle 
     else
-        ints2bitsMSF(sizeof(msg), sizeof(msg[0]), &msg, msgBits, CRC.n, padBits);
+        ints2bitsMSF(sizeof(msg), sizeof(msg[0]), &msg, msgBits, CRC.n, initBits);
     if (VERBOSE) printBits("Message", msgBits, COUNT_OF(msgBits), 0);
 
+    if (crc->init > 0) {
+        // Get actual initBits from seed
+        for (int i = 0; i < crc->n; i++) {
+            // printf("initBit:%d ^= msgBit:%d = %d", initBits[i], msgBits[i], initBits[i] ^ msgBits[i]);
+            initBits[i] ^= msgBits[i];
+            // printf("   new initBit:%d\n", initBits[i]);
+        }
+
+        printf("\n  initBits:  "); i2p(initBits, COUNT_OF(initBits), 0, 0, 1);
+        printf("\n  crc msgBits:  "); i2p(msgBits, COUNT_OF(msgBits), crc->n*2, 0, 1);
+
+        // Write actual initBits to padding
+        printf("msgBits count:%d ", COUNT_OF(msgBits));
+            i2p(msgBits, COUNT_OF(msgBits), 0, 0, 1);
+
+        for (int i = COUNT_OF(msgBits) - crc->n, j = 0; i < COUNT_OF(msgBits); i++, j++) {
+            // printf("initBit:%d ^= msgBit:%d = %d", initBits[i], msgBits[i], initBits[i] ^ msgBits[i]);
+            msgBits[i] = initBits[j];  
+            // printf("i: %d", i);
+        }
+
+        printf("\n  crc msgBits:  "); i2p(msgBits, COUNT_OF(msgBits), crc->n*2, 0, 1);
+        printf("\n  msgBits:  ");    i2p(msgBits, COUNT_OF(msgBits), 0, 0, 1);
+
+    }
 
     /* Calculate the CRC. For example the CRCs of "Hello World!" is 0xB35 and "AB" is 0x54FB */
 
@@ -139,7 +180,7 @@ int main(void)
     }
 
     // Get checksum
-    // int32_t checksum = getRem(msgBits, COUNT_OF(msgBits), CRC.gBits, CRC.gBits_size, CRC.n, originalMsgSize);
+    // int32_t checksum;
     int32_t checksum = getRem(msgBits, COUNT_OF(msgBits), originalMsgSize);
     printf("Checksum: 0x%X\n", checksum);
 
