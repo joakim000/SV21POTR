@@ -47,41 +47,51 @@ void checksumMsg(uint8_t message[], size_t msgSize, int32_t checksum, size_t pad
 }
 
 int32_t getRem(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize ) {
-    size_t gBits_size = CRC.gBits_size;
-
-    // printBits("gBits from *crc", CRC.gBits, COUNT_OF(CRC.gBits), 0);
+    // gBits to actual bit width
+    size_t gBits_size = CRC.gBits_size;   
     uint8_t gBits[gBits_size];
     for (int i = gBits_size - 1, j = COUNT_OF(CRC.gBits) - 1; i >= 0; i--, j--)
         gBits[i] = CRC.gBits[j];
     
+    int i; i = CRC.init > 0 ? CRC.n : 0;  // Skip a CRC width if using initial > 0
+    // int i = 0;
     if (PROG.printSteps) {
+        // Poly division with printing of steps
         printf("\n Before: "); i2pc(msgBits, msgSize, 0, 1, 34, originalMsgSize, CRC.n,  originalMsgSize, 0); 
-        // for (int i = 0; i < msgSize - padSize; i++) 
-        for (int i = 0; i < REMLOOPEND; i++) 
-        // for (int i = 0; i < originalMsgSize; i++) 
+        for (; i < REMLOOPEND; i++)   // Special accomodation, cf. error.h
+        // for (; i < originalMsgSize; i++)  // Standard loop ending condition
             if (msgBits[i]) {
                 if (PROG.printStepsGen)
                     i2pc(gBits, gBits_size, 0, 1, 33, 0, gBits_size, originalMsgSize-i, i+9); 
                 for (int j = 0, k = i; j < gBits_size; j++, k++) 
-                    msgBits[k] = msgBits[k] ^ gBits[j];
+                    msgBits[k] ^= gBits[j];
                 printf("  @ %3d: ", i); i2pc(msgBits, msgSize, 0, 1, 36, i, gBits_size, originalMsgSize, 0);
             }   
         printf("  After: "); i2pc(msgBits, msgSize, 0, 1, 35, originalMsgSize, CRC.n,  originalMsgSize, 0); 
-        // printf("  After: "); i2pc(msgBits, msgSize, 0, 1, 35, originalMsgSize, n,  -1, 0); // no space
     } 
     else 
-        for (int i = 0; i < originalMsgSize; i++)  
+        // Poly division (without printing of steps)
+        for (; i < REMLOOPEND; i++)  // Special accomodation, cf. error.h
+        // for (; i < originalMsgSize; i++)  // Standard loop ending condition
             if (msgBits[i]) 
                 for (int j = 0, k = i; j < gBits_size; j++, k++) 
-                    msgBits[k] = msgBits[k] ^ gBits[j];
-        
+                    msgBits[k] ^= gBits[j];
 
     if (PROG.verbose) { puts("Message post calculation"); i2p(msgBits, msgSize, 0, 0, 1);  }
 
+    // Slice off the remBits from msgBits
     uint8_t remBits[CRC.n];
     bitSlice(-1, CRC.n, msgBits, msgSize, remBits);
     if (PROG.verbose) printBits("Remainder", remBits, COUNT_OF(remBits), CRC.n);
 
+    // Final xoring of rem as required by some CRC specs
+    if (CRC.xor > 0) {
+        TOWIDTH(xorBits);
+        for (int i = 0; i < COUNT_OF(remBits); i++) 
+            remBits[i] ^= xorBits[i];
+    }
+
+    // Convert remBits to int with choice of bit ordering
     uint32_t rem;
     if ( CRC.resultLSF )
         rem = (uint32_t)bits2intLSF(COUNT_OF(remBits), remBits);
@@ -89,7 +99,6 @@ int32_t getRem(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize ) {
         rem = (uint32_t)bits2intMSF(COUNT_OF(remBits), remBits);
 
     if (PROG.verbose) printf("Remainder: 0x%x\n", rem);
-    
     return rem;
 }
 
@@ -125,36 +134,102 @@ void validPrint(uint8_t msg[], size_t msgSize, bool valid) {
         printf("\e[1;31m%s\e[m\n", "The data is not OK"); // red
 }
 
-void loadDef(struct crc_def zoo[], size_t index, crc_t* out) {
-    strcpy((out)->description, zoo[index].name);
-    out->n = zoo[index].specs[0];
-    out->checkAB = zoo[index].specs[1];
-    out->check = zoo[index].specs[2];
-    out->g = zoo[index].specs[3];
-    out->init = zoo[index].specs[4];
-    out->inputLSF = zoo[index].specs[5];
-    out->resultLSF = zoo[index].specs[6];
-    out->xor = zoo[index].specs[7];
-    out->il1 = zoo[index].specs[8];
+void loadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
+    strcpy((crc)->description, zoo[index].name);
+    crc->n = zoo[index].specs[0];
+    crc->checkAB = zoo[index].specs[1];
+    crc->check = zoo[index].specs[2];
+    crc->g = zoo[index].specs[3];
+    crc->init = zoo[index].specs[4];
+    crc->inputLSF = zoo[index].specs[5];
+    crc->resultLSF = zoo[index].specs[6];
+    crc->xor = zoo[index].specs[7];
+    crc->il1 = zoo[index].specs[8];
 
     // Convert generator polynomial to array of bit values  
-    int2bitsMSF(sizeof(out->g), &out->g, out->gBits, true );            // uint8_t gBits[32];
-    out->gBits_size = out->n + 1;      
-    // printBits("gBits before il1", out->gBits, COUNT_OF(CRC.gBits), 0);          
-    out->gBits[COUNT_OF(CRC.gBits) - out->n - 1] = out->il1;             // Set implicit leading 1
-    // printf("\nout->il1:%d  ind COUNT_OF(CRC.gBits) - out->n:%d\n", out->il1,  COUNT_OF(CRC.gBits) - out->n);
-    // printBits(" gBits after il1", out->gBits, COUNT_OF(CRC.gBits), 0);          
+    int2bitsMSF(sizeof(crc->g), &crc->g, crc->gBits, true );            // uint8_t gBits[32];
+    crc->gBits_size = crc->n + 1;      
+    crc->gBits[COUNT_OF(CRC.gBits) - crc->n - 1] = crc->il1;             // Set implicit leading 1
 
 
-    int2bitsMSF(sizeof(out->init), &out->init, out->initBits, 0 );    // uint8_t padbits[32];
-    // out->padbits_size = out->n; // size_t padbits_size;                  // = n 
-    int2bitsMSF(sizeof(out->xor), &out->xor, out->xorBits, 0 );             // uint8_t xorbits[32];
-    // out->xorbits_size = out->n; // size_t xorbits_size;                  // = n 
+    int2bitsMSF(sizeof(crc->init), &crc->init, crc->initBits, 0 );    // uint8_t padbits[32];
+    int2bitsMSF(sizeof(crc->xor), &crc->xor, crc->xorBits, 0 );             // uint8_t xorbits[32];
+  
+}
+
+void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
+    loadDef(zoo, index, crc);  
     
-    // uint8_t gBitsRaw[32];
-    // size_t gBitsRaw_size;
-    // uint8_t padbitsRaw[32];
-    // size_t padbitsRaw_size; 
-    // uint8_t xorbitsRaw[32];
-    // size_t xorbitsRaw_size; 
+    if (table) {
+        printf("%16s   ", crc->description);
+        printf("%#10X   %#10X   ",  crc->g, crc->init);
+        printf("%#10X   %5d   %6d   ", crc->xor, crc->inputLSF, crc->resultLSF);
+    }
+    else {
+        printf("%s   ", crc->description);
+        printf("Poly:0x%X   Init:0x%X   ",  crc->g, crc->init);
+        printf("XorOut:0x%X   RefIn:%d   RefOut:%d   ", crc->xor, crc->inputLSF, crc->resultLSF);
+    }    
+
+    // Check value-test for this spec
+      // Disable printSteps when testing
+    uint8_t tmp_printSteps = PROG.printSteps; PROG.printSteps = SELFTESTSTEPS;
+    if (table) PROG.printSteps = false;
+
+    // Prepare standard check message: {'1', '2', '3', '4', '5', '6', '7', '8', '9'}
+    uint8_t test_msg[9];
+    uint8_t test_msgBits[9 * sizeof(uint8_t) * 8 + PADSIZE];
+    for (int i = 0; i < 9; i++) test_msg[i] = i + 49; 
+
+   
+    // Arrange message bits and pad
+    if ( crc->inputLSF )
+        ints2bitsLSF(sizeof(test_msg), sizeof(test_msg[0]), &test_msg, test_msgBits, PADSIZE, crc->initBits); // Special accomodation, cf. error.h
+    else
+        ints2bitsMSF(sizeof(test_msg), sizeof(test_msg[0]), &test_msg, test_msgBits, crc->n, crc->initBits); 
+
+    if (crc->init > 0) {
+        // Local initBits to crc width
+        TOWIDTH(initBits);
+        // Get actual initBits from seed
+        for (int i = 0; i < crc->n; i++) {
+            initBits[i] ^= test_msgBits[i];
+        };
+
+        // printf("\n  initBits:  "); i2p(&crc->initBits, COUNT_OF(crc->initBits), 0, 0, 1);
+        // Write actual initBits to padding
+        for (int i = COUNT_OF(test_msgBits) - crc->n, j = 0; i < COUNT_OF(test_msgBits); i++, j++) {
+            test_msgBits[i] = initBits[j];  
+        }
+    }
+
+    uint32_t test_res = getRem(test_msgBits, COUNT_OF(test_msgBits), 9 * sizeof(uint8_t) * 8);
+    if (test_res == crc->check)
+        if (table)
+            printf("\e[1;32mPassed\e[m\n");
+        else
+            printf("\n\e[1;32mPassed check value-test for %s;\e[m result 0x%X == check 0x%X", crc->description, test_res, crc->check);
+    else 
+        if (table)
+            printf("\e[1;31mFailed\e[m\n");
+        else
+            printf("\e[1;31mFailed check value-test for %s;\e[m result 0x%X != check 0x%X", crc->description, test_res, crc->check);
+    
+    if (VERBOSELOAD && !table) { 
+        printf("     gBits: "); i2p(&crc->gBits, COUNT_OF(crc->gBits), crc->gBits_size, 0, 1);
+        // if (VERBOSE || expected) printBits("Generator",  crc->gBits, COUNT_OF( crc->gBits ), crc->gBits_size);
+        printf("  initBits:  "); i2p(&crc->initBits, COUNT_OF(crc->initBits), crc->n, 0, 1);
+        printf("   xorBits:  "); i2p(&crc->xorBits, COUNT_OF(crc->xorBits), crc->n, 0, 1);
+    }
+    PROG.printSteps = tmp_printSteps; // Reset printSteps flag
+}
+
+void zooTour(crcdef_t zoo[], size_t zoo_size) {
+    printf("%5s   %16s   %10s   %10s   %10s   %5s   %6s   %6s\n", "Index", "Spec", "Poly", "Init", "XorOut", "RefIn", "RefOut", "Check value");
+    for (int i = 0; i < zoo_size; i++) {
+        crc_t zooItem;
+        crc = &zooItem;
+        printf("%5d   ", i);
+        loadSpec(zoo, i, &zooItem, true);
+    }
 }
