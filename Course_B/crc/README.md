@@ -32,7 +32,7 @@ Polynomic division is performed by function `getRem` in the file *crc.c*. `msgBi
 for (int i = 0; i < originalMsgSize; i++)  
     if (msgBits[i]) 
         for (int j = 0, k = i; j < gBits_size; j++, k++) 
-            msgBits[k] = msgBits[k] ^ gBits[j];
+            msgBits[k] ^= gBits[j];
 ```
 
 ### Bit ordering and conversion
