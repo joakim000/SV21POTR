@@ -146,8 +146,9 @@ for (int i = 0; i < originalMsgSize; i++)
 for (int i = 0; i < msgSize - paddingWidth; i++)  
 ```
 
-If the flag `#define MATCH_EXAMPLES` is set in *crc.h* these changes will be enabled. In the assignment executable `crc15` this is enabled when you get this. For `crc`, the general CRC tool that happened to come out of this, behaviour is kept to spec.
+If the flag `#define MATCH_EXAMPLES` is set in *errors.h* these changes will be enabled. 
 
 
 ## Extras
-
+The `crc` executable includes functions for encoding and validating messages with a number of CRC specs; 
+`crc zoo` shows a list and tests implemenation for each (based on check value). Note that the specs that include initial seed are not working yet. 
