@@ -256,9 +256,11 @@ void charArrayToString(char ca[], size_t size, char* out) {
 
 void bitSlice(int start, int count, void const * const ptr, size_t size, uint8_t out[]) {
     uint8_t* in = (uint8_t*) ptr;
+    // Start from end
     if (start < 0) 
         for (int i = size + (start), j = count - 1; i > size - count + (start); i--, j--)
             out[j] = in[i];
+    // Start from... start.    
     else
         for (int i = start, j = 0; j < count; i++, j++)
             out[j] = in[i];
