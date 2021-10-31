@@ -15,11 +15,15 @@ CFLAGS = -std=c11 -O3
 endif
 endif
 
-crc15objects = crc15.o 
+crc15objects = crc15.o crc.o binutils.o cmdargs.o da.o
 objects = main.o crc.o binutils.o cmdargs.o da.o
 
-default : $(objects)
+crc15 : $(crc15objects)
+	cc $(LFLAGS) -o crc15 $(crc15objects)
+
+extra : $(objects)
 	cc $(LFLAGS) -o crc $(objects)
+
 
 main.o : main.c crc.h crc_zoo.c jlibc/binutils.h jlibc/cmdargs.h jlibc/da.h
 	cc -c $(CFLAGS) main.c
@@ -31,6 +35,9 @@ cmdargs.o : jlibc/cmdargs.c jlibc/cmdargs.h
 	cc -c $(CFLAGS) jlibc/cmdargs.c
 da.o : jlibc/da.c jlibc/da.h
 	cc -c $(CFLAGS) jlibc/da.c
+crc15.o : crc15.c crc.h crc_zoo.c jlibc/binutils.h jlibc/cmdargs.h jlibc/da.h
+	cc -c $(CFLAGS) crc15.c
+
 
 debug :
 	$(MAKE) OPT=1
