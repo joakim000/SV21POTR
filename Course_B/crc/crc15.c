@@ -1,5 +1,3 @@
-
-
 #include "crc.h"
 #define CRC15CAN_INDEX 10
 #define ENCODE true
@@ -8,8 +6,8 @@
 void main(int argc, char* argv[] )
 {
     // Message
-    // char message[0x10] = "Hello World!";
-    char message[0x10] = "AB";
+    char message[0x10] = "Hello World!";
+    // char message[0x10] = "AB";
 
     // Assignment requirements for message length
     messageLengthCheck(strlen(message));

@@ -2,8 +2,6 @@
 
 #include "crc.h"
 
-
-
 void main(int argc, char* argv[] )
 {
     // Data structures
@@ -47,9 +45,9 @@ void main(int argc, char* argv[] )
         { .isFlag = true, .var = (bool*)&ca.validate, .str = "val" },                   // validate
         // Input
         { .isInt = true,  .var = (int*)&ca.crc_spec, .str = "-s", .defaultString = 0 },                // CRC spec index
-        { .isString = true, .var = (char*)&ca.msg, .str = "-m", .defaultString = "" },               // message
+        { .isString = true, .var = (char*)&ca.msg, .str = "-m", .defaultString = "AB" },               // message
         { .isInt = true,  .var = (int*)&ca.checksum, .str = "-c", .defaultInt = 0 },                       // checksum for validation
-        { .isString = true, .var = (char*)&ca.inFile, .str = "-in", .defaultString = "input.txt" },    // input file
+        { .isString = true, .var = (char*)&ca.inFile, .str = "-in", .defaultString = "" },    // input file
         { .isString = true, .var = (char*)&ca.outFile, .str = "-out", .defaultString = "output.txt" }, // output file
         // Flags
         { .isFlag = true, .var = (bool*)&ca.printSteps, .str = "-steps" },                 // print steps
@@ -70,9 +68,11 @@ void main(int argc, char* argv[] )
     if (ca.verbose) PROG.verbose = true;
     if (ca.timing) PROG.timing = true;
     // Check for a known command
-    if (!ca.zoo && !ca.enc && !ca.validate)
+    if (!ca.zoo && !ca.enc && !ca.validate) {
         printf("Available commands:\n\tzoo\tWhere all the CRCs live\n\tenc\tEncode a message\n"
                "\tval\tValidate a message\n\thelp\tMore help\n", NULL);
+        exit(EXIT_SUCCESS);
+    }
     // Command line arguments end
 
 
@@ -110,13 +110,11 @@ void main(int argc, char* argv[] )
             PRINTERR("File not found.")
         }
     }
-    else {
+    // Still no message?
+    if (strlen((char*)ca.msg) < 1 ) {
         PRINTERR("No message, exiting.");
         exit(EXIT_FAILURE);
     }
-
-    // Assignment requirements for message length
-    messageLengthCheck(strlen((char*)message));
 
     // Command: Encode
     if (ca.enc) {      
@@ -152,7 +150,7 @@ void main(int argc, char* argv[] )
 
         // Compare result with a expected value, for debugging purposes
         if (msg->expected && msg->res != msg->expected) {
-            printf("Expected: 0x%X\n", msg->expected);
+            printf("Expected:\t0x%X\n", msg->expected);
             if (PROG.verbose) {                                   // Print bits of result and expected for analysis
                 uint8_t checksumBits[sizeof(msg->res) * 8];
                 int2bits(sizeof(msg->res), &msg->res, checksumBits, false);
@@ -180,11 +178,7 @@ void main(int argc, char* argv[] )
         }
         exit(EXIT_SUCCESS);
     }
-    
-    int loops = 0;
-    validate_again:
-    loops++;
-
+  
     // Command: Validate
     if (ca.validate) {      
         // Check for available checksum:
@@ -228,7 +222,7 @@ void main(int argc, char* argv[] )
              .len =            strlen(message),
              .originalBitLen = strlen(message) * BITSINBYTE,
              .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + SPECIALWIDTH,     // Special
-             // .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + crc->n,       // Normal
+            //  .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + crc->n,       // Normal
             .res = checksum
         }; msg = &valid_msg;
         STR2ARR(message, new_msg_arr);               msg->msg = new_msg_arr;
@@ -244,7 +238,8 @@ void main(int argc, char* argv[] )
         uint8_t new_csmsgBits[msg->paddedBitLen];
         msg->csmsgBits = new_csmsgBits;
         memcpy(msg->csmsgBits, msg->msgBits, msg->paddedBitLen);
-        checksumMsg(msg->paddedBitLen, msg->res, SPECIALWIDTH, msg->csmsgBits);
+        checksumMsg(msg->paddedBitLen, msg->res, SPECIALWIDTH, msg->csmsgBits);    // Special
+        // checksumMsg(msg->paddedBitLen, msg->res, crc->n, msg->csmsgBits);    // Normal
         
         /* Validate the messsage.
         If the remainder is zero print "The data is OK\n"; otherwise print "The data is not OK\n" */
@@ -255,12 +250,6 @@ void main(int argc, char* argv[] )
         validPrint(msg->msg, msg->len, valid);
     
         exit(EXIT_SUCCESS);
-    }
-
-    // Changed message as per assignment
-    if (loops < 2) {
-        message[1] = 'a';
-        goto validate_again;
     }
 
 }

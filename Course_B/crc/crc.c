@@ -14,7 +14,8 @@ bits2ints_t bits2ints = bits2intsMSF;
 void arrangeMsg(crc_t* crc, msg_t* msg) {
      // Arrange message bits and pad
     if ( crc->inputLSF )
-        ints2bitsLSF(strlen(msg->msg), sizeof(uint8_t), (msg->msg), msg->msgBits, SPECIALWIDTH, crc->initBits); // Special accomodation, cf. error.h
+        ints2bitsLSF(strlen(msg->msg), sizeof(uint8_t), (msg->msg), msg->msgBits, SPECIALWIDTH, crc->initBits);  // Special accomodation, cf. error.h
+        // ints2bitsLSF(strlen(msg->msg), sizeof(uint8_t), (msg->msg), msg->msgBits, crc->n, crc->initBits);           // Normal
     else
         ints2bitsMSF(strlen(msg->msg), sizeof(uint8_t), (msg->msg), msg->msgBits, crc->n, crc->initBits); 
 
@@ -187,6 +188,7 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
     char test_message[] = "123456789";
     STR2ARR(test_message, test_msg_arr);
     uint8_t test_msgBits[strlen(test_message) * sizeof(uint8_t) * 8 + SPECIALWIDTH];      // Special
+    // uint8_t test_msgBits[strlen(test_message) * sizeof(uint8_t) * BITSINBYTE + crc->n];      // Normal
     msg_t test_msg = {
         .msgStr = (char*)test_message,
         .msg = test_msg_arr,
