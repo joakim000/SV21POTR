@@ -135,7 +135,7 @@ void validPrint(uint8_t msg[], size_t msgSize, bool valid) {
     if (PRINTMSG) {
         char msgStr[msgSize + 1];
         charArrayToString(msg, msgSize, msgStr);
-        printf("Message to validate:\n%s\n", msgStr);
+        printf("Message to validate:\t%s\n", msgStr);
     }
     if (valid) 
         printf("\e[1;32m%s\e[m\n", "The data is OK"); // green
