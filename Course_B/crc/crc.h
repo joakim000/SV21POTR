@@ -26,7 +26,8 @@
 #define TOWIDTH(x)  uint8_t x[crc->n]; bitSlice(COUNT_OF(crc->x) - crc->n, crc->n, &crc->x, 0, x);
 // #define STR2CHARS(x, y, z) uint8_t y[strlen(x)+z]; for (int i=0;i<strlen(x);i++)y[i]=x[i];
 // #define STR2CHARS(x, y) uint8_t y[strlen(x)]; for (int i=0;i<strlen(x);i++)y[i]=x[i];
-#define STR2ARR(x, y) uint8_t y[strlen((char*)x)]; strcpy(y,(char*)x);
+// #define STR2ARR(x, y) uint8_t y[strlen((char*)x)]; strcpy(y,(char*)x);
+#define STR2ARR(x, y) uint8_t y[strlen((char*)x)];for I2(strlen((char*)x))y[i]=x[i];
 #define CROPSTR(x, y) char y[strlen((char*)x)+1]; strcpy(y,(char*)x);
 
 // Flags
