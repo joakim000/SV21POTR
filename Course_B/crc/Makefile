@@ -21,7 +21,7 @@ objects = main.o crc.o binutils.o cmdargs.o da.o
 default : $(objects)
 	cc $(LFLAGS) -o crc $(objects)
 
-main.o : main.c crc.h jlibc/binutils.h jlibc/cmdargs.h jlibc/da.h
+main.o : main.c crc.h crc_zoo.c jlibc/binutils.h jlibc/cmdargs.h jlibc/da.h
 	cc -c $(CFLAGS) main.c
 crc.o : crc.c crc.h jlibc/binutils.h jlibc/da.h
 	cc -c $(CFLAGS) crc.c
