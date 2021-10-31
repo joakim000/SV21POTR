@@ -70,11 +70,11 @@ int daGrowth(float growthFactor);
 int daFree(da* a);
 
 /**
-  @brief Load starting values
+  @brief Copy array (destructive)
   @return exit code 
     // Args: da* a, datatype values[], int len
 */
-int daCreate(da* a, DA_TYPE values[], int len);
+int daCopy(da* a, DA_TYPE values[], int len);
 
 // Insert or add (index -1)
 // Args: da* a, int index, DA_TYPE value

@@ -63,7 +63,7 @@ int daFree(da* a){
     return 0;
 }
 
-int daCreate(da* a, DA_TYPE values[], int len) {   
+int daCopy(da* a, DA_TYPE values[], int len) {   
     // if (DA_DEBUG) printf("Create - slots:%d len:%d\n", a->slots, len);
 
     if (len > a->slots) {
@@ -78,6 +78,21 @@ int daCreate(da* a, DA_TYPE values[], int len) {
     a->elements = len;
     
     return 0;
+}
+
+int daAppend(da* a, DA_TYPE values[], int len) {   
+    // if (len > a->slots - a->elements) {
+    //     //Needs realloc
+    //     int extraSlots = len - a->slots;
+    //     daRealloc(a, extraSlots);
+    // } 
+    
+    // for (int i = 0; i < len; i++) {
+    //     *(a->p+i) = values[i];
+    // }
+    // a->elements = len;
+    
+    // return 0;
 }
 
 DA_TYPE daGet(da* a, int index) {
@@ -192,9 +207,6 @@ int daIns(da* a, int index, DA_TYPE value) {  //index -1 == end
 
                     a->vacantFirst++;
                 }
-                    
-
-
             }
         }    
         // Vi har nu ett fler element
