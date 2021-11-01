@@ -8,6 +8,9 @@ void main(int argc, char* argv[] )
     crc_t* crc;  
     msg_t* msg;
 
+    //Timing
+    clock_t timer_start; clock_t timer_end; 
+
     /* Setup */
     #include "crc_zoo.c" // Unconventional use of #include, just a convenient way to put the CRC definitions in a separate file.
     // Program settings and variables
@@ -132,19 +135,23 @@ void main(int argc, char* argv[] )
             .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + SPECIALWIDTH,     // Special
             // .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + crc->n,       // Normal
         }; msg = &encode_msg;
-  
-        uint8_t new_msgBits[msg->paddedBitLen];     msg->msgBits = new_msgBits;
-        // msg->msgBits = calloc(sizeof *message * BITSINBYTE, sizeof(uint8_t));
-        // assert( ("Memory allocation failed.", msg->msgBits != NULL) );
 
+        // uint8_t new_msgBits[msg->paddedBitLen];     msg->msgBits = new_msgBits;     // 225-268  VLA limit
+        msg->msgBits = calloc(strlen(message) * BITSINBYTE + 0x40, sizeof(uint8_t));          // < 225  problem in arrangeMsg
+        assert( ("Memory allocation failed.", msg->msgBits != NULL) );
+
+        // printf("strlen message:%d  \n", strlen(message));
+        
         // Expected checksum value for testing checksum calculation. Skips check when set to 0.
         msg->expected = strcmp(msg->msgStr, "AB") ? 0 : crc->checkAB; 
         // uint32_t expected = 0;     // Testing use       
 
         timer_start = clock();
             // Arrange message
+        // puts("before arrange");
             arrangeMsg(crc, msg);
             // Calculate remainder
+        // puts("before getrem");
             msg->res = getRem(msg->msgBits, msg->paddedBitLen, msg->originalBitLen, crc);
         timer_end = clock();
 
@@ -156,7 +163,8 @@ void main(int argc, char* argv[] )
                 printf("Message:\t[%d characters]\n", msg->len);
         }
         printf("Checksum:\t%#X\n", msg->res);
-        if (ca.timing) printf("%d chars in %5.3f seconds.\n", msg->len, TIMING(timer_start, timer_end));
+        double elapsed = TIMING(timer_start, timer_end);
+        if (ca.timing) printf("%d chars in %5.3f seconds, %5.3f MiB/s.\n", msg->len, elapsed, msg->len / elapsed / 0x100000);
 
         // Compare result with a expected value, for debugging purposes
         if (msg->expected && msg->res != msg->expected) {

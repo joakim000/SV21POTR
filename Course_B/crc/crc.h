@@ -18,7 +18,7 @@
 // Magic numbers
 #define BITSINBYTE 8
 #define MAX_MESSAGE_ARGLENGTH 0x400  // Limited by stack size
-#define MAX_MESSAGE_READLENGTH 0x100000  // Limited by stack size  
+#define MAX_MESSAGE_READLENGTH 0x120000  // Limited by stack size  
 #define PRINTLIMIT 0x40
 
 
@@ -37,7 +37,7 @@
 
 // Timing
 #define TIMING(y, x) ((double)(x - y) / CLOCKS_PER_SEC)
-clock_t timer_start; clock_t timer_end; 
+// clock_t timer_start; clock_t timer_end; 
 
 // Flags
 #define VERBOSE       false

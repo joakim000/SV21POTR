@@ -13,11 +13,13 @@ bits2ints_t bits2ints = bits2intsMSF;
 
 void arrangeMsg(crc_t* crc, msg_t* msg) {
      // Arrange message bits and pad
+    //  puts("before ints2bits");
     if ( crc->inputLSF )
         ints2bitsLSF(strlen(msg->msgStr), sizeof(uint8_t), (msg->msgStr), msg->msgBits, SPECIALWIDTH, crc->initBits);  // Special accomodation, cf. error.h
         // ints2bitsLSF(strlen(msg->msgStr), sizeof(uint8_t), (msg->msgStr), msg->msgBits, crc->n, crc->initBits);           // Normal
     else
         ints2bitsMSF(strlen(msg->msgStr), sizeof(uint8_t), (msg->msgStr), msg->msgBits, crc->n, crc->initBits); 
+    //  puts("after ints2bits");
 
     if (crc->init > 0) {
         // Local initBits to crc width
