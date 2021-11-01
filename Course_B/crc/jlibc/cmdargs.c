@@ -23,7 +23,7 @@ int processArgs(char* argv[], int argc, argdef_t defs[], int defcount) {
             if (defs[i].isInt) {
                 int* p = (int*)defs[i].var;
                 int index = checkArg(argc, argv, defs[i].str);
-                *p = index ? strtol(argv[index + 1], NULL, 10) : defs[i].defaultInt; //TODO errorchecking. Sets 0 on error now which is sort of ok.
+                *p = index ? strtol(argv[index + 1], NULL, 0) : defs[i].defaultInt; //TODO errorchecking. Sets 0 on error now which is sort of ok.
             } 
             if (defs[i].isFloat) {
                 double* p = (double*)defs[i].var;
