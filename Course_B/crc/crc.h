@@ -90,7 +90,6 @@ typedef struct crcdef_s {
 // Message fields
 typedef struct msg_s {
     char* msgStr;              // Message as string 
-    uint8_t* msg;           // Message as array
     size_t len;
     uint8_t* msgBits;       //  
     size_t originalBitLen;    // 
@@ -98,7 +97,6 @@ typedef struct msg_s {
     
     // CRC checksum    
     uint32_t res;
-    // uint8_t resBits[32];
    
     // Message validation
     uint8_t* csmsgBits;       // 

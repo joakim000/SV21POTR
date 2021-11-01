@@ -15,7 +15,7 @@ void arrangeMsg(crc_t* crc, msg_t* msg) {
      // Arrange message bits and pad
     if ( crc->inputLSF )
         ints2bitsLSF(strlen(msg->msgStr), sizeof(uint8_t), (msg->msgStr), msg->msgBits, SPECIALWIDTH, crc->initBits);  // Special accomodation, cf. error.h
-        // ints2bitsLSF(strlen(msg->msg), sizeof(uint8_t), (msg->msg), msg->msgBits, crc->n, crc->initBits);           // Normal
+        // ints2bitsLSF(strlen(msg->msgStr), sizeof(uint8_t), (msg->msgStr), msg->msgBits, crc->n, crc->initBits);           // Normal
     else
         ints2bitsMSF(strlen(msg->msgStr), sizeof(uint8_t), (msg->msgStr), msg->msgBits, crc->n, crc->initBits); 
 
@@ -34,31 +34,6 @@ void arrangeMsg(crc_t* crc, msg_t* msg) {
         }
     }
 }
-
-void arrangeMsg_old(crc_t* crc, msg_t* msg) {
-     // Arrange message bits and pad
-    if ( crc->inputLSF )
-        ints2bitsLSF(strlen(msg->msg), sizeof(uint8_t), (msg->msg), msg->msgBits, SPECIALWIDTH, crc->initBits);  // Special accomodation, cf. error.h
-        // ints2bitsLSF(strlen(msg->msg), sizeof(uint8_t), (msg->msg), msg->msgBits, crc->n, crc->initBits);           // Normal
-    else
-        ints2bitsMSF(strlen(msg->msg), sizeof(uint8_t), (msg->msg), msg->msgBits, crc->n, crc->initBits); 
-
-    if (crc->init > 0) {
-        // Local initBits to crc width
-        TOWIDTH(initBits);
-        // Get actual initBits from seed
-        for (int i = 0; i < crc->n; i++) {
-            initBits[i] ^= msg->msgBits[i];
-        };
-
-        // printf("\n  initBits:  "); i2p(&crc->initBits, COUNT_OF(crc->initBits), 0, 0, 1);
-        // Write actual initBits to padding
-        for (int i = strlen(msg->msgBits) - crc->n, j = 0; i < strlen(msg->msgBits); i++, j++) {
-            msg->msgBits[i] = initBits[j];  
-        }
-    }
-}
-
 
 void checksumMsg(size_t paddedBitLen, uint32_t checksum, size_t width, uint8_t csmsgBits[]) {
     // Convert checksum to array of bit values
@@ -135,7 +110,7 @@ uint32_t getRem(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize, crc_t
     else
         rem = (uint32_t)bits2intMSF(COUNT_OF(remBits), remBits);
 
-    if (PROG.verbose) printf("Remainder: 0x%x\n", rem);
+    if (PROG.verbose) printf("Remainder: %#X\n", rem);
     return rem;
 }
 
@@ -153,16 +128,16 @@ void messageLengthCheck(size_t len) {
 bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t originalMsgSize, crc_t* crc) {
     uint32_t rem = getRem(msgBits, msgBitsCount, originalMsgSize, crc );
 
-    if (PROG.verbose) printf("Remainder: 0x%x\n", rem);
+    if (PROG.verbose) printf("Remainder: %#X\n", rem);
     return rem ? false : true;
 }
 
 void validPrint(uint8_t msg[], size_t msgSize, bool valid) {
     if (PRINTMSG) {
-        char msgStr[msgSize + 1];
-        charArrayToString(msg, msgSize, msgStr);
+        // char msgStr[msgSize + 1];
+        // charArrayToString(msg, msgSize, msgStr);
         if (msgSize < PRINTLIMIT)
-            printf("Message to validate:\t%s\n", msgStr);
+            printf("Message to validate:\t%s\n", msg);
         else
             printf("Message to validate:\t[%d characters]\n", msgSize);
     }
@@ -203,8 +178,8 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
     }
     else {
         printf("%s   ", crc->description);
-        printf("Poly:0x%X   Init:0x%X   ",  crc->g, crc->init);
-        printf("XorOut:0x%X   RefIn:%d   RefOut:%d   ", crc->xor, crc->inputLSF, crc->resultLSF);
+        printf("Poly:%#X   Init:%#X   ",  crc->g, crc->init);
+        printf("XorOut:%#X   RefIn:%d   RefOut:%d   ", crc->xor, crc->inputLSF, crc->resultLSF);
     }    
 
     // Check value-test for this spec
@@ -219,7 +194,7 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
     // uint8_t test_msgBits[strlen(test_message) * sizeof(uint8_t) * BITSINBYTE + crc->n];      // Normal
     msg_t test_msg = {
         .msgStr = (char*)test_message,
-        .msg = test_msg_arr,
+        // .msg = test_msg_arr,
         .msgBits = test_msgBits,
         .paddedBitLen = COUNT_OF(test_msgBits)
     };
@@ -230,12 +205,12 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
         if (table)
             printf("\e[1;32mPassed\e[m\n");
         else
-            printf("\n\e[1;32mPassed check value-test for %s;\e[m result 0x%X == check 0x%X\n", crc->description, test_res, crc->check);
+            printf("\n\e[1;32mPassed check value-test for %s;\e[m matching %#X\n", crc->description, crc->check);
     else 
         if (table)
             printf("\e[1;31mFailed\e[m\n");
         else
-            printf("\n\e[1;31mFailed check value-test for %s;\e[m result 0x%X != check 0x%X\n", crc->description, test_res, crc->check);
+            printf("\n\e[1;31mFailed check value-test for %s;\e[m result %#X != check %#X\n", crc->description, test_res, crc->check);
     
     if (VERBOSELOAD && !table) { 
         printf("     gBits: "); i2p(&crc->gBits, COUNT_OF(crc->gBits), crc->n+1, 0, 1);

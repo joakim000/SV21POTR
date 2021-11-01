@@ -132,11 +132,7 @@ void main(int argc, char* argv[] )
             .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + SPECIALWIDTH,     // Special
             // .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + crc->n,       // Normal
         }; msg = &encode_msg;
-        STR2ARR(message, new_msg_arr);               msg->msg = new_msg_arr;
-        // msg->msg = calloc(sizeof *message, sizeof(uint8_t));
-        // assert( ("Memory allocation failed.", msg->msg != NULL) );
-        // for I2(strlen((char*)message)) msg->msg[i]=message[i];
-
+  
         uint8_t new_msgBits[msg->paddedBitLen];     msg->msgBits = new_msgBits;
         // msg->msgBits = calloc(sizeof *message * BITSINBYTE, sizeof(uint8_t));
         // assert( ("Memory allocation failed.", msg->msgBits != NULL) );
@@ -164,7 +160,7 @@ void main(int argc, char* argv[] )
 
         // Compare result with a expected value, for debugging purposes
         if (msg->expected && msg->res != msg->expected) {
-            printf("Expected:\t0x%X\n", msg->expected);
+            printf("Expected:\t%#X\n", msg->expected);
             if (PROG.verbose) {                                   // Print bits of result and expected for analysis
                 uint8_t checksumBits[sizeof(msg->res) * 8];
                 int2bits(sizeof(msg->res), &msg->res, checksumBits, false);
@@ -191,7 +187,6 @@ void main(int argc, char* argv[] )
             }
         }
         free(msg->msgStr);
-        free(msg->msg);
         free(msg->msgBits);
         exit(EXIT_SUCCESS);
     }
@@ -242,7 +237,7 @@ void main(int argc, char* argv[] )
             //  .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + crc->n,       // Normal
             .res = checksum
         }; msg = &valid_msg;
-        STR2ARR(message, new_msg_arr);               msg->msg = new_msg_arr;
+        
         uint8_t new_msgBits[msg->paddedBitLen];     msg->msgBits = new_msgBits;
 
         // Arrange message
@@ -264,10 +259,9 @@ void main(int argc, char* argv[] )
         valid = validate(msg->csmsgBits, msg->paddedBitLen, msg->originalBitLen, crc);
         
         // Print result        
-        validPrint(msg->msg, msg->len, valid);
+        validPrint(msg->msgStr, msg->len, valid);
     
         free(msg->msgStr);
-        free(msg->msg);
         free(msg->msgBits);
         exit(EXIT_SUCCESS);
     }
