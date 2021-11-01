@@ -25,17 +25,15 @@ void main(int argc, char* argv[] )
         bool zoo, enc, validate,                // Command
              printSteps, verbose, timing,    // Flags
              refIn, refOut;                  // Custom spec
-
+        int checksum, 
+            crc_spec, n, g, init, xor; // Custom spec
         char* msg[MAXMESSAGELENGTH];
         char* inFile[FILENAME_MAX];
         char* outFile[FILENAME_MAX];
-
-        int checksum, 
-            crc_spec, n, g, init, xor; // Custom spec
     } ca;
     if (argc < 2 || checkArg(argc, argv, "help")) {
         // Print help if no args or help command
-        puts("Help:");
+        printf(HELPTEXT1, NULL);
         exit(EXIT_SUCCESS);
     }
     argdef_t defs[] = {
@@ -82,7 +80,7 @@ void main(int argc, char* argv[] )
         exit(EXIT_SUCCESS);
     }
 
-    // Read message
+    // Read message for encode / validate
     char* message;
     // In command line?
     if (strlen((char*)ca.msg) > 0 ) 
