@@ -222,7 +222,6 @@ void zooTour(crcdef_t zoo[], size_t zoo_size) {
     printf("%5s   %16s   %10s   %10s   %10s   %5s   %6s   %6s\n", "Index", "Spec", "Poly", "Init", "XorOut", "RefIn", "RefOut", "Check value");
     for (int i = 0; i < zoo_size; i++) {
         crc_t zooItem;
-        // crc = &zooItem;
         printf("%5d   ", i);
         loadSpec(zoo, i, &zooItem, true);
     }
