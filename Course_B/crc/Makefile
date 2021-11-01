@@ -18,11 +18,12 @@ endif
 crc15objects = crc15.o crc.o binutils.o cmdargs.o 
 objects = main.o crc.o binutils.o cmdargs.o 
 
-crc15 : $(crc15objects)
-	cc $(LFLAGS) -o crc15 $(crc15objects)
 
 extra : $(objects)
 	cc $(LFLAGS) -o crc $(objects)
+
+crc15 : $(crc15objects)
+	cc $(LFLAGS) -o crc15 $(crc15objects)
 
 
 main.o : main.c crc.h crc_zoo.c jlibc/binutils.h jlibc/cmdargs.h 
