@@ -19,7 +19,6 @@ void main(int argc, char* argv[] )
         .selfTest = SELFTEST,
     };
     prog = &new_prog;    
-
     // Command line arguments
     struct benchargs {
         bool zoo, enc, validate,                // Command
@@ -27,7 +26,7 @@ void main(int argc, char* argv[] )
              refIn, refOut;                  // Custom spec
         int checksum, 
             crc_spec, n, g, init, xor; // Custom spec
-        char* msg[MAXMESSAGELENGTH];
+        char* msg[MAX_MESSAGE_ARGLENGTH];
         char* inFile[FILENAME_MAX];
         char* outFile[FILENAME_MAX];
     } ca;
@@ -87,14 +86,16 @@ void main(int argc, char* argv[] )
         message = (char*)ca.msg;
     // Else in file?
     else if (strlen((char*)ca.inFile) > 0) {
-        char fcontent[MAXMESSAGELENGTH] = "";
+        // char fcontent[MAXMESSAGELENGTH] = "";
+        char* fcontent = calloc(MAX_MESSAGE_READLENGTH, sizeof(char));
+        assert( ("Memory allocation failed.", fcontent != NULL) );
         FILE* fp; 
         char buf[0x400];
-        size_t nread;
+        size_t elementsRead;
         fp = fopen((char*)ca.inFile, "r");
         if (fp != NULL) {
             printf("Reading file %s  ...  ", ca.inFile);
-            while ((nread = fread(buf, 1, sizeof buf, fp)) > 0)
+            while ((elementsRead = fread(buf, 1, sizeof buf, fp)) > 0)
                 strcat(fcontent, buf);
             if (ferror(fp)) {
                 PRINTERR("File read error, exiting.")
@@ -104,7 +105,7 @@ void main(int argc, char* argv[] )
             fclose(fp);
             strcat(fcontent, "\0");
             printf("%d characters read.\n", strlen(fcontent));
-            message = fcontent;
+            message = fcontent;      fcontent = NULL;
         }
         else {
             PRINTERR("File not found.")
@@ -132,7 +133,13 @@ void main(int argc, char* argv[] )
             // .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + crc->n,       // Normal
         }; msg = &encode_msg;
         STR2ARR(message, new_msg_arr);               msg->msg = new_msg_arr;
+        // msg->msg = calloc(sizeof *message, sizeof(uint8_t));
+        // assert( ("Memory allocation failed.", msg->msg != NULL) );
+        // for I2(strlen((char*)message)) msg->msg[i]=message[i];
+
         uint8_t new_msgBits[msg->paddedBitLen];     msg->msgBits = new_msgBits;
+        // msg->msgBits = calloc(sizeof *message * BITSINBYTE, sizeof(uint8_t));
+        // assert( ("Memory allocation failed.", msg->msgBits != NULL) );
 
         // Expected checksum value for testing checksum calculation. Skips check when set to 0.
         msg->expected = strcmp(msg->msgStr, "AB") ? 0 : crc->checkAB; 
@@ -183,6 +190,9 @@ void main(int argc, char* argv[] )
                 fclose(fp);
             }
         }
+        free(msg->msgStr);
+        free(msg->msg);
+        free(msg->msgBits);
         exit(EXIT_SUCCESS);
     }
   
@@ -256,6 +266,9 @@ void main(int argc, char* argv[] )
         // Print result        
         validPrint(msg->msg, msg->len, valid);
     
+        free(msg->msgStr);
+        free(msg->msg);
+        free(msg->msgBits);
         exit(EXIT_SUCCESS);
     }
 

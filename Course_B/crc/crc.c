@@ -14,6 +14,30 @@ bits2ints_t bits2ints = bits2intsMSF;
 void arrangeMsg(crc_t* crc, msg_t* msg) {
      // Arrange message bits and pad
     if ( crc->inputLSF )
+        ints2bitsLSF(strlen(msg->msgStr), sizeof(uint8_t), (msg->msgStr), msg->msgBits, SPECIALWIDTH, crc->initBits);  // Special accomodation, cf. error.h
+        // ints2bitsLSF(strlen(msg->msg), sizeof(uint8_t), (msg->msg), msg->msgBits, crc->n, crc->initBits);           // Normal
+    else
+        ints2bitsMSF(strlen(msg->msgStr), sizeof(uint8_t), (msg->msgStr), msg->msgBits, crc->n, crc->initBits); 
+
+    if (crc->init > 0) {
+        // Local initBits to crc width
+        TOWIDTH(initBits);
+        // Get actual initBits from seed
+        for (int i = 0; i < crc->n; i++) {
+            initBits[i] ^= msg->msgBits[i];
+        };
+
+        // printf("\n  initBits:  "); i2p(&crc->initBits, COUNT_OF(crc->initBits), 0, 0, 1);
+        // Write actual initBits to padding
+        for (int i = strlen(msg->msgBits) - crc->n, j = 0; i < strlen(msg->msgBits); i++, j++) {
+            msg->msgBits[i] = initBits[j];  
+        }
+    }
+}
+
+void arrangeMsg_old(crc_t* crc, msg_t* msg) {
+     // Arrange message bits and pad
+    if ( crc->inputLSF )
         ints2bitsLSF(strlen(msg->msg), sizeof(uint8_t), (msg->msg), msg->msgBits, SPECIALWIDTH, crc->initBits);  // Special accomodation, cf. error.h
         // ints2bitsLSF(strlen(msg->msg), sizeof(uint8_t), (msg->msg), msg->msgBits, crc->n, crc->initBits);           // Normal
     else
@@ -35,6 +59,7 @@ void arrangeMsg(crc_t* crc, msg_t* msg) {
     }
 }
 
+
 void checksumMsg(size_t paddedBitLen, uint32_t checksum, size_t width, uint8_t csmsgBits[]) {
     // Convert checksum to array of bit values
     uint8_t tmp_csBits[sizeof(checksum) * BITSINBYTE];
@@ -44,7 +69,7 @@ void checksumMsg(size_t paddedBitLen, uint32_t checksum, size_t width, uint8_t c
     uint8_t csBits[width]; 
     bitSlice(sizeof(checksum) * BITSINBYTE - width, width, &tmp_csBits, 0, csBits);
 
-    if (PROG.verbose) printf("Checksum: 0x%x\n", checksum);
+    if (PROG.verbose) printf("Checksum:\t%#X\n", checksum);
     if (PROG.verbose) printBits("Checksum", csBits, width, 0);
     
     // Extra checking step: Convert checksum bits back to checksum, check that it matches provided checksum
@@ -235,3 +260,13 @@ void zooTour(crcdef_t zoo[], size_t zoo_size) {
 //  }
 //  bool validate(char* msg, int crcIndex, uint32_t checksum) {
 //  }
+
+static short allocCheck(void* p) {
+    if(p == NULL ) {
+        if (DA_DEBUG) fprintf(stderr, "Unable to allocate memory.\n");
+        return 1;
+    }
+    else 
+        return 0;
+
+}

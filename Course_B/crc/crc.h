@@ -17,8 +17,10 @@
 
 // Magic numbers
 #define BITSINBYTE 8
-#define MAXMESSAGELENGTH 0x35000  // Limited by stack size
+#define MAX_MESSAGE_ARGLENGTH 0x400  // Limited by stack size
+#define MAX_MESSAGE_READLENGTH 0x100000  // Limited by stack size  
 #define PRINTLIMIT 0x40
+
 
 
 // Utility
@@ -196,4 +198,9 @@ Edit crc_zoo.c to add more / custom specifications\n\
 \n\
 Examples:  crc enc -s 33 -in message.txt -out output.txt\n\
            crc val -s 33 -in message.txt -c 0xABC\n\n"
-//
+
+/**
+  @brief Allocation status check
+  @return  0: ok  1: NULL
+*/
+static short allocCheck(void* p);
