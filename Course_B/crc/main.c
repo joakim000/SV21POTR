@@ -43,10 +43,10 @@ void main(int argc, char* argv[] )
         { .isFlag = true, .var = (bool*)&ca.validate, .str = "val" },                   // validate
         // Input
         { .isInt = true,  .var = (int*)&ca.crc_spec, .str = "-s", .defaultString = 0 },                // CRC spec index
-        { .isString = true, .var = (char*)&ca.msg, .str = "-m", .defaultString = "AB" },               // message
+        { .isString = true, .var = (char*)&ca.msg, .str = "-m", .defaultString = "" },               // message
         { .isInt = true,  .var = (int*)&ca.checksum, .str = "-c", .defaultInt = 0 },                       // checksum for validation
         { .isString = true, .var = (char*)&ca.inFile, .str = "-in", .defaultString = "" },    // input file
-        { .isString = true, .var = (char*)&ca.outFile, .str = "-out", .defaultString = "output.txt" }, // output file
+        { .isString = true, .var = (char*)&ca.outFile, .str = "-out", .defaultString = "" }, // output file
         // Flags
         { .isFlag = true, .var = (bool*)&ca.printSteps, .str = "-steps" },                 // print steps
         { .isFlag = true, .var = (bool*)&ca.verbose, .str = "-v" },                       // verbose
@@ -93,6 +93,7 @@ void main(int argc, char* argv[] )
         size_t nread;
         fp = fopen((char*)ca.inFile, "r");
         if (fp != NULL) {
+            printf("Reading file %s  ...  ", ca.inFile);
             while ((nread = fread(buf, 1, sizeof buf, fp)) > 0)
                 strcat(fcontent, buf);
             if (ferror(fp)) {
@@ -102,6 +103,7 @@ void main(int argc, char* argv[] )
             }
             fclose(fp);
             strcat(fcontent, "\0");
+            printf("%d characters read.\n", strlen(fcontent));
             message = fcontent;
         }
         else {
@@ -109,7 +111,7 @@ void main(int argc, char* argv[] )
         }
     }
     // Still no message?
-    if (strlen((char*)ca.msg) < 1 ) {
+    if (strlen(message) < 1 ) {
         PRINTERR("No message, exiting.");
         exit(EXIT_FAILURE);
     }
@@ -132,19 +134,26 @@ void main(int argc, char* argv[] )
         STR2ARR(message, new_msg_arr);               msg->msg = new_msg_arr;
         uint8_t new_msgBits[msg->paddedBitLen];     msg->msgBits = new_msgBits;
 
-        // Arrange message
-        arrangeMsg(crc, msg);
-
         // Expected checksum value for testing checksum calculation. Skips check when set to 0.
         msg->expected = strcmp(msg->msgStr, "AB") ? 0 : crc->checkAB; 
         // uint32_t expected = 0;     // Testing use       
 
-        // Print original message 
-        if (PRINTMSG) printf("Message:\t%s\n", msg->msgStr);
+        timer_start = clock();
+            // Arrange message
+            arrangeMsg(crc, msg);
+            // Calculate remainder
+            msg->res = getRem(msg->msgBits, msg->paddedBitLen, msg->originalBitLen, crc);
+        timer_end = clock();
 
-        /* Calculate the CRC. For example the CRCs of "Hello World!" is 0xB35 and "AB" is 0x54FB */
-        msg->res = getRem(msg->msgBits, msg->paddedBitLen, msg->originalBitLen, crc);
+        // Printing 
+        if (PRINTMSG) {
+            if (msg->len < PRINTLIMIT)
+                printf("Message:\t%s\n", msg->msgStr);
+            else
+                printf("Message:\t[%d characters]\n", msg->len);
+        }
         printf("Checksum:\t%#X\n", msg->res);
+        if (ca.timing) printf("%d chars in %5.3f seconds.\n", msg->len, TIMING(timer_start, timer_end));
 
         // Compare result with a expected value, for debugging purposes
         if (msg->expected && msg->res != msg->expected) {
@@ -178,7 +187,7 @@ void main(int argc, char* argv[] )
     }
   
     // Command: Validate
-    if (ca.validate) {      
+    if (ca.validate) {     
         // Check for available checksum:
         uint32_t checksum;
         // In message?

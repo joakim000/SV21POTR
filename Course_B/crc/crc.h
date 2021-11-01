@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 
 #include "jlibc/binutils.h"
 #include "jlibc/cmdargs.h"
@@ -16,7 +17,9 @@
 
 // Magic numbers
 #define BITSINBYTE 8
-#define MAXMESSAGELENGTH 0x8000
+#define MAXMESSAGELENGTH 0x35000  // Limited by stack size
+#define PRINTLIMIT 0x40
+
 
 // Utility
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
@@ -29,6 +32,10 @@
 // #define STR2ARR(x, y) uint8_t y[strlen((char*)x)]; strcpy(y,(char*)x);
 #define STR2ARR(x, y) uint8_t y[strlen((char*)x)]; for I2(strlen((char*)x)) y[i]=x[i];
 #define CROPSTR(x, y) char y[strlen((char*)x)+1]; strcpy(y,(char*)x);
+
+// Timing
+#define TIMING(y, x) ((double)(x - y) / CLOCKS_PER_SEC)
+clock_t timer_start; clock_t timer_end; 
 
 // Flags
 #define VERBOSE       false
@@ -189,3 +196,4 @@ Edit crc_zoo.c to add more / custom specifications\n\
 \n\
 Examples:  crc enc -s 33 -in message.txt -out output.txt\n\
            crc val -s 33 -in message.txt -c 0xABC\n\n"
+//
