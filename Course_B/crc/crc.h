@@ -27,7 +27,7 @@
 // #define STR2CHARS(x, y, z) uint8_t y[strlen(x)+z]; for (int i=0;i<strlen(x);i++)y[i]=x[i];
 // #define STR2CHARS(x, y) uint8_t y[strlen(x)]; for (int i=0;i<strlen(x);i++)y[i]=x[i];
 // #define STR2ARR(x, y) uint8_t y[strlen((char*)x)]; strcpy(y,(char*)x);
-#define STR2ARR(x, y) uint8_t y[strlen((char*)x)];for I2(strlen((char*)x))y[i]=x[i];
+#define STR2ARR(x, y) uint8_t y[strlen((char*)x)]; for I2(strlen((char*)x)) y[i]=x[i];
 #define CROPSTR(x, y) char y[strlen((char*)x)+1]; strcpy(y,(char*)x);
 
 // Flags
@@ -56,7 +56,7 @@ typedef struct prog_s {
 typedef struct crc_s {
     char description[64];
     // Definition
-    uint32_t n;          // Width of CRC (8, 16 or 32 bit)
+    uint32_t n;          // Bit width 
     uint32_t g;          // Generator polynomial
     uint8_t il1;         // implicit_leading_1
     uint32_t init;       // Initial CRC value (seed)
@@ -74,15 +74,14 @@ typedef struct crc_s {
 
 // CRC definition, serialized specs 
 typedef struct crcdef_s {
-        char name[100];
+        char name[0x80];
         uint32_t specs[9];
 } crcdef_t;
 
 // Message fields
 typedef struct msg_s {
-    char* msgStr;              // Message as string, strlen gets size
-    
-    uint8_t* msg;           // Message as array, strlen gets size
+    char* msgStr;              // Message as string 
+    uint8_t* msg;           // Message as array
     size_t len;
     uint8_t* msgBits;       //  
     size_t originalBitLen;    // 
@@ -93,7 +92,7 @@ typedef struct msg_s {
     // uint8_t resBits[32];
    
     // Message validation
-    uint8_t* csmsgBits;       // Count gets size?
+    uint8_t* csmsgBits;       // 
     uint32_t rem;
     bool valid;
 
@@ -156,7 +155,7 @@ void validPrint(uint8_t msg[], size_t msgSize, bool valid);
 void loadDef(crcdef_t zoo[], size_t index, crc_t* out);
 
 /**
-  @brief Wrapper for loadDef, performs value check test when loading 
+  @brief Wrapper for loadDef, prints info and performs value check test when loading 
   @return  
 */
 void loadSpec(crcdef_t zoo[], size_t index, crc_t* out, bool compact);
@@ -168,3 +167,25 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* out, bool compact);
 void zooTour(crcdef_t zoo[], size_t zoo_size);
 
 
+#define HELPTEXT1 "\
+ Commands\n\
+  zoo       Where all the CRCs live\n\
+  enc       Encode a message\n\
+  val       Validate a message\n\
+  \n\
+ Input\n\
+  -s        CRC specificaton (visit zoo for indexed list)\n\
+  -m        Message\n\
+  -c        Checksum for validation\n\
+  -in       Input file; message for encode, or checksummed for validation (format below)\n\
+  -out      Output file for encode, format: [0xABC]Lorem ipsum dolor sit amet\n\
+  \n\
+ Flags\n\
+  -sbs     Print tablulated calculations (with colours!)\n\
+  -t       Timing: simple benchmark\n\
+  -v       Verbose: lots of strange debugging text\n\
+\n\
+Edit crc_zoo.c to add more / custom specifications\n\
+\n\
+Examples:  crc enc -s 33 -in message.txt -out output.txt\n\
+           crc val -s 33 -in message.txt -c 0xABC\n\n"
