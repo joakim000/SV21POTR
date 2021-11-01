@@ -199,12 +199,12 @@ void main(int argc, char* argv[] )
             checksum = strtol(remaining + 1, end, 16); // 0 if no valid conversion
         }
         if (checksum > 0) {
-            printf("Checksum in message: %#X", checksum);
+            if (PROG.verbose) printf("Checksum in message: %#X\n", checksum);
             // Remove from message-string
             remaining = strchr(message, ']');
             if (remaining) {
                 message = remaining + 1;
-            printf("Remaining message:%s", message);
+            if (PROG.verbose) printf("Remaining message:%s\n", message);
             }
             else {
                 // No ending ], where does message begin? Better to use end from strtol.
@@ -239,7 +239,7 @@ void main(int argc, char* argv[] )
         arrangeMsg(crc, msg);
 
         // if (PROG.verbose) 
-        printf("Checksum: 0x%x\n", msg->res);
+        printf("Checksum:\t\t%#X\n", msg->res);
 
         /* Checksum the messsage. I.e replace the zeros with the CRC accroding to the requirements. */
         uint8_t new_csmsgBits[msg->paddedBitLen];
