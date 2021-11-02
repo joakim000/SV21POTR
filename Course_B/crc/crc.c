@@ -76,7 +76,8 @@ uint64_t getRem(crc_t* crc, msg_t* msg) {
     for (int i = gBits_size - 1, j = COUNT_OF(crc->gBits) - 1; i >= 0; i--, j--)
         gBits[i] = crc->gBits[j];
     
-    int i; i = crc->init > 0 ? crc->n : 0;  // Skip a CRC width if using initial > 0
+    // int i; i = crc->init > 0 ? crc->n : 0;  // Skip a CRC width if using initial > 0
+    int i = 0;
     // int i = 0;
     if (PROG.printSteps) {
         // Poly division with printing of steps
