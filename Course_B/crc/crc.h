@@ -150,7 +150,8 @@ void messageLengthCheck(size_t len);
   @brief Validate message
   @return  
 */
-bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t originalMsgSize, crc_t* crc);
+bool validate(crc_t* crc, msg_t* msg);
+// bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t originalMsgSize, crc_t* crc);
 
 
 /**

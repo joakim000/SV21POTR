@@ -150,10 +150,8 @@ void main(int argc, char* argv[] )
 
         timer_start = clock();
             // Arrange message
-        // puts("before arrange");
             arrangeMsg(crc, msg);
             // Calculate remainder
-        // puts("before getrem");
             // msg->res = getRem(msg->msgBits, msg->paddedBitLen, msg->originalBitLen, crc);
             msg->res = getRem(crc, msg);
         timer_end = clock();
@@ -267,7 +265,7 @@ void main(int argc, char* argv[] )
         /* Validate the messsage.
         If the remainder is zero print "The data is OK\n"; otherwise print "The data is not OK\n" */
         bool valid;
-        valid = validate(msg->csmsgBits, msg->paddedBitLen, msg->originalBitLen, crc);
+        valid = validate(crc, msg);
         
         // Print result        
         validPrint(msg->msgStr, msg->len, valid);
