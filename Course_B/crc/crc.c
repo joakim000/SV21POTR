@@ -170,6 +170,23 @@ void loadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
     int2bitsMSF(sizeof(crc->xor), &crc->xor, crc->xorBits, 0 );             // uint8_t xorbits[32];
 }
 
+// void loadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
+//     // 0 n   1 Gen    2 IL1  3 Init  4 Nondir. 5 RefIn 6 RefOut 7 XorOut   8 Residue 9 Check      10 "AB"
+//     strcpy((crc)->description, zoo[index].name);
+//     crc->n =         zoo[index].specs[0];
+//     crc->g =         zoo[index].specs[1];
+//     crc->il1 =       zoo[index].specs[2];
+//     crc->init =      zoo[index].specs[3];
+//     crc->nondirect = zoo[index].specs[4];
+//     crc->inputLSF =  zoo[index].specs[5];
+//     crc->resultLSF = zoo[index].specs[6];
+//     crc->xor =       zoo[index].specs[7];
+//     crc->residue =   zoo[index].specs[8];
+//     crc->check =     zoo[index].specs[9];
+//     crc->checkAB =   zoo[index].specs[10];
+
+
+
 void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
     loadDef(zoo, index, crc);  
     
