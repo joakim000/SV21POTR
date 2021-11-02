@@ -127,14 +127,14 @@ void main(int argc, char* argv[] )
         crc = &enc_crc;
         loadSpec(zoo, ca.crc_spec, &enc_crc, false); 
 
-        int8_t frontPad = (crc->init > 0) ? crc->n : 0;
-
         // Prepare message 
+        int8_t initPad = (crc->init > 0) ? crc->n : 0;
         msg_t encode_msg = {
             .msgStr =         message,
             .len =            strlen(message),
+            .initPad =        initPad,
             .originalBitLen = strlen(message) * sizeof(uint8_t) * BITSINBYTE,
-            .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + SPECIALWIDTH + frontPad,     // Special
+            .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + SPECIALWIDTH + initPad,     // Special
             // .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + crc->n + frontPad,       // Normal
         }; msg = &encode_msg;
 
@@ -154,7 +154,8 @@ void main(int argc, char* argv[] )
             arrangeMsg(crc, msg);
             // Calculate remainder
         // puts("before getrem");
-            msg->res = getRem(msg->msgBits, msg->paddedBitLen, msg->originalBitLen, crc);
+            // msg->res = getRem(msg->msgBits, msg->paddedBitLen, msg->originalBitLen, crc);
+            msg->res = getRem(crc, msg);
         timer_end = clock();
 
         // Printing 

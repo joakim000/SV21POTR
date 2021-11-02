@@ -39,8 +39,8 @@ uint32_t bits2intLSF(size_t const len, uint8_t* bits);
 
     ints2bits(msg_size, type_size, &message, messageBits, 8);
 */
-void ints2bitsMSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]);
-void ints2bitsLSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]);
+void ints2bitsMSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t frontPad_size);
+void ints2bitsLSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t frontPad_size);
 
 
 /**
@@ -62,7 +62,7 @@ void bits2intsLSF(size_t const total_bits, size_t const type_size, uint8_t const
  */
 typedef void (*int2bits_t)(size_t const size, void const * const ptr, uint8_t out[], bool extraBit); 
 typedef uint32_t (*bits2int_t)(size_t const len, uint8_t* bits);
-typedef void (*ints2bits_t)(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]); 
+typedef void (*ints2bits_t)(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t frontPad_size); 
 typedef void (*bits2ints_t)(size_t const total_bits, size_t const type_size, uint8_t const bits[], void const * const out_ptr);
 extern int2bits_t int2bits;
 extern bits2int_t bits2int;
@@ -91,6 +91,8 @@ void bitSlice(int start, int count, void const * const ptr, size_t size, uint8_t
 @param newline   number of newlines at end
 */
 void i2p(void const * const ptr, size_t size, size_t cropTo, char separator, int newline); 
+void i82p(uint8_t nums[], size_t size, size_t cropTo, char separator, int newline);
+
 
 /**
   @brief Print array of ints; with colors and a space somewhere  

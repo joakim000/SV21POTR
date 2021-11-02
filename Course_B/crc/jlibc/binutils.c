@@ -94,7 +94,7 @@ uint32_t bits2intMSF(size_t const len, uint8_t* bits) {
     return r; 
 }
 
-void ints2bitsLSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]) {
+void ints2bitsLSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t frontPad_size) {
     uint8_t bitsArray[type_size * 8];
 
     uint8_t*  ints8  = (uint8_t*) ptr;
@@ -117,21 +117,13 @@ void ints2bitsLSF(size_t const size, size_t const type_size, void const * const 
             exit(EXIT_FAILURE);
         }
 
-        size_t el_start_index = i * type_size * 8;
+        size_t el_start_index = i * type_size * 8 + frontPad_size;
         for (int j = 0; j < type_size * 8; j++)
             out[j + el_start_index] = bitsArray[j];
     }
-    if (padSize) {
-        size_t bitCount = size * type_size * 8 + padSize; 
-        for (int i = (bitCount - 1), j = (padSize - 1); i > (bitCount - padSize - 1); i--, j--)
-            if (padBits == NULL) 
-                out[i] = 0;
-            else
-                out[i] = padBits[j]; 
-    }
 }   
 
-void ints2bitsMSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t padBits[]) {
+void ints2bitsMSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t frontPad_size) {
     uint8_t bitsArray[type_size * 8];
 
     uint8_t*  ints8  = (uint8_t*) ptr;
@@ -154,17 +146,10 @@ void ints2bitsMSF(size_t const size, size_t const type_size, void const * const 
             exit(EXIT_FAILURE);
         }
 
-        size_t el_start_index = i * type_size * 8;
+        size_t el_start_index = i * type_size * 8 + frontPad_size;
+        // printf("i: %d  el_start_index:%d ", i, el_start_index);
         for (int j = 0; j < type_size * 8; j++)
             out[j + el_start_index] = bitsArray[j];
-    }
-    if (padSize) {
-        size_t bitCount = size * type_size * 8 + padSize; 
-        for (int i = (bitCount - 1), j = (padSize - 1); i > (bitCount - padSize - 1); i--, j--)
-            if (padBits == NULL) 
-                out[i] = 0;
-            else
-                out[i] = padBits[j]; 
     }
 }
 
@@ -271,6 +256,20 @@ void i2p(void const * const ptr, size_t size, size_t cropTo, char separator, int
     if (cropTo == 0)
         cropTo = size;
     uint8_t *nums = (uint8_t*) ptr;
+    for (int i = size - cropTo; i < size; i++)
+        if (i < size - 1)
+            printf("%d%c", nums[i], separator);
+        else 
+            printf("%d", nums[i]);
+    for (int i = 0; i < newline; i++)
+        printf("\n");
+}
+
+void i82p(uint8_t nums[], size_t size, size_t cropTo, char separator, int newline){
+    // uint32_t *nums = (uint32_t*) ptr;
+    if (cropTo == 0)
+        cropTo = size;
+    // uint8_t *nums = (uint8_t*) ptr;
     for (int i = size - cropTo; i < size; i++)
         if (i < size - 1)
             printf("%d%c", nums[i], separator);

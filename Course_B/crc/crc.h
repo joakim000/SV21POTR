@@ -95,7 +95,8 @@ typedef struct msg_s {
     size_t len;
     uint8_t* msgBits;       //  
     size_t originalBitLen;    // 
-    size_t paddedBitLen;    // 
+    size_t paddedBitLen;  
+    size_t initPad;  // 
     
     // CRC checksum    
     uint64_t res;
@@ -136,7 +137,8 @@ void checksumMsg(size_t paddedBitLen, uint64_t checksum, size_t width, uint8_t c
   @brief Get the remainder, aka the result, aka the checksum
   @return  
 */
-uint64_t getRem(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize, crc_t* crc );
+// uint64_t getRem(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize, crc_t* crc );
+uint64_t getRem(crc_t* crc, msg_t* msg);
 
 /**
   @brief  Assignment requirement

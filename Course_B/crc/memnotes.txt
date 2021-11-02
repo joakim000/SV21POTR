@@ -1,0 +1,89 @@
+message alloc 0x80000 & 0x100000    array vla       bitarray vla        >203 <225  
+
+Reading file .\lorem203k.txt  ...  203742 characters read.
+CRC-32Q   Poly:0x814141AB   Init:0x0   XorOut:0x0   RefIn:0   RefOut:0
+Passed check value-test for CRC-32Q; result 0x3010BF7F == check 0x3010BF7F
+Message:        [203742 characters]
+Checksum:       0XC156220
+203742 chars in 0.011 seconds.
+
+
+
+message alloc 0x80000 & 0x100000       bitarray vla        >225 <268  
+Reading file .\lorem225k.txt  ...  226380 characters read.
+CRC-32Q   Poly:0X814141AB   Init:0   XorOut:0   RefIn:0   RefOut:0
+Passed check value-test for CRC-32Q; matching 0X3010BF7F
+Message:        [226380 characters]
+Checksum:       0X4B5C24D0
+226380 chars in 0.011 seconds.
+
+268 -> tidigt
+
+
+
+message alloc 0x120000       bitarray messagelen*uin8        <225
+Reading file .\lorem225k.txt  ...  226380 characters read.
+CRC-32Q   Poly:0X814141AB   Init:0   XorOut:0   RefIn:0   RefOut:0
+Passed check value-test for CRC-32Q; matching 0X3010BF7F
+sizeof *message:1  0X1
+strlen message:226380  0X3744C
+-> under arrange
+    .-> bits2ints loop 29167 (226380) = 7     även 1089 (8232)  / = 7
+
+
+
+message alloc 0x120000       bitarray messagelen*8*uin8        <225
+Reading file .\lorem\lorem268k.txt  ...  268569 characters read.
+CRC-32Q   Poly:0X814141AB   Init:0   XorOut:0   RefIn:0   RefOut:0  
+Passed check value-test for CRC-32Q; matching 0X3010BF7F
+Message:        [268569 characters]
+Checksum:       0XEDC4C65
+268569 chars in 0.015 seconds.
+
+Reading file .\lorem\loremk.txt  ...  566979 characters read.
+CRC-32Q   Poly:0X814141AB   Init:0   XorOut:0   RefIn:0   RefOut:0
+Passed check value-test for CRC-32Q; matching 0X3010BF7F
+Message:        [566979 characters]
+Checksum:       0XB03BA906
+566979 chars in 0.030 seconds, 18.024 MiB/s.
+
+Reading file .\lorem\loremk.txt  ...  566979 characters read.
+CRC-15/CAN   Poly:0XC599   Init:0   XorOut:0   RefIn:1   RefOut:0
+Passed check value-test for CRC-15/CAN; matching 0X5136
+Message:        [566979 characters]
+Checksum:       0X3C05
+566979 chars in 0.029 seconds, 18.645 MiB/s.
+
+PS R:\code\SV21POTR\Course_B\crc> .\crc enc -in .\lorem\lorem1105k.txt -t -s 37
+Reading file .\lorem\lorem1105k.txt  ...  1133958 characters read.
+CRC-32Q   Poly:0X814141AB   Init:0   XorOut:0   RefIn:0   RefOut:0
+Passed check value-test for CRC-32Q; matching 0X3010BF7F
+Message:        [1133958 characters]
+Checksum:       0XE7309DD9
+1133958 chars in 0.061 seconds, 17.728 MiB/s.
+
+PS R:\code\SV21POTR\Course_B\crc> .\crc enc -in .\lorem\lorem1105k.txt -t -s 10
+Reading file .\lorem\lorem1105k.txt  ...  1133958 characters read.
+CRC-15/CAN   Poly:0XC599   Init:0   XorOut:0   RefIn:1   RefOut:0
+Passed check value-test for CRC-15/CAN; matching 0X5136
+Message:        [1133958 characters]
+Checksum:       0X716A
+1133958 chars in 0.058 seconds, 18.645 MiB/s.
+
+
+joakim@Porcelina:/mnt/r/code/SV21POTR/Course_B/crc$ ./crc enc -in ./lorem/lorem1105k.txt -t -s 37
+Reading file ./lorem/lorem1105k.txt  ...  1137045 characters read.
+CRC-32Q   Poly:0X814141AB   Init:0   XorOut:0   RefIn:0   RefOut:0
+Passed check value-test for CRC-32Q; matching 0X3010BF7F
+Message:        [1137045 characters]
+Checksum:       0XEB86FEB9
+1137045 chars in 0.047 seconds, 23.133 MiB/s.
+joakim@Porcelina:/mnt/r/code/SV21POTR/Course_B/crc$ ./crc enc -in ./lorem/lorem1105k.txt -t -s 37
+Reading file ./lorem/lorem1105k.txt  ...  1137045 characters read.
+CRC-32Q   Poly:0X814141AB   Init:0   XorOut:0   RefIn:0   RefOut:0
+Passed check value-test for CRC-32Q; matching 0X3010BF7F
+Message:        [1137045 characters]
+Checksum:       0XEB86FEB9
+1137045 chars in 0.062 seconds, 17.350 MiB/s.
+
+
