@@ -1,5 +1,3 @@
-
-
 #include "crc.h"
 
 void main(int argc, char* argv[] )
@@ -128,22 +126,22 @@ void main(int argc, char* argv[] )
         loadSpec(zoo, ca.crc_spec, &enc_crc, false); 
 
         // Prepare message 
-        int8_t initPad = (crc->init > 0) ? crc->n : 0;
+        int8_t initPad = crc->init > 0 ? crc->n : 0;
+        // int8_t augmentPad = crc->init && !crc->nondirect ? 0 : crc->n;
+        int8_t augmentPad = crc->n;
         msg_t encode_msg = {
             .msgStr =         message,
             .len =            strlen(message),
             .initPad =        initPad,
             .originalBitLen = strlen(message) * sizeof(uint8_t) * BITSINBYTE,
-            .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + SPECIALWIDTH + initPad,     // Special
-            // .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + crc->n + frontPad,       // Normal
+            // .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + SPECIALWIDTH + initPad,     // Special
+            .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + crc->n + initPad,       // Normal
         }; msg = &encode_msg;
 
         // uint8_t new_msgBits[msg->paddedBitLen];     msg->msgBits = new_msgBits;     // 225-268  VLA limit
         msg->msgBits = calloc(msg->paddedBitLen, sizeof(uint8_t));         
         assert( ("Memory allocation failed.", msg->msgBits != NULL) );
 
-        // printf("strlen message:%d  \n", strlen(message));
-        
         // Expected checksum value for testing checksum calculation. Skips check when set to 0.
         msg->expected = strcmp(msg->msgStr, "AB") ? 0 : crc->checkAB; 
         // msg->expected = 0;     // Testing use       

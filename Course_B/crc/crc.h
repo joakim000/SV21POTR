@@ -9,8 +9,8 @@
 
 #include "jlibc/binutils.h"
 #include "jlibc/cmdargs.h"
-#define DA_TYPE uint8_t
-#include "jlibc/da.h"
+// #define DA_TYPE uint8_t
+// #include "jlibc/da.h"
 
 // #define MATCH_EXAMPLES
 #include "errors.h"
@@ -22,16 +22,12 @@
 #define PRINTLIMIT 0x40
 
 
-
 // Utility
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 #define PRINTERR(x) fprintf(stderr, "\n\e[1;31m%s\e[m", x);
 #define EACH (size_t i = 0; i < size; i++)
 #define I2(x) (int i = 0; i < x; i++) 
 #define TOWIDTH(x)  uint8_t x[crc->n]; bitSlice(COUNT_OF(crc->x) - crc->n, crc->n, &crc->x, 0, x);
-// #define STR2CHARS(x, y, z) uint8_t y[strlen(x)+z]; for (int i=0;i<strlen(x);i++)y[i]=x[i];
-// #define STR2CHARS(x, y) uint8_t y[strlen(x)]; for (int i=0;i<strlen(x);i++)y[i]=x[i];
-// #define STR2ARR(x, y) uint8_t y[strlen((char*)x)]; strcpy(y,(char*)x);
 #define STR2ARR(x, y) uint8_t y[strlen((char*)x)]; for I2(strlen((char*)x)) y[i]=x[i];
 #define CROPSTR(x, y) char y[strlen((char*)x)+1]; strcpy(y,(char*)x);
 
@@ -69,7 +65,8 @@ typedef struct crc_s {
     uint64_t g;          // Generator polynomial
     uint8_t il1;         // implicit_leading_1
     uint64_t init;       // Initial CRC value (seed)
-    uint8_t  nondirect;  // Init seed can be direct or nondirect
+    uint8_t  nondirect;  // Init can be direct or nondirect
+    uint64_t init_conv;  // Converted initial CRC value (seed)
     uint8_t inputLSF;    // Input reflected
     uint8_t resultLSF;   // Result reflected
     uint64_t xor;        // Final XOR value
@@ -207,3 +204,9 @@ Examples:  crc enc -s 33 -in message.txt -out output.txt\n\
   @return  0: ok  1: NULL
 */
 static short allocCheck(void* p);
+
+/**
+  @brief Convert direct init value to non-direct
+  @return  Converted value
+*/
+uint64_t convertInit(uint64_t poly, uint64_t init, uint8_t width);
