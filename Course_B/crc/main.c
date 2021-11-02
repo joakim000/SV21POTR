@@ -144,7 +144,7 @@ void main(int argc, char* argv[] )
         
         // Expected checksum value for testing checksum calculation. Skips check when set to 0.
         msg->expected = strcmp(msg->msgStr, "AB") ? 0 : crc->checkAB; 
-        // uint32_t expected = 0;     // Testing use       
+        // msg->expected = 0;     // Testing use       
 
         timer_start = clock();
             // Arrange message
@@ -202,7 +202,7 @@ void main(int argc, char* argv[] )
     // Command: Validate
     if (ca.validate) {     
         // Check for available checksum:
-        uint32_t checksum;
+        uint64_t checksum;
         // In message?
         char checksumStr[0x20] = "";
         char* remaining;

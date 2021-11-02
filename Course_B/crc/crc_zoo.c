@@ -47,10 +47,10 @@ crcdef_t zoo[] = {
     { "CRC-32D",           { 32,   0xA833982B, 1,  0xFFFFFFFF, 0,      1,      1,     0xFFFFFFFF,  0x00,   0x87315576,  0x9BF68F39,    }}, // 40 
     { "CRC-32/MPEG-2",     { 32,   0x04C11DB7, 1,  0xFFFFFFFF, 0,      0,      0,     0x00000000,  0x00,   0x0376E6E7,  0xAEEC82F4,    }}, // 41 
     { "CRC-32/JAMCRC",     { 32,   0x04C11DB7, 1,  0xFFFFFFFF, 0,      1,      1,     0x00000000,  0x00,   0x340BC6D9,  0xCF96B3F8,    }}, // 42 
-	// { "CRC-40/GSM",        { 40,   0x0004820009,       1,  0x0000000000,        0,  0,      0,      0xffffffffff,       0xc4ff8071ff,       0xd4164fc646,       0x0,  }},  // 43 
-	// { "CRC-64/ECMA-182",   { 64,   0x42f0e1eba9ea3693, 1,  0x0000000000000000,  0,  0,      0,      0x0000000000000000, 0x0000000000000000, 0x6c40df5f0b497347, 0x0,  }},  // 44 
-	// { "CRC-64/GO-ISO",     { 64,   0x000000000000001b, 1,  0xffffffffffffffff,  0,  1,      1, 	    0xffffffffffffffff, 0x5300000000000000, 0xb90956c775a41001, 0x0,  }},  // 45 
- // { "CRC-64/XZ",         { 64,   0x42f0e1eba9ea3693, 1,  0xffffffffffffffff,  0,  1,      1,      0xffffffffffffffff, 0x49958c9abd7d353f, 0x995dc9bbdf1939fa, 0x0,  }},  // 46 
+	{ "CRC-40/GSM",        { 40,   0x0004820009,       1,  0x0000000000,        0,  0,      0,      0xffffffffff,       0xc4ff8071ff,       0xd4164fc646,       0x0,  }},  // 43 
+	{ "CRC-64/ECMA-182",   { 64,   0x42f0e1eba9ea3693, 1,  0x0000000000000000,  0,  0,      0,      0x0000000000000000, 0x0000000000000000, 0x6c40df5f0b497347, 0x0,  }},  // 44 
+	{ "CRC-64/GO-ISO",     { 64,   0x000000000000001b, 1,  0xffffffffffffffff,  0,  1,      1, 	    0xffffffffffffffff, 0x5300000000000000, 0xb90956c775a41001, 0x0,  }},  // 45 
+    { "CRC-64/XZ",         { 64,   0x42f0e1eba9ea3693, 1,  0xffffffffffffffff,  0,  1,      1,      0xffffffffffffffff, 0x49958c9abd7d353f, 0x995dc9bbdf1939fa, 0x0,  }},  // 46 
 };  // Name                  0 n   1 Gen           2 IL1   3 Init      4 Nondirect  5 RefIn  6 RefOut  7 XorOut         8 Residue           9 Check             10 "AB"
 
 // CRC-16/CCITT   

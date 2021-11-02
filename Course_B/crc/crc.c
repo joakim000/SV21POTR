@@ -37,12 +37,12 @@ void arrangeMsg(crc_t* crc, msg_t* msg) {
     }
 }
 
-void checksumMsg(size_t paddedBitLen, uint32_t checksum, size_t width, uint8_t csmsgBits[]) {
+void checksumMsg(size_t paddedBitLen, uint64_t checksum, size_t width, uint8_t csmsgBits[]) {
     // Convert checksum to array of bit values
     uint8_t tmp_csBits[sizeof(checksum) * BITSINBYTE];
     int2bits(sizeof(checksum), &checksum, tmp_csBits, false);
 
-    // Handled as uint32, truncate to CRC width
+    // Handled as uint64, truncate to CRC width
     uint8_t csBits[width]; 
     bitSlice(sizeof(checksum) * BITSINBYTE - width, width, &tmp_csBits, 0, csBits);
 
@@ -50,7 +50,7 @@ void checksumMsg(size_t paddedBitLen, uint32_t checksum, size_t width, uint8_t c
     if (PROG.verbose) printBits("Checksum", csBits, width, 0);
     
     // Extra checking step: Convert checksum bits back to checksum, check that it matches provided checksum
-    uint32_t checksumRecon = (uint32_t)bits2int(width, csBits);
+    uint64_t checksumRecon = (uint64_t)bits2int(width, csBits);
     if (PROG.verbose)  printf("Checksum: %#X  Cs recon:%#X\n", checksum, checksumRecon);
     assert( ("Checksum error", checksumRecon == checksum) );
 
@@ -60,7 +60,7 @@ void checksumMsg(size_t paddedBitLen, uint32_t checksum, size_t width, uint8_t c
 }
 
 
-uint32_t getRem(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize, crc_t* crc ) {
+uint64_t getRem(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize, crc_t* crc ) {
     // gBits to actual bit width
     size_t gBits_size = crc->n + 1; // Generator is 1 bit wider than CRC  
     uint8_t gBits[gBits_size];
@@ -106,11 +106,11 @@ uint32_t getRem(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize, crc_t
     }
 
     // Convert remBits to int with choice of bit ordering
-    uint32_t rem;
+    uint64_t rem;
     if ( crc->resultLSF )
-        rem = (uint32_t)bits2intLSF(COUNT_OF(remBits), remBits);
+        rem = (uint64_t)bits2intLSF(COUNT_OF(remBits), remBits);
     else
-        rem = (uint32_t)bits2intMSF(COUNT_OF(remBits), remBits);
+        rem = (uint64_t)bits2intMSF(COUNT_OF(remBits), remBits);
 
     if (PROG.verbose) printf("Remainder: %#X\n", rem);
     return rem;
@@ -128,7 +128,7 @@ void messageLengthCheck(size_t len) {
 }
 
 bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t originalMsgSize, crc_t* crc) {
-    uint32_t rem = getRem(msgBits, msgBitsCount, originalMsgSize, crc );
+    uint64_t rem = getRem(msgBits, msgBitsCount, originalMsgSize, crc );
 
     if (PROG.verbose) printf("Remainder: %#X\n", rem);
     return rem ? false : true;
@@ -209,7 +209,7 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
         .paddedBitLen = COUNT_OF(test_msgBits)
     };
     arrangeMsg(crc, &test_msg);
-    uint32_t test_res = getRem(test_msg.msgBits, test_msg.paddedBitLen, strlen(test_msg.msgStr) * BITSINBYTE, crc);
+    uint64_t test_res = getRem(test_msg.msgBits, test_msg.paddedBitLen, strlen(test_msg.msgStr) * BITSINBYTE, crc);
 
     if (test_res == crc->check)
         if (table)
@@ -241,9 +241,9 @@ void zooTour(crcdef_t zoo[], size_t zoo_size) {
 }
 
 
-//  uint32_t encode(char* msg, int crcIndex) {
+//  uint64_t encode(char* msg, int crcIndex) {
 //  }
-//  bool validate(char* msg, int crcIndex, uint32_t checksum) {
+//  bool validate(char* msg, int crcIndex, uint64_t checksum) {
 //  }
 
 static short allocCheck(void* p) {

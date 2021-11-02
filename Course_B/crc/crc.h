@@ -65,28 +65,28 @@ typedef struct prog_s {
 typedef struct crc_s {
     char description[64];
     // Definition
-    uint32_t n;          // Bit width 
-    uint32_t g;          // Generator polynomial
+    uint64_t n;          // Bit width 
+    uint64_t g;          // Generator polynomial
     uint8_t il1;         // implicit_leading_1
-    uint32_t init;       // Initial CRC value (seed)
+    uint64_t init;       // Initial CRC value (seed)
     uint8_t  nondirect;  // Init seed can be direct or nondirect
     uint8_t inputLSF;    // Input reflected
     uint8_t resultLSF;   // Result reflected
-    uint32_t xor;        // Final XOR value
-    uint32_t residue;    // Given as spec on some sites, not sure how to use it yet
-    uint32_t check;      // Expected result from "123456789"
-    uint32_t checkAB;    // Expected result from "AB"
+    uint64_t xor;        // Final XOR value
+    uint64_t residue;    // Given as spec on some sites, not sure how to use it yet
+    uint64_t check;      // Expected result from "123456789"
+    uint64_t checkAB;    // Expected result from "AB"
 
     // Work
-    uint8_t gBits[33];
-    uint8_t initBits[32];
-    uint8_t xorBits[32];
+    uint8_t gBits[65];
+    uint8_t initBits[64];
+    uint8_t xorBits[64];
 } crc_t;
 
 // CRC definition, serialized specs 
 typedef struct crcdef_s {
         char name[0x80];
-        uint32_t specs[11];
+        uint64_t specs[11];
 } crcdef_t;
 
 // Message fields
@@ -98,15 +98,15 @@ typedef struct msg_s {
     size_t paddedBitLen;    // 
     
     // CRC checksum    
-    uint32_t res;
+    uint64_t res;
    
     // Message validation
     uint8_t* csmsgBits;       // 
-    uint32_t rem;
+    uint64_t rem;
     bool valid;
 
     // Calculation testing
-    uint32_t expected;
+    uint64_t expected;
 } msg_t;
 
 // Global access data structures
@@ -130,13 +130,13 @@ void arrangeMsg(crc_t* crc, msg_t* msg);
   @brief Set checksum bits in message
   @return  
 */
-void checksumMsg(size_t paddedBitLen, uint32_t checksum, size_t width, uint8_t csmsgBits[]);
+void checksumMsg(size_t paddedBitLen, uint64_t checksum, size_t width, uint8_t csmsgBits[]);
 
 /**
   @brief Get the remainder, aka the result, aka the checksum
   @return  
 */
-uint32_t getRem(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize, crc_t* crc );
+uint64_t getRem(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize, crc_t* crc );
 
 /**
   @brief  Assignment requirement
