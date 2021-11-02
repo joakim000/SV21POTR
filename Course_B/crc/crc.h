@@ -17,8 +17,8 @@
 
 // Magic numbers
 #define BITSINBYTE 8
-#define MAX_MESSAGE_ARGLENGTH 0x400  // Limited by stack size
-#define MAX_MESSAGE_READLENGTH 0x120000  // Limited by stack size  
+#define MAX_MESSAGE_ARGLENGTH 0x400 
+#define MAX_MESSAGE_READLENGTH 0x120000    
 #define PRINTLIMIT 0x40
 
 

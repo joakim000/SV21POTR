@@ -13,13 +13,11 @@ bits2ints_t bits2ints = bits2intsMSF;
 
 void arrangeMsg(crc_t* crc, msg_t* msg) {
      // Arrange message bits and pad
-    //  puts("before ints2bits");
     if ( crc->inputLSF )
         ints2bitsLSF(strlen(msg->msgStr), sizeof(uint8_t), (msg->msgStr), msg->msgBits, SPECIALWIDTH, crc->initBits);  // Special accomodation, cf. error.h
         // ints2bitsLSF(strlen(msg->msgStr), sizeof(uint8_t), (msg->msgStr), msg->msgBits, crc->n, crc->initBits);           // Normal
     else
         ints2bitsMSF(strlen(msg->msgStr), sizeof(uint8_t), (msg->msgStr), msg->msgBits, crc->n, crc->initBits); 
-    //  puts("after ints2bits");
 
     if (crc->init > 0) {
         // Local initBits to crc width
@@ -173,11 +171,6 @@ void loadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
     int2bitsMSF(sizeof(crc->xor), &crc->xor, crc->xorBits, 0 );             // uint8_t xorbits[32];
 }
 
-// void loadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
-
-
-
-
 void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
     loadDef(zoo, index, crc);  
     
@@ -199,12 +192,11 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
 
     // Prepare standard check message
     char test_message[] = "123456789";
-    STR2ARR(test_message, test_msg_arr);
     uint8_t test_msgBits[strlen(test_message) * sizeof(uint8_t) * 8 + SPECIALWIDTH];      // Special
     // uint8_t test_msgBits[strlen(test_message) * sizeof(uint8_t) * BITSINBYTE + crc->n];      // Normal
+   
     msg_t test_msg = {
         .msgStr = (char*)test_message,
-        // .msg = test_msg_arr,
         .msgBits = test_msgBits,
         .paddedBitLen = COUNT_OF(test_msgBits)
     };

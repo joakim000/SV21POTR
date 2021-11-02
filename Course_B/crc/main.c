@@ -127,17 +127,19 @@ void main(int argc, char* argv[] )
         crc = &enc_crc;
         loadSpec(zoo, ca.crc_spec, &enc_crc, false); 
 
+        int8_t frontPad = (crc->init > 0) ? crc->n : 0;
+
         // Prepare message 
         msg_t encode_msg = {
             .msgStr =         message,
             .len =            strlen(message),
-            .originalBitLen = strlen(message) * BITSINBYTE,
-            .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + SPECIALWIDTH,     // Special
-            // .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + crc->n,       // Normal
+            .originalBitLen = strlen(message) * sizeof(uint8_t) * BITSINBYTE,
+            .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + SPECIALWIDTH + frontPad,     // Special
+            // .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + crc->n + frontPad,       // Normal
         }; msg = &encode_msg;
 
         // uint8_t new_msgBits[msg->paddedBitLen];     msg->msgBits = new_msgBits;     // 225-268  VLA limit
-        msg->msgBits = calloc(strlen(message) * BITSINBYTE + 0x40, sizeof(uint8_t));          // < 225  problem in arrangeMsg
+        msg->msgBits = calloc(msg->paddedBitLen, sizeof(uint8_t));         
         assert( ("Memory allocation failed.", msg->msgBits != NULL) );
 
         // printf("strlen message:%d  \n", strlen(message));
