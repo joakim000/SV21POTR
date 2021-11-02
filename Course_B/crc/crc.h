@@ -70,12 +70,12 @@ typedef struct crc_s {
     uint8_t il1;         // implicit_leading_1
     uint32_t init;       // Initial CRC value (seed)
     uint8_t  nondirect;  // Init seed can be direct or nondirect
-    uint32_t xor;        // Final XOR value
     uint8_t inputLSF;    // Input reflected
     uint8_t resultLSF;   // Result reflected
+    uint32_t xor;        // Final XOR value
+    uint32_t residue;    // Given as spec on some sites, not sure how to use it yet
     uint32_t check;      // Expected result from "123456789"
     uint32_t checkAB;    // Expected result from "AB"
-    uint32_t residue;    // Given as spec on some sites, not sure how to use it yet
 
     // Work
     uint8_t gBits[33];
@@ -84,13 +84,9 @@ typedef struct crc_s {
 } crc_t;
 
 // CRC definition, serialized specs 
-// typedef struct crcdef_s {
-//         char name[0x80];
-//         uint32_t specs[11];
-// } crcdef_t;
 typedef struct crcdef_s {
         char name[0x80];
-        uint32_t specs[9];
+        uint32_t specs[11];
 } crcdef_t;
 
 // Message fields
