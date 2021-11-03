@@ -299,7 +299,7 @@ void i82p(uint8_t nums[], size_t size, size_t cropTo, char separator, int newlin
         printf("\n");
 }
 
-void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space, size_t lead) {
+void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space, int32_t space2, size_t lead) {
     uint8_t *nums = (uint8_t*) ptr;
 
     char* fmt_ptr;
@@ -318,7 +318,7 @@ void i2pc(void const * const ptr, size_t size, char separator, int newline, uint
     printf(leadfmt, "");
 
     for EACH {
-        if (i == space)
+        if (i == space || i == space2)
             printf(" ");
         fmt_ptr       = (colStart <= i && i < (colStart + colLen)) ? colfmt : fmt;
         fmt_final_ptr = (colStart <= i && i < (colStart + colLen)) ? colfmt_final : fmt_final;

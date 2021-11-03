@@ -114,7 +114,8 @@ void i82p(uint8_t nums[], size_t size, size_t cropTo, char separator, int newlin
   @param colLen    length to color
   @param space     insert a space before this index, set -1 for no space 
 */
-void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space, size_t lead);
+void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space, int32_t space2, size_t lead);
+// void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space, size_t lead);
 // void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space); 
 
 

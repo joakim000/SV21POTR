@@ -61,25 +61,25 @@ uint64_t getRem(crc_t* crc, msg_t* msg) {
     for (int i = gBits_size - 1, j = COUNT_OF(crc->gBits) - 1; i >= 0; i--, j--)
         gBits[i] = crc->gBits[j];
     
-    // int i; i = crc->init > 0 ? crc->n : 0;  // Skip a CRC width if using initial > 0
     int i = 0;
     if (PROG.printSteps) {
         // Poly division with printing of steps
-        printf("\n Before: "); i2pc(msg->msgBits, msg->paddedBitLen, 0, 1, 34, msg->originalBitLen, crc->n,  msg->originalBitLen, 0); 
-        // for (; i < REMLOOPEND; i++)   // Special accomodation, cf. error.h
+        printf("     %16s %32s %16s", "Init block", "Message", "Pad block");
+        printf("\n Before: "); i2pc(msg->msgBits, msg->paddedBitLen, 0, 1, 34, msg->originalBitLen+msg->initPad, crc->n, msg->initPad, msg->originalBitLen+msg->initPad, 0); 
+        // for (; i < REMLOOPEND; i++)                       // Special accomodation, cf. error.h
         for (; i < msg->originalBitLen + msg->initPad; i++)  // Standard loop ending condition
             if (msg->msgBits[i]) {
                 if (PROG.printStepsGen)
-                    i2pc(gBits, gBits_size, 0, 1, 33, 0, gBits_size, msg->originalBitLen-i, i+9); 
+                    i2pc(gBits, gBits_size, 0, 1, 33, 0, gBits_size, msg->initPad-i, msg->originalBitLen-i+msg->initPad+1, i+9); 
                 for (int j = 0, k = i; j < gBits_size; j++, k++) 
                     msg->msgBits[k] ^= gBits[j];
-                printf("  @ %3d: ", i); i2pc(msg->msgBits, msg->paddedBitLen, 0, 1, 36, i, gBits_size, msg->originalBitLen, 0);
+                printf("  @ %3d: ", i); i2pc(msg->msgBits, msg->paddedBitLen, 0, 1, 36, i, gBits_size,msg->initPad, msg->originalBitLen+msg->initPad, 0);
             }   
-        printf("  After: "); i2pc(msg->msgBits, msg->paddedBitLen, 0, 1, 35, msg->originalBitLen, crc->n,  msg->originalBitLen, 0); 
+        printf("  After: "); i2pc(msg->msgBits, msg->paddedBitLen, 0, 1, 35, msg->originalBitLen+msg->initPad, crc->n, msg->initPad, msg->originalBitLen+msg->initPad, 0); 
     } 
     else 
         // Poly division (without printing of steps)
-        // for (; i < REMLOOPEND; i++)  // Special accomodation, cf. error.h
+        // for (; i < REMLOOPEND; i++)                       // Special accomodation, cf. error.h
         for (; i < msg->originalBitLen + msg->initPad; i++)  // Standard loop ending condition
             if (msg->msgBits[i]) 
                 for (int j = 0, k = i; j < gBits_size; j++, k++) 
@@ -228,7 +228,7 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
             // printf("\e[1;32mPassed\e[m\n");
             printf("\e[1;32mPassed\e[m %#llX\n", test_msg.res, crc->check);
         else
-            printf("\n\e[1;32mPassed check value-test for %s;\e[m matching %#llX\n", crc->description, crc->check);
+            printf("\e[1;32mPassed check value-test for %s;\e[m matching %#llX\n", crc->description, crc->check);
     else 
         if (table)
             // printf("\e[1;31mFailed\e[m\n");
