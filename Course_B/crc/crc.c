@@ -73,7 +73,7 @@ uint64_t getRem(crc_t* crc, msg_t* msg) {
             printf(fmt, "Init", "Message", "Padding");
         }
         else {
-            sprintf(fmt, "          \e[1;1m\e[1;3m%%%ds %%%ds\e[m", msg->originalBitLen, crc->n);
+            sprintf(fmt, "         \e[1;1m\e[1;3m%%%ds %%%ds\e[m", msg->originalBitLen, crc->n);
             printf(fmt, "Message", "Padding");
         }
         int32_t space1 = crc->init ? msg->initPad : -1; 
