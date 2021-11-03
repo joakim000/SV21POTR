@@ -65,16 +65,16 @@ void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool 
     }
 }
 
-uint32_t bits2intLSF(size_t const size, uint8_t* bits) {
-    uint32_t r = 0;
+uint64_t bits2intLSF(size_t const size, uint8_t* bits) {
+    uint64_t r = 0;
     for (int bit_index = 0; bit_index < size; bit_index++) {       
         if (bits[bit_index]) 
-            r |= 1UL << (bit_index);
+            r |= 1ULL << (bit_index);
         else
-            r &= ~(1UL << (bit_index) );
+            r &= ~(1ULL << (bit_index) );
     }
 
-    // printf("bits2intLSF called. Returning %d. Input bits: ", r);
+    // printf("bits2intLSF returns %llu from bits: ", r);
     // for EACH 
     //     printf("%d", bits[i]);
     // puts("");
@@ -82,15 +82,21 @@ uint32_t bits2intLSF(size_t const size, uint8_t* bits) {
     return r; 
 }
 
-uint32_t bits2intMSF(size_t const len, uint8_t* bits) {
-    uint32_t r = 0;
-    int bit_write_index = len - 1;
-    for (int bit_index = 0; bit_index < len; bit_index++) {       
+uint64_t bits2intMSF(size_t const size, uint8_t* bits) {
+    uint64_t r = 0;
+    int bit_write_index = size - 1;
+    for (int bit_index = 0; bit_index < size; bit_index++) {       
         if (bits[bit_index]) 
-            r |= 1UL << (bit_write_index--);
+            r |= 1L << (bit_write_index--);
         else    
-            r &= ~(1UL << (bit_write_index--) );
+            r &= ~(1L << (bit_write_index--) );
     }
+
+    // printf("bits2intMSF returns %llu from bits: ", r);
+    // for EACH 
+    //     printf("%d", bits[i]);
+    // puts("");
+
     return r; 
 }
 
@@ -100,6 +106,7 @@ void ints2bitsLSF(size_t const size, size_t const type_size, void const * const 
     uint8_t*  ints8  = (uint8_t*) ptr;
     uint16_t* ints16 = (uint16_t*) ptr;
     uint32_t* ints32 = (uint32_t*) ptr;
+    uint64_t* ints64 = (uint64_t*) ptr;
 
     for (int i = 0; i < (size / type_size); i++) {
         switch (type_size) {
@@ -111,6 +118,9 @@ void ints2bitsLSF(size_t const size, size_t const type_size, void const * const 
             break;
         case 4:
             int2bitsLSF(type_size, &ints32[i], bitsArray, false);
+            break;
+        case 8:
+            int2bitsLSF(type_size, &ints64[i], bitsArray, false);
             break;
         default:
             fprintf(stderr, "Unsupported type size, exiting.");
@@ -129,6 +139,7 @@ void ints2bitsMSF(size_t const size, size_t const type_size, void const * const 
     uint8_t*  ints8  = (uint8_t*) ptr;
     uint16_t* ints16 = (uint16_t*) ptr;
     uint32_t* ints32 = (uint32_t*) ptr;
+    uint64_t* ints64 = (uint64_t*) ptr;
     
     for (int i = 0; i < (size / type_size); i++) {
         switch (type_size) {
@@ -141,13 +152,14 @@ void ints2bitsMSF(size_t const size, size_t const type_size, void const * const 
         case 4:
             int2bitsMSF(type_size, &ints32[i], bitsArray, false);
             break;
+        case 8:
+            int2bitsMSF(type_size, &ints64[i], bitsArray, false);
+            break;
         default:
             fprintf(stderr, "Unsupported type size, exiting.");
             exit(EXIT_FAILURE);
         }
-
         size_t el_start_index = i * type_size * 8 + frontPad_size;
-        // printf("i: %d  el_start_index:%d ", i, el_start_index);
         for (int j = 0; j < type_size * 8; j++)
             out[j + el_start_index] = bitsArray[j];
     }
@@ -164,6 +176,7 @@ void bits2intsMSF(size_t const total_bits, size_t const type_size, uint8_t const
     uint8_t*  out8  = (uint8_t*) out_ptr;
     uint16_t* out16 = (uint16_t*) out_ptr;
     uint32_t* out32 = (uint32_t*) out_ptr;
+    uint64_t* out64 = (uint64_t*) out_ptr;
 
     while (bits_iter <= total_bits) {      
         if (bitsArray_iter < (type_size * 8 )) {
@@ -182,6 +195,9 @@ void bits2intsMSF(size_t const total_bits, size_t const type_size, uint8_t const
                 case 4:
                     out32[out_iter++] = bits2intMSF(type_size * 8, bitsArray);
                     break;
+                case 8:
+                    out64[out_iter++] = bits2intMSF(type_size * 8, bitsArray);
+                    break;  
                 default:
                     fprintf(stderr, "Unsupported type size, exiting.");
                     exit(EXIT_FAILURE);
@@ -202,6 +218,7 @@ void bits2intsLSF(size_t const total_bits, size_t const type_size, uint8_t const
     uint8_t*  out8  = (uint8_t*) out_ptr;
     uint16_t* out16 = (uint16_t*) out_ptr;
     uint32_t* out32 = (uint32_t*) out_ptr;
+    uint64_t* out64 = (uint64_t*) out_ptr;
 
     while (bits_iter <= total_bits) {      
         if (bitsArray_iter < (type_size * 8 )) {
@@ -219,6 +236,9 @@ void bits2intsLSF(size_t const total_bits, size_t const type_size, uint8_t const
                 case 4:
                     out32[out_iter++] = bits2intLSF(type_size * 8, bitsArray);
                     break;
+                case 8:
+                    out64[out_iter++] = bits2intLSF(type_size * 8, bitsArray);
+                    break;    
                 default:
                     fprintf(stderr, "Unsupported type size, exiting.");
                     exit(EXIT_FAILURE);

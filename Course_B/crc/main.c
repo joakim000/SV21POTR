@@ -159,15 +159,15 @@ void main(int argc, char* argv[] )
             if (msg->len < PRINTLIMIT)
                 printf("Message:\t%s\n", msg->msgStr);
             else
-                printf("Message:\t[%d characters]\n", msg->len);
+                printf("Message:\t[%llu characters]\n", msg->len);
         }
-        printf("Checksum:\t%#X\n", msg->res);
+        printf("Checksum:\t%#llX\n", msg->res);
         double elapsed = TIMING(timer_start, timer_end);
         if (ca.timing) printf("%d chars in %5.3f seconds, %5.3f MiB/s.\n", msg->len, elapsed, msg->len / elapsed / 0x100000);
 
         // Compare result with a expected value, for debugging purposes
         if (msg->expected && msg->res != msg->expected) {
-            printf("Expected:\t%#X\n", msg->expected);
+            printf("Expected:\t%#llX\n", msg->expected);
             if (PROG.verbose) {                                   // Print bits of result and expected for analysis
                 uint8_t checksumBits[sizeof(msg->res) * 8];
                 int2bits(sizeof(msg->res), &msg->res, checksumBits, false);
@@ -181,7 +181,7 @@ void main(int argc, char* argv[] )
         
         // Open file for writing result      
         char csStr[100];
-        sprintf(csStr, "[%#X]", msg->res); 
+        sprintf(csStr, "[%#llX]", msg->res); 
         char outStr[strlen(msg->msgStr) + strlen(csStr)];
         sprintf(outStr, "%s%s", csStr, msg->msgStr); 
         // puts(outStr);
@@ -193,7 +193,11 @@ void main(int argc, char* argv[] )
                 fclose(fp);
             }
         }
-        free(msg->msgStr);
+
+        // Free allocations
+        if (message != (char*)ca.msg)
+            free(msg->msgStr);
+        // printf("Free msgBits");
         free(msg->msgBits);
         exit(EXIT_SUCCESS);
     }
@@ -211,7 +215,7 @@ void main(int argc, char* argv[] )
             checksum = strtol(remaining + 1, end, 16); // 0 if no valid conversion
         }
         if (checksum > 0) {
-            if (PROG.verbose) printf("Checksum in message: %#X\n", checksum);
+            if (PROG.verbose) printf("Checksum in message: %#llX\n", checksum);
             // Remove from message-string
             remaining = strchr(message, ']');
             if (remaining) {
@@ -251,7 +255,7 @@ void main(int argc, char* argv[] )
         arrangeMsg(crc, msg);
 
         // if (PROG.verbose) 
-        printf("Checksum:\t\t%#X\n", msg->res);
+        printf("Checksum:\t\t%#llX\n", msg->res);
 
         /* Checksum the messsage. I.e replace the zeros with the CRC accroding to the requirements. */
         uint8_t new_csmsgBits[msg->paddedBitLen];
@@ -267,8 +271,10 @@ void main(int argc, char* argv[] )
         
         // Print result        
         validPrint(msg->msgStr, msg->len, valid);
-    
-        free(msg->msgStr);
+
+        // Free allocations
+        if (message != (char*)ca.msg)
+            free(msg->msgStr);    
         free(msg->msgBits);
         exit(EXIT_SUCCESS);
     }

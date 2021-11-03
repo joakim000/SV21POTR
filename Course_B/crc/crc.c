@@ -28,18 +28,6 @@ void arrangeMsg(crc_t* crc, msg_t* msg) {
             msg->msgBits[i] = initBits[i];
         };
         // printf("\ninitpad: %d", msg->initPad);  printf("msgBits (initBits written to frontpad): "); i82p(msg->msgBits, msg->paddedBitLen, 0, 0, 1);
-
-
-        // // Get actual initBits from seed
-        // for (int i = 0; i < crc->n; i++) {
-        //     initBits[i] ^= msg->msgBits[i];
-        // };
-        // // printf("\n  initBits:  "); i2p(&crc->initBits, COUNT_OF(crc->initBits), 0, 0, 1);
-        // // Write actual initBits to padding
-        // for (int i = strlen(msg->msgBits) - crc->n, j = 0; i < strlen(msg->msgBits); i++, j++) {
-        //     msg->msgBits[i] = initBits[j];  
-        // }
-
     }
 }
 
@@ -52,12 +40,12 @@ void checksumMsg(size_t paddedBitLen, uint64_t checksum, size_t width, uint8_t c
     uint8_t csBits[width]; 
     bitSlice(sizeof(checksum) * BITSINBYTE - width, width, &tmp_csBits, 0, csBits);
 
-    if (PROG.verbose) printf("Checksum:\t%#X\n", checksum);
+    if (PROG.verbose) printf("Checksum:\t%#llX\n", checksum);
     if (PROG.verbose) printBits("Checksum", csBits, width, 0);
     
     // Extra checking step: Convert checksum bits back to checksum, check that it matches provided checksum
     uint64_t checksumRecon = (uint64_t)bits2int(width, csBits);
-    if (PROG.verbose)  printf("Checksum: %#X  Cs recon:%#X\n", checksum, checksumRecon);
+    if (PROG.verbose)  printf("Checksum: %#llX  Cs recon:%#llX\n", checksum, checksumRecon);
     assert( ("Checksum error", checksumRecon == checksum) );
 
     // Replace padding in csmsgBits with bits from checksum
@@ -118,7 +106,7 @@ uint64_t getRem(crc_t* crc, msg_t* msg) {
     else
         rem = (uint64_t)bits2intMSF(COUNT_OF(remBits), remBits);
 
-    if (PROG.verbose) printf("Remainder: %#X\n", rem);
+    if (PROG.verbose) printf("Remainder: %#llX\n", rem);
     return rem;
 }
 
@@ -138,7 +126,7 @@ void messageLengthCheck(size_t len) {
 bool validate(crc_t* crc, msg_t* msg) {
     uint64_t rem = getRem(crc, msg );
 
-    if (PROG.verbose) printf("Remainder: %#X\n", rem);
+    if (PROG.verbose) printf("Remainder: %#llX\n", rem);
     return rem ? false : true;
 }
 
@@ -192,16 +180,22 @@ void loadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
 void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
     loadDef(zoo, index, crc);  
     
+    char prt_init[18] = " ";  if (crc->init) sprintf(prt_init, "%#18llX", crc->init);
+    char prt_xor[18] = " ";  if (crc->xor) sprintf(prt_xor, "%#18llX", crc->xor);
+    char* prt_nondirect = crc->nondirect ? "X" : " "; 
+    char* prt_refIn = crc->inputLSF ? "X" : " "; 
+    char* prt_refOut = crc->resultLSF ? "X" : " "; 
+
     if (table) {
-        printf("%16s   ", crc->description);
-        printf("%#10X   %#10X %3d  ",  crc->g, crc->init, crc->nondirect);
-        printf("%#10X   %5d   %6d   ", crc->xor, crc->inputLSF, crc->resultLSF);
+        printf("%16s ", crc->description);
+        printf("%#18llX %#18s %4s ",  crc->g, prt_init, prt_nondirect);
+        printf("%#18s %5s %6s ", prt_xor, prt_refIn, prt_refOut);
 
     }
     else {
         printf("%s   ", crc->description);
-        printf("Poly:%#X   Init:%#X   NDI:%d   ",  crc->g, crc->init, crc->nondirect);
-        printf("XorOut:%#X   RefIn:%d   RefOut:%d   ", crc->xor, crc->inputLSF, crc->resultLSF);
+        printf("Poly:%#llX   Init:%#llX   NDI:%d   ",  crc->g, crc->init, crc->nondirect);
+        printf("XorOut:%#llX   RefIn:%d   RefOut:%d   \n", crc->xor, crc->inputLSF, crc->resultLSF);
     }    
 
     // Check value-test for this spec
@@ -227,23 +221,20 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
     test_msg.msgBits = test_msgBits;
 
     arrangeMsg(crc, &test_msg);
-    // uint64_t test_res = getRem(test_msg.msgBits, test_msg.paddedBitLen, test_msg.originalBitLen, crc);
     test_msg.res = getRem(crc, &test_msg);
-    // uint64_t test_res = getRem(crc, &test_msg);
 
     if (test_msg.res == crc->check)
         if (table)
             // printf("\e[1;32mPassed\e[m\n");
-            printf("\e[1;32mPassed\e[m %#X = %#X\n", test_msg.res, crc->check);
+            printf("\e[1;32mPassed\e[m %#llX\n", test_msg.res, crc->check);
         else
-            printf("\n\e[1;32mPassed check value-test for %s;\e[m matching %#X\n", crc->description, crc->check);
+            printf("\n\e[1;32mPassed check value-test for %s;\e[m matching %#llX\n", crc->description, crc->check);
     else 
         if (table)
             // printf("\e[1;31mFailed\e[m\n");
-            // printf("\e[1;31mFailed\e[m %#X != %#X\n", test_msg.res, crc->check);
-            printf("\e[1;31mFailed\e[m %llu != %llu\n", test_msg.res, crc->check);
+            printf("\e[1;31mFailed\e[m %#llX != %#llX\n", test_msg.res, crc->check);
         else
-            printf("\n\e[1;31mFailed check value-test for %s;\e[m result %#X != check %#X\n", crc->description, test_msg.res, crc->check);
+            printf("\e[1;31mFailed check value-test for %s;\e[m result %#llX != check %#llX\n", crc->description, test_msg.res, crc->check);
     
     if (VERBOSELOAD && !table) { 
         printf("     gBits: "); i2p(&crc->gBits, COUNT_OF(crc->gBits), crc->n+1, 0, 1);
@@ -254,18 +245,23 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
     PROG.printSteps = tmp_printSteps; // Reset printSteps flag
 }
 
+// tf("%16s ", crc->description);
+//         printf("%#18llX %#18llX %3d ",  crc->g, crc->init, crc->nondirect);
+//         printf("%#18llX %5d %6d ", crc->xor, crc->inputLSF, crc->resultLSF);
+
+
 void zooTour(crcdef_t zoo[], size_t zoo_size) {
-    printf("%5s   %16s   %10s   %10s   %3s   %10s   %5s   %6s   %6s\n", "Index", "Spec", "Poly", "Init", "NDI", "XorOut", "RefIn", "RefOut", "Check value");
+    printf("%5s %16s %18s %18s %4s %18s %5s %6s %6s\n", "Index", "Spec", "Poly", "Init", "NDI", "XorOut", "RefIn", "RefOut", "Check value");
     for (int i = 0; i < zoo_size; i++) {
         crc_t zooItem;
-        printf("%5d   ", i);
+        printf("%5d ", i);
         loadSpec(zoo, i, &zooItem, true);
     }
 }
 
-
 //  uint64_t encode(char* msg, int crcIndex) {
 //  }
+
 //  bool validate(char* msg, int crcIndex, uint64_t checksum) {
 //  }
 
@@ -276,7 +272,6 @@ static short allocCheck(void* p) {
     }
     else 
         return 0;
-
 }
 
 uint64_t convertInit(uint64_t poly, uint64_t init, uint8_t width) {
@@ -300,81 +295,25 @@ uint64_t convertInit(uint64_t poly, uint64_t init, uint8_t width) {
 uint64_t conv_poly = 0x1021;
     uint64_t conv_init = 0xFFFF;
     uint8_t conv_width = 16;
-    printf("poly: %#X direct: %#X  indirect: %#X\n",
+    printf("poly: %#llX direct: %#llX  indirect: %#llX\n",
     conv_poly, conv_init, convertInit(conv_poly, conv_init, conv_width) );
 
     conv_poly = 0x9b;
     conv_init = 0xFF;
     conv_width = 8;
-    printf("poly: %#X direct: %#X  indirect: %#X\n",
+    printf("poly: %#llX direct: %#llX  indirect: %#llX\n",
     conv_poly, conv_init, convertInit(conv_poly, conv_init, conv_width) );
 
     conv_poly = 0x4C11DB7;
     conv_init = 0xFFFFFFFF;
     conv_width = 32;
-    printf("poly: %#X direct: %#X  indirect: %#X\n",
+    printf("poly: %#llX direct: %#llX  indirect: %#llX\n",
     conv_poly, conv_init, convertInit(conv_poly, conv_init, conv_width) );
 
     conv_poly = 0x42f0e1eba9ea3693;
     conv_init = 0xffffffffffffffff;
     conv_width = 64;
-    printf("poly: %#X direct: %#X  indirect: %#X\n",
+    printf("poly: %#llX direct: %#llX  indirect: %#llX\n",
     conv_poly, conv_init, convertInit(conv_poly, conv_init, conv_width) );
 */
-
-// uint16_t convertInit(uint16_t val, uint16_t poly, bool dir2non) {
-//     uint8_t order = 16;
-//     uint8_t bit;
-
-//     uint8_t mask[8];
-//     uint8_t polynom[8];
-//     uint8_t init[8];
-
-//     //   init = convertentry (document.crcform.init.value, order);
-//     //   polynom = convertentry (document.crcform.polynom.value, order);
-//     //   var hexnum = new Array ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
-
-//     // generate and byte mask
-//     int counter = order;
-//     for (int i = 7; i >= 0; i--)
-//     {
-//         if (counter >= 8)
-//             mask[i] = 255;
-//         else 
-//             mask[i] = (1 << counter) - 1;
-//         counter -= 8;
-//         if (counter < 0) 
-//             counter = 0;
-//     }
-
-//     // compute new init value
-//     if (!dir2non) {		// nondirect -> direct
-//         init[8] = 0;
-//         for (int i = 0; i < order; i++) {
-//             bit = init[7 - ( (order-1) >> 3)] & (1 << ( (order-1) & 7) );
-//             for (int k = 0; k < 8; k++) {
-//                 init[k] = ( (init [k] << 1) | (init [k+1] >> 7)) & mask [k];
-//                 if (bit) 
-//                     init[k] ^= polynom[k];
-//             }
-//         }	
-//     }
-//     else {  // direct -> nondirect
-//         for (int i = 0; i < order; i++) {				
-//             bit = init[7] & 1;                  // aktuell i init == 1 => bit = 1;
-//             for (int k = 0; k < 8; k++) 
-//                 if (bit) 
-//                     init[k] ^= polynom[k];
-//             for (int k = 7; k; k--) 
-//                 init[k] = ((init [k] >> 1) | ((init[k-1]&1) << 7)) & mask [k];
-//             init[0] >>= 1;
-//             if (bit)
-//                 init[7 - ( (order - 1) >> 3)] |= 1 << ( (order-1) & 7);
-//         }	
-//     }
-// }
-
-
-
-
 
