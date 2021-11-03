@@ -96,15 +96,19 @@ void i82p(uint8_t nums[], size_t size, size_t cropTo, char separator, int newlin
 
 /**
   @brief Print array of ints; with colors and a space somewhere  
-  @note Terminal colors:
-          NRM   0
-          RED  31
-          GRN  32
-          YEL  33
-          BLU  34
-          MAG  35
-          CYN  36
-          WHT  37
+  @note ANSI codes:        "\e[1;COLm TEXT \e[m"
+           Look     on/off   Color  Fg nrm/bright   Bg nrm/bright
+          Reset     0       Black       30   90         40   100
+          Bold      1  23   Red         31   91         41   101
+          Italic    3  23   Green       32   92         42   102
+          Underline 4  24   Yellow      33   93         43   103
+		      Blink     5  25	  Blue        34   94         44   104
+          Invert    7  27   Magenta     35   95         45   105
+          Strike    9  29   Cyan        36   96         46   106
+          Framed   51  54   White       37   97         47   107
+          Circled  52  54     
+		      Overline 53  55		    
+
   @param ptr       pointer to array of ints
   @param size      size of array
   @param separator a sepator char, set 0 for none
@@ -112,7 +116,9 @@ void i82p(uint8_t nums[], size_t size, size_t cropTo, char separator, int newlin
   @param col       color code
   @param colStart  index to start coloring
   @param colLen    length to color
-  @param space     insert a space before this index, set -1 for no space 
+  @param space     insert a space before this index, set -1 for no space
+  @param space2    second space
+
 */
 void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space, int32_t space2, size_t lead);
 // void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space, size_t lead);

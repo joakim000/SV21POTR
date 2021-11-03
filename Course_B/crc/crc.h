@@ -50,10 +50,10 @@ typedef struct prog_s {
     uint8_t verbose;
     uint8_t printMsg;
     uint8_t printSteps;
-    uint8_t printStepsGen;
+    uint8_t prt_noskip;
+    uint8_t prt_nogen;
     uint8_t selfTest;
     uint8_t timing;
-
     uint8_t testMsg[9];
 } prog_t;
 
@@ -177,27 +177,35 @@ void zooTour(crcdef_t zoo[], size_t zoo_size);
 
 
 #define HELPTEXT1 "\
- Commands\n\
+ \e[1;53m\e[1;1m\e[1;7mCRC Explorer\e[1;27m\e[1;23m                              \e[1;3mSail the seven seas of CRCs\e[m\n\
+  \n\
+ \e[1;4mCommands\e[m\n\
   zoo       Where all the CRCs live\n\
   enc       Encode a message\n\
   val       Validate a message\n\
   \n\
- Input\n\
-  -s        CRC specificaton (visit zoo for indexed list)\n\
+ \e[1;4mInput\e[m\n\
+  -c        CRC specificaton (visit zoo for indexed list)\n\
   -m        Message\n\
-  -c        Checksum for validation\n\
+  -s        Checksum for validation\n\
   -in       Input file; message for encode, or checksummed for validation (format below)\n\
   -out      Output file for encode, format: [0xABC]Lorem ipsum dolor sit amet\n\
   \n\
- Flags\n\
-  -sbs     Print tablulated calculations (with colours!)\n\
+ \e[1;4mOptions\e[m\n\
+  -steps   Print step-by-step calculations (with colours!)\n\
+  -nogen   \e[1;3mWith steps:\e[m Don't print generator polynominal\n\
+  -noskip  \e[1;3mWith steps:\e[m Do print skipped steps (message bit is 0)\n\
+\n\
   -t       Timing: simple benchmark\n\
   -v       Verbose: lots of strange debugging text\n\
 \n\
-Edit crc_zoo.c to add more / custom specifications\n\
+\e[1;4mExamples\e[m\n\
+           crc enc -s 33 -in message.txt -out output.txt\n\
+           crc val -s 33 -in message.txt -c 0xABC\n\
 \n\
-Examples:  crc enc -s 33 -in message.txt -out output.txt\n\
-           crc val -s 33 -in message.txt -c 0xABC\n\n"
+\e[1;4mDo more\e[m\n\
+  Edit crc_zoo.c to add more / custom CRC specifications\n\
+  Validate and benchmark your own CRC implementation - see README\n\n"
 
 /**
   @brief Allocation status check

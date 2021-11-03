@@ -16,14 +16,13 @@ void main(int argc, char* argv[] )
         .verbose = VERBOSE,
         .printMsg = PRINTMSG,
         .printSteps = PRINTSTEPS,
-        .printStepsGen = PRINTSTEPSGEN,
         .selfTest = SELFTEST,
     };
     prog = &new_prog;    
     // Command line arguments
     struct benchargs {
         bool zoo, enc, validate,                // Command
-             printSteps, verbose, timing,    // Flags
+             printSteps, verbose, timing, prt_nogen, prt_noskip,    // Flags
              refIn, refOut;                  // Custom spec
         int checksum, 
             crc_spec, n, g, init, xor; // Custom spec
@@ -42,13 +41,15 @@ void main(int argc, char* argv[] )
         { .isFlag = true, .var = (bool*)&ca.enc, .str = "enc" },                     // encode
         { .isFlag = true, .var = (bool*)&ca.validate, .str = "val" },                   // validate
         // Input
-        { .isInt = true,  .var = (int*)&ca.crc_spec, .str = "-s", .defaultString = 0 },                // CRC spec index
+        { .isInt = true,  .var = (int*)&ca.crc_spec, .str = "-c", .defaultString = 0 },                // CRC spec index
         { .isString = true, .var = (char*)&ca.msg, .str = "-m", .defaultString = "" },               // message
-        { .isInt = true,  .var = (int*)&ca.checksum, .str = "-c", .defaultInt = 0 },                       // checksum for validation
+        { .isInt = true,  .var = (int*)&ca.checksum, .str = "-s", .defaultInt = 0 },                       // checksum for validation
         { .isString = true, .var = (char*)&ca.inFile, .str = "-in", .defaultString = "" },    // input file
         { .isString = true, .var = (char*)&ca.outFile, .str = "-out", .defaultString = "" }, // output file
         // Flags
         { .isFlag = true, .var = (bool*)&ca.printSteps, .str = "-steps" },                 // print steps
+        { .isFlag = true, .var = (bool*)&ca.prt_nogen, .str = "-nogen" },                 // Don't print generator
+        { .isFlag = true, .var = (bool*)&ca.prt_noskip, .str = "-noskip" },                 // Do print skipped steps
         { .isFlag = true, .var = (bool*)&ca.verbose, .str = "-v" },                       // verbose
         { .isFlag = true, .var = (bool*)&ca.timing, .str = "-t" },                       // timing
         // Custom spec
@@ -63,6 +64,8 @@ void main(int argc, char* argv[] )
     processArgs(argv, argc, defs, COUNT_OF(defs));
     // Set flags
     if (ca.printSteps) PROG.printSteps = true;
+    if (ca.prt_nogen) PROG.prt_nogen = true;
+    if (ca.prt_noskip) PROG.prt_noskip = true;
     if (ca.verbose) PROG.verbose = true;
     if (ca.timing) PROG.timing = true;
     // Check for a known command
