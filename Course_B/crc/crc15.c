@@ -31,7 +31,7 @@ void main(int argc, char* argv[] )
         // Load CRC spec 
         crc_t enc_crc;
         crc = &enc_crc;
-        loadSpec(zoo, CRC15CAN_INDEX, crc, false); 
+        loadDefWrapper(zoo, CRC15CAN_INDEX, crc, false); 
 
         // Prepare message 
         msg_t encode_msg = {
@@ -45,15 +45,15 @@ void main(int argc, char* argv[] )
         uint8_t new_msgBits[msg->paddedBitLen];      msg->msgBits = new_msgBits;
 
         // Arrange message
-        arrangeMsg(crc, msg);
+        ArrangeMsg(crc, msg);
 
         // Print original message 
         puts("\tEncode");
         if (PRINTMSG) printf("Message:\t\t%s\n", msg->msgStr);
 
         /* Calculate the CRC. For example the CRCs of "Hello World!" is 0xB35 and "AB" is 0x54FB */
-        msg->res = getRem(msg->msgBits, msg->paddedBitLen, msg->originalBitLen, crc);
-        printf("Calculated checksum:\t%#X\n", msg->res);
+        msg->rem = GetRemInternal(msg->msgBits, msg->paddedBitLen, msg->originalBitLen, crc);
+        printf("Calculated checksum:\t%#X\n", msg->rem);
     }
 
     // Redoing validation after message change, for demo purpose
@@ -70,14 +70,14 @@ void main(int argc, char* argv[] )
         uint8_t new_msgBits[msg->paddedBitLen];     msg->msgBits = new_msgBits;
 
          // Arrange message
-        arrangeMsg(crc, msg);
+        ArrangeMsg(crc, msg);
 
         /* Checksum the messsage. I.e replace the zeros with the CRC accroding to the requirements. */
         uint8_t new_csmsgBits[msg->paddedBitLen];
         msg->csmsgBits = new_csmsgBits;
         memcpy(msg->csmsgBits, msg->msgBits, msg->paddedBitLen);
-        checksumMsg(msg->paddedBitLen, msg->res, SPECIALWIDTH, msg->csmsgBits);    // Special
-        // checksumMsg(msg->paddedBitLen, msg->res, crc->n, msg->csmsgBits);          // Normal
+        checksumMsg(msg->paddedBitLen, msg->rem, SPECIALWIDTH, msg->csmsgBits);    // Special
+        // checksumMsg(msg->paddedBitLen, msg->rem, crc->n, msg->csmsgBits);          // Normal
 
         /* Validate the messsage.
         If the remainder is zero print "The data is OK\n"; otherwise print "The data is not OK\n" */
@@ -86,7 +86,7 @@ void main(int argc, char* argv[] )
         
         // Print result        
         puts("\tValidate");
-        printf("Validation checksum:\t%#X\n", msg->res);
+        printf("Validation checksum:\t%#X\n", msg->rem);
         validPrint(msg->msg, msg->len, valid);
     }
 
