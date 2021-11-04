@@ -17,6 +17,88 @@
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
 #define EACH (size_t i = 0; i < size; i++)
 
+
+// Printing functions
+void i2p(void const * const ptr, size_t size, size_t cropTo, char separator, int newline){
+    // uint32_t *nums = (uint32_t*) ptr;
+    if (cropTo == 0)
+        cropTo = size;
+    uint8_t *nums = (uint8_t*) ptr;
+    for (int i = size - cropTo; i < size; i++)
+        if (i < size - 1)
+            printf("%d%c", nums[i], separator);
+        else 
+            printf("%d", nums[i]);
+    for (int i = 0; i < newline; i++)
+        printf("\n");
+}
+
+void i82p(uint8_t nums[], size_t size, size_t cropTo, char separator, int newline){
+    // uint32_t *nums = (uint32_t*) ptr;
+    if (cropTo == 0)
+        cropTo = size;
+    // uint8_t *nums = (uint8_t*) ptr;
+    for (int i = size - cropTo; i < size; i++)
+        if (i < size - 1)
+            printf("%d%c", nums[i], separator);
+        else 
+            printf("%d", nums[i]);
+    for (int i = 0; i < newline; i++)
+        printf("\n");
+}
+
+void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space1, int32_t space2, size_t lead) {
+    uint8_t *nums = (uint8_t*) ptr;
+
+    char* fmt_ptr;
+    char* fmt_final_ptr;
+    char fmt[] = "%d%c"; 
+    char fmt_final[] = "%d";
+
+    char colfmt[16]; 
+    char colfmt_final[16]; 
+    sprintf(colfmt, "\e[1;%dm%%d%%c\e[m", col);
+    sprintf(colfmt_final, "\e[1;%dm%%d\e[m", col);
+    
+    // Leading spaces
+    char leadfmt[20];
+    sprintf(leadfmt, "%%%ds", lead);
+    printf(leadfmt, "");
+
+    for EACH {
+        if (i == space1 || i == space2) printf(" ");
+        // if (i == space1) printf("a");  if (i == space2)  printf("b");  // DEBUG
+
+        fmt_ptr       = (colStart <= i && i < (colStart + colLen)) ? colfmt : fmt;
+        fmt_final_ptr = (colStart <= i && i < (colStart + colLen)) ? colfmt_final : fmt_final;
+        if (i < size - 1)
+            printf(fmt_ptr, nums[i], separator);
+        else 
+            printf(fmt_final_ptr, nums[i]);
+    }
+    for (int i = 0; i < newline; i++)
+        printf("\n");
+}
+
+void printBits(char label[], uint8_t bits[], size_t size, size_t cropTo) {
+        if (cropTo == 0)
+            cropTo = size;
+        if (size > 40) {
+            printf("%10s bits (%d):\n", label, cropTo);
+            i2p(bits, size, cropTo, 0, 2); 
+        }
+        else {
+            printf("%10s bits (%d): ", label, cropTo);
+            i2p(bits, size, cropTo, 0, 1);
+        } 
+}
+
+
+
+
+
+
+
 void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[], bool extraBit) {
     int  byte_index, 
          bit_index;
@@ -67,35 +149,41 @@ void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool 
 
 uint64_t bits2intLSF(size_t const size, uint8_t* bits) {
     uint64_t r = 0;
-    for (int bit_index = 0; bit_index < size; bit_index++) {       
+    for (uint8_t bit_index = 0; bit_index < size; bit_index++)    {   
         if (bits[bit_index]) 
-            r |= 1ULL << (bit_index);
+            // OR 1 with bit at index means 1
+            r |= 1 << (bit_index);
         else
-            r &= ~(1ULL << (bit_index) );
-    }
+            // AND with NOT of bit at index means 0
+            r &= ~(1 << (bit_index) );
 
-    // printf("bits2intLSF returns %llu from bits: ", r);
-    // for EACH 
-    //     printf("%d", bits[i]);
-    // puts("");
+        // printf("i:%d b:%u r:%llu  r:%#llX\n", bit_index, bits[bit_index], r, r);
+    }
+    printf("bits2intLSF returns %#0llX from %d bits: ", r, size);
+    for EACH printf("%d", bits[i]);     puts("");
 
     return r; 
 }
+// Kan du se varför denna klipper av över 32 bit?
+// Bitsträngen som kommer in är rätt, men returvärdet är avklippt:
+// bits2intMSF returns 0XB497347 from 64 bits: 0110110001000000110111110101111100001011010010010111001101000111
+// Failed check value-test for CRC-64/ECMA-182; result 0XB497347 != check 0X6C40DF5F0B497347
 
 uint64_t bits2intMSF(size_t const size, uint8_t* bits) {
     uint64_t r = 0;
     int bit_write_index = size - 1;
     for (int bit_index = 0; bit_index < size; bit_index++) {       
         if (bits[bit_index]) 
-            r |= 1L << (bit_write_index--);
+            r |= 1 << (bit_write_index--);
         else    
-            r &= ~(1L << (bit_write_index--) );
+            r &= ~(1 << (bit_write_index--) );
+
+        // printf("i:%d r:%llu  r:%#llX\n", bit_index, r, r);
     }
 
-    // printf("bits2intMSF returns %llu from bits: ", r);
-    // for EACH 
-    //     printf("%d", bits[i]);
-    // puts("");
+    printf("bits2intMSF returns %#0llX from %d bits: ", r, size);
+    for EACH printf("%u", bits[i]);
+    puts("");
 
     return r; 
 }
@@ -261,7 +349,7 @@ void charArrayToString(char ca[], size_t size, char* out) {
 
 void bitSlice(int start, int count, void const * const ptr, size_t size, uint8_t out[]) {
     uint8_t* in = (uint8_t*) ptr;
-    // Start from end
+    // Start from end, finish at size?
     if (start < 0) 
         for (int i = size + (start), j = count - 1; i > size - count + (start); i--, j--)
             out[j] = in[i];
@@ -269,79 +357,5 @@ void bitSlice(int start, int count, void const * const ptr, size_t size, uint8_t
     else
         for (int i = start, j = 0; j < count; i++, j++)
             out[j] = in[i];
-}
-
-void i2p(void const * const ptr, size_t size, size_t cropTo, char separator, int newline){
-    // uint32_t *nums = (uint32_t*) ptr;
-    if (cropTo == 0)
-        cropTo = size;
-    uint8_t *nums = (uint8_t*) ptr;
-    for (int i = size - cropTo; i < size; i++)
-        if (i < size - 1)
-            printf("%d%c", nums[i], separator);
-        else 
-            printf("%d", nums[i]);
-    for (int i = 0; i < newline; i++)
-        printf("\n");
-}
-
-void i82p(uint8_t nums[], size_t size, size_t cropTo, char separator, int newline){
-    // uint32_t *nums = (uint32_t*) ptr;
-    if (cropTo == 0)
-        cropTo = size;
-    // uint8_t *nums = (uint8_t*) ptr;
-    for (int i = size - cropTo; i < size; i++)
-        if (i < size - 1)
-            printf("%d%c", nums[i], separator);
-        else 
-            printf("%d", nums[i]);
-    for (int i = 0; i < newline; i++)
-        printf("\n");
-}
-
-void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space1, int32_t space2, size_t lead) {
-    uint8_t *nums = (uint8_t*) ptr;
-
-    char* fmt_ptr;
-    char* fmt_final_ptr;
-    char fmt[] = "%d%c"; 
-    char fmt_final[] = "%d";
-
-    char colfmt[16]; 
-    char colfmt_final[16]; 
-    sprintf(colfmt, "\e[1;%dm%%d%%c\e[m", col);
-    sprintf(colfmt_final, "\e[1;%dm%%d\e[m", col);
-    
-    // Leading spaces
-    char leadfmt[20];
-    sprintf(leadfmt, "%%%ds", lead);
-    printf(leadfmt, "");
-
-    for EACH {
-        if (i == space1 || i == space2) printf(" ");
-        // if (i == space1) printf("a");  if (i == space2)  printf("b");  // DEBUG
-
-        fmt_ptr       = (colStart <= i && i < (colStart + colLen)) ? colfmt : fmt;
-        fmt_final_ptr = (colStart <= i && i < (colStart + colLen)) ? colfmt_final : fmt_final;
-        if (i < size - 1)
-            printf(fmt_ptr, nums[i], separator);
-        else 
-            printf(fmt_final_ptr, nums[i]);
-    }
-    for (int i = 0; i < newline; i++)
-        printf("\n");
-}
-
-void printBits(char label[], uint8_t bits[], size_t size, size_t cropTo) {
-        if (cropTo == 0)
-            cropTo = size;
-        if (size > 40) {
-            printf("%10s bits (%d):\n", label, cropTo);
-            i2p(bits, size, cropTo, 0, 2); 
-        }
-        else {
-            printf("%10s bits (%d): ", label, cropTo);
-            i2p(bits, size, cropTo, 0, 1);
-        } 
 }
 

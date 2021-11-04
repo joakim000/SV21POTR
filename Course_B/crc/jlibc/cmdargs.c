@@ -1,5 +1,3 @@
-
-
 #include "cmdargs.h"
 
 int checkArg(int argc, char *argv[], char arg[]) {

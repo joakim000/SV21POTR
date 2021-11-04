@@ -28,7 +28,7 @@
  ** Set variables from args **
     processArgs(argv, argc, defs, COUNT_OF(defs));
 
- ** Command line **
+ ** Example command line **
     out -flag1 -int1 100 -as1 "a string"
 
 */
@@ -39,17 +39,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-// Utility
-// #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
+// Process with no cmdline arguments, useful for setting defaults.
+// If set to false; returns error code 1 on no arguments.
+#define PROCESS_EMPTY true
 
 // Max string lengths
 #define MAXLEN_FLAG 32
 #define MAXLEN_DEFAULTSTRING 1024
 
-// Process with no cmdline arguments, useful for setting defaults.
-// If set to false; returns error code 1 on no arguments.
-#define PROCESS_EMPTY true
+// Utility
+#ifndef COUNT_OF
+#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x]))))) //Google's clever array size macro
+#endif
 
 // Definition of a command line argument
 typedef struct argdef_struct {
@@ -63,6 +64,7 @@ typedef struct argdef_struct {
 } argdef_t;
 
 int processArgs(char* argv[], int argc, argdef_t defs[], int defcount);
+
 int checkArg(int argc, char* argv[], char arg[]);  // Available for separate use
 
 

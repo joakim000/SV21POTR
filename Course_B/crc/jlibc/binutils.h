@@ -3,6 +3,8 @@
  * 
  * @author Joakim Odermalm
  ************************************/
+#include "common.h"
+
 
 /**
  @brief Convert a single int to array of bit values 
