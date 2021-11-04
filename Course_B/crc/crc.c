@@ -1,4 +1,7 @@
 #include "crc.h"
+#include "jlibc/binutils.h"
+#include "jlibc/common.h"
+
 
 // Data structures 
 prog_t* prog;
@@ -11,7 +14,11 @@ bits2int_t bits2int = bits2intMSF;
 ints2bits_t ints2bits = ints2bitsMSF;
 bits2ints_t bits2ints = bits2intsMSF;
 
-void arrangeMsg(crc_t* crc, msg_t* msg) {
+void ArrangeMsg(crc_t* crc, msg_t* msg) {
+    // Alloc for msgBits
+    msg->msgBits = calloc(msg->paddedBitLen, sizeof(uint8_t));         
+        assert( ("Memory allocation failed.", msg->msgBits != NULL) );
+     
      // Arrange message bits and pad
     if ( crc->inputLSF )
         ints2bitsLSF(strlen(msg->msgStr), sizeof(uint8_t), (msg->msgStr), msg->msgBits, SPECIALWIDTH, msg->initPad);  // Special accomodation, cf. error.h
@@ -24,46 +31,44 @@ void arrangeMsg(crc_t* crc, msg_t* msg) {
         TOWIDTH(initBits);
 
         // Write initbits into front padding
-        for (int i = 0; i < crc->n; i++) {
+        for (int i = 0; i < crc->n; i++) 
             msg->msgBits[i] = initBits[i];
-        };
         if(PROG.verbose) { printf("\ninitpad: %d", msg->initPad);  printf("msgBits (initBits written to frontpad): "); i82p(msg->msgBits, msg->paddedBitLen, 0, 0, 1); }
+    }
+
+    if (msg->rem != 0) {
+    // Write check bits to padding
+        // Convert checksum to array of bit values
+        int2bitsMSF(crc->n, &msg->rem, msg->remBits, false);
+       
+        // Handled as uint64, truncate to CRC width
+        uint8_t remBits[crc->n]; 
+        bitSlice(sizeof(msg->rem) * BITSINBYTE - crc->n, crc->n, &(msg->remBits), 0, remBits);
+
+        // Write 
+        for (int i = msg->paddedBitLen - crc->n, j = 0; j < crc->n; i++, j++) 
+            msg->msgBits[i] = remBits[j];
+        if(PROG.verbose) { printf("\nrem: %#llX", msg->rem);  printf("msgBits (remBits written to backpad): "); i82p(msg->msgBits, msg->paddedBitLen, 0, 0, 1); }
     }
 }
 
-void checksumMsg(size_t paddedBitLen, uint64_t checksum, size_t width, uint8_t csmsgBits[]) {
-    // Convert checksum to array of bit values
-    uint8_t tmp_csBits[sizeof(checksum) * BITSINBYTE];
-    int2bits(sizeof(checksum), &checksum, tmp_csBits, false);
 
-    // Handled as uint64, truncate to CRC width
-    uint8_t csBits[width]; 
-    bitSlice(sizeof(checksum) * BITSINBYTE - width, width, &tmp_csBits, 0, csBits);
-
-    if (PROG.verbose) printf("Checksum:\t%#llX\n", checksum);
-    if (PROG.verbose) printBits("Checksum", csBits, width, 0);
-    
-    // Extra checking step: Convert checksum bits back to checksum, check that it matches provided checksum
-    uint64_t checksumRecon = (uint64_t)bits2int(width, csBits);
-    if (PROG.verbose)  printf("Checksum: %#llX  Cs recon:%#llX\n", checksum, checksumRecon);
-    assert( ("Checksum error", checksumRecon == checksum) );
-
-    // Replace padding in csmsgBits with bits from checksum
-    for (int i = paddedBitLen - width, j = 0; j < width; i++, j++)
-            csmsgBits[i] = csBits[j];
-}
-
-
-uint64_t getRem(crc_t* crc, msg_t* msg) {
+uint64_t GetRemInternal(crc_t* crc, msg_t* msg) {
     // gBits to actual bit width
     size_t gBits_size = crc->n + 1; // Generator is 1 bit wider than CRC  
     uint8_t gBits[gBits_size];
     for (int i = gBits_size - 1, j = COUNT_OF(crc->gBits) - 1; i >= 0; i--, j--)
         gBits[i] = crc->gBits[j];
     
-    int i = 0;
-
-    if (PROG.printSteps) {
+    if (!PROG.printSteps) {
+    // Poly division 
+        for (int i = 0; i < msg->originalBitLen + msg->initPad; i++)  // Standard loop ending condition
+        // for (int i = 0; i < REMLOOPEND; i++)                       // Special accomodation, cf. error.h
+            if (msg->msgBits[i]) 
+                for (int j = 0, k = i; j < gBits_size; j++, k++) 
+                    msg->msgBits[k] ^= gBits[j];
+    }
+    else {
     // Poly division with printing of steps
         // Header
         char fmt[0x40];
@@ -82,7 +87,7 @@ uint64_t getRem(crc_t* crc, msg_t* msg) {
         // Content
         printf("\n Before: "); i2pc(msg->msgBits, msg->paddedBitLen, separator, newLines, 34, msg->originalBitLen+msg->initPad, crc->n, space1, space2, 0); 
         // for (; i < REMLOOPEND; i++)                       // Special accomodation, cf. error.h
-        for (; i < msg->originalBitLen + msg->initPad; i++)  // Standard loop ending condition
+        for (int i = 0; i < msg->originalBitLen + msg->initPad; i++)  // Standard loop ending condition
             if (msg->msgBits[i]) {
                 if (!PROG.prt_nogen)
                     i2pc(gBits, gBits_size, separator, newLines, 33, 0, gBits_size, space1-i, (crc->init && i > msg->initPad) ? space2-i+1 : space2-i, i+9); 
@@ -97,13 +102,7 @@ uint64_t getRem(crc_t* crc, msg_t* msg) {
             }  
         printf("  After: "); i2pc(msg->msgBits, msg->paddedBitLen, separator, newLines, 35, msg->originalBitLen+msg->initPad, crc->n, space1, space2, 0); 
     } 
-    else 
-    // Poly division (without printing of steps)
-        // for (; i < REMLOOPEND; i++)                       // Special accomodation, cf. error.h
-        for (; i < msg->originalBitLen + msg->initPad; i++)  // Standard loop ending condition
-            if (msg->msgBits[i]) 
-                for (int j = 0, k = i; j < gBits_size; j++, k++) 
-                    msg->msgBits[k] ^= gBits[j];
+        
 
     if (PROG.verbose) { puts("Message post calculation"); i2p(msg->msgBits, msg->paddedBitLen, 0, 0, 1);  }
 
@@ -112,7 +111,7 @@ uint64_t getRem(crc_t* crc, msg_t* msg) {
     bitSlice(-1, crc->n, msg->msgBits, msg->paddedBitLen, remBits);
     if (PROG.verbose) printBits("Remainder", remBits, COUNT_OF(remBits), crc->n);
 
-    // Final xoring of rem as required by some CRC specs
+    // Final xoring of validation_rem as required by some CRC specs
     if (crc->xor > 0) {
         TOWIDTH(xorBits);
         for (int i = 0; i < COUNT_OF(remBits); i++) 
@@ -120,14 +119,14 @@ uint64_t getRem(crc_t* crc, msg_t* msg) {
     }
 
     // Convert remBits to int with choice of bit ordering
-    uint64_t rem;
+    uint64_t validation_rem;
     if ( crc->resultLSF )
-        rem = (uint64_t)bits2intLSF(COUNT_OF(remBits), remBits);
+        validation_rem = (uint64_t)bits2intLSF(COUNT_OF(remBits), remBits);
     else
-        rem = (uint64_t)bits2intMSF(COUNT_OF(remBits), remBits);
+        validation_rem = (uint64_t)bits2intMSF(COUNT_OF(remBits), remBits);
 
-    if (PROG.verbose) printf("Remainder: %#llX\n", rem);
-    return rem;
+    if (PROG.verbose) printf("Remainder: %#llX\n", validation_rem);
+    return validation_rem;
 }
 
 
@@ -142,12 +141,10 @@ void messageLengthCheck(size_t len) {
     }
 }
 
-// bool validate(uint8_t msgBits[], size_t msgBitsCount, size_t originalMsgSize, crc_t* crc, msg_t* msg) {
 bool validate(crc_t* crc, msg_t* msg) {
-    uint64_t rem = getRem(crc, msg );
 
-    if (PROG.verbose) printf("Remainder: %#llX\n", rem);
-    return rem ? false : true;
+    if (PROG.verbose) printf("Remainder: %#llX\n", msg->validation_rem);
+    return msg->validation_rem ? false : true;
 }
 
 void validPrint(uint8_t msg[], size_t msgSize, bool valid) {
@@ -167,9 +164,7 @@ void validPrint(uint8_t msg[], size_t msgSize, bool valid) {
 
 void loadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
         // 0 n   1 Gen    2 IL1  3 Init  4 Nondir. 5 RefIn 6 RefOut 7 XorOut   8 Residue 9 Check      10 "AB"
-        // puts("before   strcpy((crc)->description, zoo[index].name);");
         strcpy((crc)->description, zoo[index].name);
-        // puts("after   strcpy((crc)->description, zoo[index].name);");
         crc->n =         zoo[index].specs[0];
         crc->g =         zoo[index].specs[1];
         crc->il1 =       zoo[index].specs[2];
@@ -181,7 +176,6 @@ void loadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
         crc->residue =   zoo[index].specs[8];
         crc->check =     zoo[index].specs[9];
         crc->checkAB =   zoo[index].specs[10];
-    // puts("After main specs load");
 
     // Convert generator polynomial to array of bit values  
     int2bitsMSF(sizeof(crc->g), &crc->g, crc->gBits, true );          
@@ -197,10 +191,11 @@ void loadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
 
 }
 
-void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
+void loadDefWrapper(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
     loadDef(zoo, index, crc);  
     
     if (table) {
+    // Oneline print for zoo-list
         char prt_init[18] = " ";  if (crc->init) sprintf(prt_init, "%#18llX", crc->init);
         char prt_xor[18] = " ";  if (crc->xor) sprintf(prt_xor, "%#18llX", crc->xor);
         char* prt_nondirect = crc->nondirect ? "X" : " "; 
@@ -209,9 +204,9 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
         printf("\e[1;1m%16s\e[m ", crc->description);
         printf("%#18llX %#18s  %-3s ",  crc->g, prt_init, prt_nondirect);
         printf("%#18s    %-2s    %-3s ", prt_xor, prt_refIn, prt_refOut);
-
     }
     else {
+    // Verbose print for normal execution
         char prt_init[18] = "No";  if (crc->init) sprintf(prt_init, "%#llX", crc->init);
         char prt_xor[18] = "No";  if (crc->xor) sprintf(prt_xor, "%#llX", crc->xor);
         char* prt_nondirect = crc->nondirect ? "Yes" : "No"; 
@@ -224,8 +219,9 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
 
     // Check value-test for this spec
       // Disable printSteps when testing
-    uint8_t tmp_printSteps = PROG.printSteps; PROG.printSteps = SELFTESTSTEPS;
+    uint8_t tmp_printSteps = PROG.printSteps; 
     if (table) PROG.printSteps = false;
+    PROG.printSteps = SELFTESTSTEPS;   //DEBUG
 
     // Prepare standard check message
     char message[] = "123456789";
@@ -243,23 +239,26 @@ void loadSpec(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
     for I2(COUNT_OF(test_msgBits)) test_msgBits[i] = 0;     
     test_msg.msgBits = test_msgBits;
 
-    arrangeMsg(crc, &test_msg);
-    test_msg.res = getRem(crc, &test_msg);
+    ArrangeMsg(crc, &test_msg);
+    test_msg.rem = GetRemInternal(crc, &test_msg);
 
-    if (test_msg.res == crc->check)
+    // Print check value test result
+    if (test_msg.rem == crc->check)
         if (table)
-            // printf("\e[1;32mPassed\e[m\n");
-            printf("\e[1;32mPassed\e[m %#llX\n", test_msg.res, crc->check);
+            // printf("\e[1;32mPassed\e[m\n");                                       // Short
+            printf("\e[1;32mPassed\e[m %#0llX\n", test_msg.rem, crc->check);         // Show value
         else
             printf("\e[1;32mPassed check value-test for %s;\e[m matching %#llX\n", crc->description, crc->check);
     else 
         if (table)
-            // printf("\e[1;31mFailed\e[m\n");
-            printf("\e[1;31mFailed\e[m %#llX != %#llX\n", test_msg.res, crc->check);
+            // printf("\e[1;31mFailed\e[m\n");                                            // Short
+            printf("\e[1;31mFailed\e[m %#0llX != %#0llX\n", test_msg.rem, crc->check);      // Show values                                    
         else
-            printf("\e[1;31m\e[1;5mFailed\e[1;25m check value-test for %s;\e[m result %#llX != check %#llX\n", crc->description, test_msg.res, crc->check);
+            printf("\e[1;31m\e[1;5mFailed\e[1;25m check value-test for %s;\e[m result %#0llX != check %#0llX\n", crc->description, test_msg.rem, crc->check); 
     
-    if (VERBOSELOAD && !table) { 
+
+    if (VERBOSE && !table) { 
+    // Diagnostic info
         printf("     gBits: "); i2p(&crc->gBits, COUNT_OF(crc->gBits), crc->n+1, 0, 1);
         // if (VERBOSE || expected) printBits("Generator",  crc->gBits, COUNT_OF( crc->gBits ), crc->gBits_size);
         printf("  initBits:  "); i2p(&crc->initBits, COUNT_OF(crc->initBits), crc->n, 0, 1);
@@ -273,7 +272,7 @@ void zooTour(crcdef_t zoo[], size_t zoo_size) {
     for (int i = 0; i < zoo_size; i++) {
         crc_t zooItem;
         printf("%5d ", i);
-        loadSpec(zoo, i, &zooItem, true);
+        loadDefWrapper(zoo, i, &zooItem, true);
     }
 }
 
@@ -294,7 +293,7 @@ static short allocCheck(void* p) {
 
 uint64_t convertInit(uint64_t poly, uint64_t init, uint8_t width) {
     uint64_t next = 2;
-    for (int i = 1; i < width - 1; i++) next *= 2;  // pow() funkar inte under linux
+    for (int i = 1; i < width - 1; i++) next *= 2;  // pow() funkar inte under linux, saknar math.h
 
    // Direct to non-direct
    for (int i = 0; i < width; i++) {
@@ -334,4 +333,26 @@ uint64_t conv_poly = 0x1021;
     printf("poly: %#llX direct: %#llX  indirect: %#llX\n",
     conv_poly, conv_init, convertInit(conv_poly, conv_init, conv_width) );
 */
+
+implTest_t TestImplemenation(crc_t* crc, msg_t* msg) {
+    implTest_t test;
+
+}
+
+msg_t* PrepareMsg(crc_t* crc, char* message) {
+// Prepare message struct
+        msg_t* r = calloc(1, sizeof(msg_t));
+
+        int8_t initPad = crc->init > 0 ? crc->n : 0;
+        // int8_t augmentPad = crc->init && !crc->nondirect ? 0 : crc->n;
+        int8_t augmentPad = crc->n;
+
+        r->msgStr = message;
+        r->len = strlen(message);
+        r->initPad = initPad;
+        r->originalBitLen = strlen(message) * sizeof(uint8_t) * BITSINBYTE;
+        // r->.paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + SPECIALWIDTH + initPad,     // Special
+        r->paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + augmentPad + initPad;               // Normal
+        return r;
+}
 
