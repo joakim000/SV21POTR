@@ -52,7 +52,7 @@ void main(int argc, char* argv[] )
         if (PRINTMSG) printf("Message:\t\t%s\n", msg->msgStr);
 
         /* Calculate the CRC. For example the CRCs of "Hello World!" is 0xB35 and "AB" is 0x54FB */
-        msg->rem = GetRemInternal(msg->msgBits, msg->paddedBitLen, msg->originalBitLen, crc);
+        msg->rem = PolyDivision(msg->msgBits, msg->paddedBitLen, msg->originalBitLen, crc);
         printf("Calculated checksum:\t%#X\n", msg->rem);
     }
 
