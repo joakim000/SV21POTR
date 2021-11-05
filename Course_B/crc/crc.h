@@ -244,6 +244,10 @@ implTest_t PerfImplemenation(crc_t* crc, uint64_t set_size);
 uint64_t GetRemInternal(crc_t* crc, msg_t* msg, uint64_t check);
 
 
+typedef uint64_t (*GetRem_ptr_t)(crc_t* crc, msg_t* msg, uint64_t check);
+extern GetRem_ptr_t GetRem_ptr;
+
+
 // typedef void (*int2bits_t)(size_t const size, void const * const ptr, uint8_t out[], bool extraBit); 
 // typedef uint32_t (*bits2int_t)(size_t const len, uint8_t* bits);
 // extern int2bits_t int2bits;

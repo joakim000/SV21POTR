@@ -10,6 +10,8 @@ prog_t* prog;
 
 clock_t timer_start; clock_t timer_end; 
 
+GetRem_ptr_t GetRem_ptr;
+
 
 // Set aliases to MSF as default    
 // int2bits_t int2bits = int2bitsMSF;
@@ -348,21 +350,24 @@ implTest_t PerfImplemenation(crc_t* crc, uint64_t set_size) {
     msg_t* perf = PrepareMsg(crc, message);
 
     timer_start = clock();
-        perf->rem = GetRemInternal(crc, perf, 0);
+        // perf->rem = GetRemInternal(crc, perf, 0);
+        perf->rem = GetRem_ptr(crc, perf, 0);
     timer_end = clock();
+
+    
 
     double elapsed = TIMING(timer_start, timer_end);
     printf("  Encode: %d chars in %5.3f seconds, %5.3f MiB/s.\n", perf->len, elapsed, perf->len / elapsed / 0x100000);
 
     // Validate
-    // timer_start = clock();
-    //     perf->rem = GetRemInternal(crc, perf, perf->rem);
-    // timer_end = clock();
+    timer_start = clock();
+               perf->rem = GetRem_ptr(crc, perf, 0);
+    timer_end = clock();
 
-    // test.passed_validate_msg = perf->rem == 0; 
-    // elapsed = TIMING(timer_start, timer_end);
-    // printf("Validate: %d chars in %5.3f seconds, %5.3f MiB/s. ", perf->len, elapsed, perf->len / elapsed / 0x100000);
-    // test.passed_validate_msg ? printf("Passed.\n") : printf("Failed.\n");
+    test.passed_validate_msg = perf->rem == 0; 
+    elapsed = TIMING(timer_start, timer_end);
+    printf("Validate: %d chars in %5.3f seconds, %5.3f MiB/s. ", perf->len, elapsed, perf->len / elapsed / 0x100000);
+    test.passed_validate_msg ? printf("Passed.\n") : printf("Failed.\n");
 
     // Free
     free(perf->msgStr);
@@ -393,23 +398,15 @@ uint64_t ValueCheckTest(crc_t* crc, uint8_t type, uint8_t output) {
     // Prepare standard check message
     char message[] = "123456789";
     msg_t* test_msg = PrepareMsg(crc, message);
-    // if (type < 0)
-        // test_msg->validation_rem = crc->check;
     if (type == 2)
         test_msg->msgStr[1] = 'x';
 
-    if (PROG.internal_engine) {
-        if (type == 0)
-            test_msg->rem = GetRemInternal(crc, test_msg, 0);
-        else
-            test_msg->rem = GetRemInternal(crc, test_msg, crc->check);
-    }
-    else {
-        if (type == 0) 
-            test_msg->rem = GetRem(crc, test_msg, 0);
-        else 
-            test_msg->rem = GetRem(crc, test_msg, crc->check);
-    }
+    // Call engine
+    if (type == 0) 
+        test_msg->rem = GetRem_ptr(crc, test_msg, 0);
+    else 
+        test_msg->rem = GetRem_ptr(crc, test_msg, crc->check);
+
     bool valid = ( (type == 0 && test_msg->rem == crc->check) || (type != 0 && test_msg->rem == 0 ) ) ? true : false;
 
     // Print check value test result
