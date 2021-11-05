@@ -11,12 +11,18 @@
   @brief 
   @return
 */
-void* getDataRandom(size_t set_size, uint8_t element_size, size_t maxNum, uint8_t* error );
+uint64_t* GetU64random(size_t set_size, size_t maxnum, uint8_t* error );
 /**
   @brief 
   @return
 */
-void* getDataLinear(size_t set_size, uint8_t element_size, size_t start, uint8_t* error );
+uint8_t* GetU8random(size_t set_size, size_t maxnum, uint8_t* error );
+
+void* GetU64linear(size_t set_size, uint8_t element_size, size_t start, uint8_t* error );
+
+
+
+
 /**
   @brief 
   @return
@@ -55,8 +61,6 @@ void print_array(uint32_t *num, uint32_t size, uint32_t tmax, uint32_t rnd_max);
   @return
 */
 void compare_print_array(uint32_t *num, uint32_t size, uint32_t *comp, uint32_t tmax, uint32_t rnd_max);
-
-
 
 
 

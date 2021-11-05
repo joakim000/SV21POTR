@@ -6,7 +6,7 @@
 #include "common.h"
 
 
-uint64_t* getU64random(size_t set_size, size_t maxnum, uint8_t* error ) {
+uint64_t* GetU64random(size_t set_size, size_t maxnum, uint8_t* error ) {
     srand(time(0));
     uint64_t* random = calloc(set_size, sizeof(uint64_t));
         assert( ("Memory allocation failed.", random != NULL) );
@@ -14,16 +14,19 @@ uint64_t* getU64random(size_t set_size, size_t maxnum, uint8_t* error ) {
             random[i] = (uint64_t)GENRAND(maxnum);
     return random;
 }
-uint8_t* getU8random(size_t set_size, size_t maxnum, uint8_t* error ) {
+uint8_t* GetU8random(size_t set_size, size_t maxnum, uint8_t* error ) {
     srand(time(0));
-    uint8_t* random = calloc(set_size, sizeof(uint8_t));
+    uint8_t* random = calloc(set_size+1, sizeof(uint8_t));
         assert( ("Memory allocation failed.", random != NULL) );
     for (size_t i = 0; i < set_size; i++) 
             random[i] = (uint8_t)GENRAND(maxnum);
+
+    for I2(set_size) if (random[i] == 0) random[i]++;
+    random[set_size] = '\0';
     return random;
 }
 
-void* getU64Linear(size_t set_size, uint8_t element_size, size_t start, uint8_t* error ) {
+void* GetU64linear(size_t set_size, uint8_t element_size, size_t start, uint8_t* error ) {
     uint64_t* linear = calloc(set_size, sizeof(uint64_t));
         assert( ("Memory allocation failed.", linear != NULL) );
     for (size_t i = 0; i < set_size; i++) 
