@@ -24,7 +24,7 @@ void main(int argc, char* argv[] )
     prog = &new_prog;    
     // Command line arguments
     struct benchargs {
-        bool zoo, enc, validate, impl_test,                 // Command
+        bool zoo, enc, validate, impl_test, perf_test,              // Command
              printSteps, verbose, timing, prt_nogen, prt_noskip, use_internal_engine,   // Flags
              refIn, refOut;                  // Custom spec
         int checksum, 
@@ -43,7 +43,9 @@ void main(int argc, char* argv[] )
         { .isFlag = true, .var = (bool*)&ca.zoo, .str = "zoo" },                     // zoo
         { .isFlag = true, .var = (bool*)&ca.enc, .str = "enc" },                     // encode
         { .isFlag = true, .var = (bool*)&ca.validate, .str = "val" },                   // validate
-        { .isFlag = true, .var = (bool*)&ca.impl_test, .str = "imp" },                       // extensive test
+        { .isFlag = true, .var = (bool*)&ca.impl_test, .str = "imp" },                       // 3-step validation of implementation
+        { .isFlag = true, .var = (bool*)&ca.perf_test, .str = "perf" },                       // Performance of implementation
+
 
         // Input
         { .isInt = true,  .var = (int*)&ca.crc_spec, .str = "-c", .defaultString = 0 },                // CRC spec index
@@ -78,7 +80,7 @@ void main(int argc, char* argv[] )
     PROG.internal_engine = (!EXTERNAL_ENGINE_AVAILABLE || ca.use_internal_engine) ? true : false;
 
     // Check for a known command
-    if (!ca.zoo && !ca.enc && !ca.validate && !ca.impl_test) {
+    if (!ca.zoo && !ca.enc && !ca.validate && !ca.impl_test && !ca.perf_test) {
         printf("Available commands:\n\tzoo\tWhere all the CRCs live\n\tenc\tEncode a message\n"
                "\tval\tValidate a message\n\timp\tImplemenation test\n\thelp\tMore help\n", NULL);
         exit(EXIT_SUCCESS);
@@ -91,11 +93,29 @@ void main(int argc, char* argv[] )
         exit(EXIT_SUCCESS);
     }
 
+    // Commands below this point require a CRC.
+      // Load CRC definition 
+        crc_t enc_crc;
+        crc = &enc_crc;
+        loadDefWrapper(zoo, ca.crc_spec, &enc_crc, false); 
+
+    // The two tests may be run within one execution    
     // Commmand: Test implementation
     if (ca.impl_test) {
+        TestImplemenation(crc);
+
+        if (!ca.perf_test)
+            exit(EXIT_SUCCESS);
+    }
+    // Commmand: Test implementation
+    if (ca.perf_test) {
+        PerfImplemenation(crc, 0x10000);
+        PerfImplemenation(crc, 0x100000);
+        PerfImplemenation(crc, 0x1000000);
+        // PerfImplemenation(crc, 0x8000000);
+
         exit(EXIT_SUCCESS);
     }
-
 
     // Commands below this point require a message. Try to find one, else exit.
     char* message;
@@ -112,17 +132,12 @@ void main(int argc, char* argv[] )
     }
     // Still no message?
     if (strlen(message) < 1 ) {
-        PRINTERR("No message, exiting.");
+        PRINTERR("No message, exiting.\n");
         exit(EXIT_FAILURE);
     }
 
     // Command: Encode
     if (ca.enc) {      
-        // Load CRC definition 
-        crc_t enc_crc;
-        crc = &enc_crc;
-        loadDefWrapper(zoo, ca.crc_spec, &enc_crc, false); 
-
         // Prepare message 
         msg = PrepareMsg(crc, message);
        
@@ -131,21 +146,17 @@ void main(int argc, char* argv[] )
         // Or set a custom value.  Check is skipped when set to 0. 
         msg->expected = strcmp(msg->msgStr, "AB") ? 0 : crc->checkAB; 
 
+        // Calculate remainder with int or ext engine, also start and stop timer
         if (PROG.internal_engine) {
-        timer_start = clock();
-            // Arrange message
-            ArrangeMsg(crc, msg);
-            // Calculate remainder
-            msg->rem = GetRemInternal(crc, msg);
+            timer_start = clock();
+                msg->rem = GetRemInternal(crc, msg, 0);
+            timer_end = clock();
         }
-        timer_end = clock();
-
         if (!PROG.internal_engine) {
-        timer_start = clock();
-            // Calculate remainder
-            msg->rem = GetRem(crc, msg, 0);
+            timer_start = clock();
+                msg->rem = GetRem(crc, msg, 0);
+            timer_end = clock();
         }
-        timer_end = clock();
 
         // Printing 
         if (PRINTMSG) {
@@ -159,17 +170,19 @@ void main(int argc, char* argv[] )
         if (ca.timing) printf("%d chars in %5.3f seconds, %5.3f MiB/s.\n", msg->len, elapsed, msg->len / elapsed / 0x100000);
 
         // Compare result with a expected value
-        if (msg->expected && msg->rem != msg->expected) {
+        if ( msg->expected && (msg->rem != msg->expected || PROG.verbose) ) {
             printf("Expected:\t%#llX\n", msg->expected);
             if (PROG.verbose) {                                   // Print bits of result and expected for analysis
                 uint8_t checksumBits[sizeof(msg->rem) * 8];
-                int2bits(sizeof(msg->rem), &msg->rem, checksumBits, false);
+                int2bitsMSF(sizeof(msg->rem), &msg->rem, checksumBits, false);
                 printBits("Checksum", checksumBits, COUNT_OF(checksumBits), crc->n);
                 uint8_t expectedBits[sizeof(msg->expected) * 8];
-                int2bits(sizeof(msg->expected), &msg->expected, expectedBits, false);
+                int2bitsMSF(sizeof(msg->expected), &msg->expected, expectedBits, false);
                 printBits("Expected", expectedBits, COUNT_OF(expectedBits), crc->n);
             }
-            printf("\e[1;31m%s\e[m\n", "Checksum does not match expected value."); // red
+            msg->rem == msg->expected ?
+                printf("\e[1;32m%s\e[m\n", "Checksum matches expected value.") :  // green
+                printf("\e[1;31m%s\e[m\n", "Checksum does not match expected value."); // red
         }
         
         // Open file for writing result      
@@ -227,27 +240,23 @@ void main(int argc, char* argv[] )
             exit(EXIT_FAILURE);
         }
         
-        // Load CRC spec 
-        crc_t new_crc;
-        crc = &new_crc;
-        loadDefWrapper(zoo, ca.crc_spec, &new_crc, false); 
-
         // Prepare message 
         msg = PrepareMsg(crc, message);
-        msg->rem = checksum;
+        msg->validation_rem = checksum;
 
        // if (PROG.verbose) 
-        printf("Checksum:\t\t%#llX\n", msg->rem);
+        printf("Checksum:\t\t%#llX\n", msg->validation_rem);
 
+        // Calculate remainder with int or ext engine, also start and stop timer
         if (PROG.internal_engine) {
-            // Arrange message
-            ArrangeMsg(crc, msg);
-            // Calculate remainder
-            msg->validation_rem = GetRemInternal(crc, msg);
+            timer_start = clock();
+                msg->rem = GetRemInternal(crc, msg, msg->validation_rem);
+            timer_end = clock();
         }
-        else {
-            // Calculate remainder
-            msg->validation_rem = GetRem(crc, msg, msg->rem);
+        if (!PROG.internal_engine) {
+            timer_start = clock();
+                msg->rem = GetRem(crc, msg, msg->validation_rem);
+            timer_end = clock();
         }
 
         
