@@ -3,6 +3,8 @@
 #include "jlibc/cmdargs.h"
 // #define DA_TYPE uint8_t
 // #include "jlibc/da.h"
+#include "jlibc/datagenerator.h"
+
 
 // #define MATCH_EXAMPLES
 #include "errors.h"
@@ -51,58 +53,12 @@ typedef struct prog_s {
     uint8_t testMsg[9];
 } prog_t;
 
-// // CRC fields
-// typedef struct crc_s {
-//     char description[64];
-//     // Definition
-//     uint64_t n;          // Bit width 
-//     uint64_t g;          // Generator polynomial
-//     uint8_t il1;         // implicit_leading_1
-//     uint64_t init;       // Initial CRC value (seed)
-//     uint8_t  nondirect;  // Init can be direct or nondirect
-//     uint64_t init_conv;  // Converted initial CRC value (seed)
-//     uint8_t inputLSF;    // Input reflected
-//     uint8_t resultLSF;   // Result reflected
-//     uint64_t xor;        // Final XOR value
-//     uint64_t residue;    // Given as spec on some sites, not sure how to use it yet
-//     uint64_t check;      // Expected result from "123456789"
-//     uint64_t checkAB;    // Expected result from "AB"
-
-//     // Work
-//     uint8_t gBits[65];
-//     uint8_t initBits[64];
-//     uint8_t xorBits[64];
-// } crc_t;
 
 // CRC definition, serialized specs 
 typedef struct crcdef_s {
         char name[0x80];
         uint64_t specs[11];
 } crcdef_t;
-
-
-
-// // Message fields
-// typedef struct msg_s {
-//     char* msgStr;              // Message as string 
-//     size_t len;
-//     uint8_t* msgBits;       //  
-//     size_t originalBitLen;    // 
-//     size_t paddedBitLen;  
-//     size_t initPad;  // 
-    
-//     // CRC checksum    
-//     uint64_t rem;
-   
-//     // Message validation
-//     uint8_t remBits[64];
-//     uint8_t* csmsgBits;       // 
-//     uint64_t validation_rem;
-//     bool valid;
-
-//     // Calculation testing
-//     uint64_t expected;
-// } msg_t;
 
 
 // A test of an implemenation 
@@ -157,8 +113,8 @@ void checksumMsg(size_t paddedBitLen, uint64_t checksum, size_t width, uint8_t c
   @brief Get the remainder, aka the result, aka the checksum
   @return  
 */
-// uint64_t GetRemInternal(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize, crc_t* crc );
-uint64_t GetRemInternal(crc_t* crc, msg_t* msg);
+// uint64_t PolyDivision(uint8_t msgBits[], size_t msgSize, size_t originalMsgSize, crc_t* crc );
+uint64_t PolyDivision(crc_t* crc, msg_t* msg);
 
 /**
   @brief  Assignment requirement
@@ -255,3 +211,40 @@ bool checkValueTest(crc_t* crc, msg_t msg, bool run_validate);
   @return  
 */
 msg_t* PrepareMsg(crc_t* crc, char* message);
+
+
+/**
+ * @brief Validate encode phase of CRC implementation for a CRC definition
+ * 
+ * @param crc       CRC definition
+ * @param output    Print text to stdout?
+ *                  0: None
+ *                  1: One-line
+ *                  2: Verbose
+ * @return true     Passed
+ * @return false    Failed
+ */
+uint64_t ValueCheckTest(crc_t* crc, uint8_t type, uint8_t output);
+
+/**
+ * @brief Check value-test implementation scenarios
+ *        1. Encode => check value
+ *        2. Validate with check value => 0
+ *        3. Validate with changed message => !0
+ * 
+ * @param crc 
+ * @param msg 
+ * @return implTest_t 
+ */
+implTest_t TestImplemenation(crc_t* crc);
+
+
+implTest_t PerfImplemenation(crc_t* crc, uint64_t set_size);
+
+uint64_t GetRemInternal(crc_t* crc, msg_t* msg, uint64_t check);
+
+
+// typedef void (*int2bits_t)(size_t const size, void const * const ptr, uint8_t out[], bool extraBit); 
+// typedef uint32_t (*bits2int_t)(size_t const len, uint8_t* bits);
+// extern int2bits_t int2bits;
+
