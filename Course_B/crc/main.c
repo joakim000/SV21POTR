@@ -3,6 +3,7 @@
 #include "jlibc/datagenerator.h"
 #include "jlibc/common.h"
 
+
 void main(int argc, char* argv[] )
 {
     // Data structures
@@ -77,7 +78,10 @@ void main(int argc, char* argv[] )
     PROG.prt_noskip = ca.prt_noskip ? true : false;
     PROG.verbose =    ca.verbose    ? true : false;
     PROG.timing =     ca.timing     ? true : false;
+
     PROG.internal_engine = (!EXTERNAL_ENGINE_AVAILABLE || ca.use_internal_engine) ? true : false;
+    GetRem_ptr = PROG.internal_engine ? GetRemInternal : GetRem;
+
 
     // Check for a known command
     if (!ca.zoo && !ca.enc && !ca.validate && !ca.impl_test && !ca.perf_test) {
@@ -146,17 +150,10 @@ void main(int argc, char* argv[] )
         // Or set a custom value.  Check is skipped when set to 0. 
         msg->expected = strcmp(msg->msgStr, "AB") ? 0 : crc->checkAB; 
 
-        // Calculate remainder with int or ext engine, also start and stop timer
-        if (PROG.internal_engine) {
-            timer_start = clock();
-                msg->rem = GetRemInternal(crc, msg, 0);
-            timer_end = clock();
-        }
-        if (!PROG.internal_engine) {
-            timer_start = clock();
-                msg->rem = GetRem(crc, msg, 0);
-            timer_end = clock();
-        }
+        // Calculate remainder with engine pointed to, also start and stop timer
+        timer_start = clock();
+            msg->rem = GetRem_ptr(crc, msg, 0);
+        timer_end = clock();
 
         // Printing 
         if (PRINTMSG) {
@@ -247,17 +244,10 @@ void main(int argc, char* argv[] )
        // if (PROG.verbose) 
         printf("Checksum:\t\t%#llX\n", msg->validation_rem);
 
-        // Calculate remainder with int or ext engine, also start and stop timer
-        if (PROG.internal_engine) {
-            timer_start = clock();
-                msg->rem = GetRemInternal(crc, msg, msg->validation_rem);
-            timer_end = clock();
-        }
-        if (!PROG.internal_engine) {
-            timer_start = clock();
-                msg->rem = GetRem(crc, msg, msg->validation_rem);
-            timer_end = clock();
-        }
+         // Calculate remainder with engine pointed to, also start and stop timer
+        timer_start = clock();
+            msg->rem = GetRem_ptr(crc, msg, 0);
+        timer_end = clock();
 
         
         // Validate the messsage
