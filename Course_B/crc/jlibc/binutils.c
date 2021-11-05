@@ -93,12 +93,6 @@ void printBits(char label[], uint8_t bits[], size_t size, size_t cropTo) {
         } 
 }
 
-
-
-
-
-
-
 void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[], bool extraBit) {
     int  byte_index, 
          bit_index;
@@ -147,46 +141,58 @@ void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool 
     }
 }
 
+
 uint64_t bits2intLSF(size_t const size, uint8_t* bits) {
     uint64_t r = 0;
     for (uint8_t bit_index = 0; bit_index < size; bit_index++)    {   
         if (bits[bit_index]) 
             // OR 1 with bit at index means 1
-            r |= 1 << (bit_index);
+            r |= 1ULL << (bit_index);
         else
             // AND with NOT of bit at index means 0
-            r &= ~(1 << (bit_index) );
+            r &= ~(1ULL << (bit_index) );
 
-        // printf("i:%d b:%u r:%llu  r:%#llX\n", bit_index, bits[bit_index], r, r);
+        // printf("i:%2d b:%u r:%#llX\n", bit_index, bits[bit_index], r, r);
     }
-    printf("bits2intLSF returns %#0llX from %d bits: ", r, size);
-    for EACH printf("%d", bits[i]);     puts("");
-
+    // printf("bits2intLSF returns %#0llX from %d bits: ", r, size);
+    // for EACH printf("%d%s", bits[i], (i+1)%4==0 ? " " : "" );     puts("");
     return r; 
 }
-// Kan du se varför denna klipper av över 32 bit?
-// Bitsträngen som kommer in är rätt, men returvärdet är avklippt:
-// bits2intMSF returns 0XB497347 from 64 bits: 0110110001000000110111110101111100001011010010010111001101000111
-// Failed check value-test for CRC-64/ECMA-182; result 0XB497347 != check 0X6C40DF5F0B497347
+
 
 uint64_t bits2intMSF(size_t const size, uint8_t* bits) {
     uint64_t r = 0;
-    int bit_write_index = size - 1;
+    int bit_write_index = size;
+
     for (int bit_index = 0; bit_index < size; bit_index++) {       
         if (bits[bit_index]) 
-            r |= 1 << (bit_write_index--);
+            r |= 1ULL << (--bit_write_index);
         else    
-            r &= ~(1 << (bit_write_index--) );
-
-        // printf("i:%d r:%llu  r:%#llX\n", bit_index, r, r);
+            r &= ~(1ULL << (--bit_write_index) );
+        // printf("i:%2d bwi: %d  b:%u   r:%#llX\n", bit_index, bit_write_index, bits[bit_index], r, r);
     }
-
-    printf("bits2intMSF returns %#0llX from %d bits: ", r, size);
-    for EACH printf("%u", bits[i]);
-    puts("");
-
     return r; 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void ints2bitsLSF(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t frontPad_size) {
     uint8_t bitsArray[type_size * 8];

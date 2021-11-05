@@ -26,8 +26,8 @@ void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[], bool 
     // size is length of bitArray
     bits2int(size, bitArray));
 */
-uint32_t bits2intMSF(size_t const len, uint8_t* bits);
-uint32_t bits2intLSF(size_t const len, uint8_t* bits);
+uint64_t bits2intMSF(size_t const len, uint8_t* bits);
+uint64_t bits2intLSF(size_t const len, uint8_t* bits);
 
 
 /**
@@ -62,14 +62,14 @@ void bits2intsLSF(size_t const total_bits, size_t const type_size, uint8_t const
   @brief Function pointer types and pointers for calling from MSF/LSF generalized functions 
   @note  Needs to be set before using
  */
-typedef void (*int2bits_t)(size_t const size, void const * const ptr, uint8_t out[], bool extraBit); 
-typedef uint32_t (*bits2int_t)(size_t const len, uint8_t* bits);
-typedef void (*ints2bits_t)(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t frontPad_size); 
-typedef void (*bits2ints_t)(size_t const total_bits, size_t const type_size, uint8_t const bits[], void const * const out_ptr);
-extern int2bits_t int2bits;
-extern bits2int_t bits2int;
-extern ints2bits_t ints2bits;
-extern bits2ints_t bits2ints;
+// typedef void (*int2bits_t)(size_t const size, void const * const ptr, uint8_t out[], bool extraBit); 
+// typedef uint32_t (*bits2int_t)(size_t const len, uint8_t* bits);
+// typedef void (*ints2bits_t)(size_t const size, size_t const type_size, void const * const ptr, uint8_t out[], size_t padSize, uint8_t frontPad_size); 
+// typedef void (*bits2ints_t)(size_t const total_bits, size_t const type_size, uint8_t const bits[], void const * const out_ptr);
+// extern int2bits_t int2bits;
+// extern bits2int_t bits2int;
+// extern ints2bits_t ints2bits;
+// extern bits2ints_t bits2ints;
 
 
 /**
@@ -123,8 +123,6 @@ void i82p(uint8_t nums[], size_t size, size_t cropTo, char separator, int newlin
 
 */
 void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space, int32_t space2, size_t lead);
-// void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space, size_t lead);
-// void i2pc(void const * const ptr, size_t size, char separator, int newline, uint8_t col, uint32_t colStart, uint32_t colLen, int32_t space); 
 
 
 /**
