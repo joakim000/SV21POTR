@@ -40,19 +40,28 @@ void ArrangeMsg(crc_t* crc, msg_t* msg) {
     }
 
     if (PROG.verbose) {printf("ArrangeMsg validation rem: %#llX", msg->validation_rem);}
+
     if (msg->validation_rem != 0) {
     // Write check bits to padding
         // Convert checksum to array of bit values
-        int2bitsMSF(crc->n, &msg->validation_rem, msg->remBits, false);
-       
+        if (crc->resultLSF)
+            int2bitsLSF(sizeof crc->n, &msg->validation_rem, msg->remBits, false);
+        else
+            int2bitsMSF(sizeof crc->n, &msg->validation_rem, msg->remBits, false);
+
         // Handled as uint64, truncate to CRC width
         uint8_t remBits[crc->n]; 
-        bitSlice(sizeof(msg->validation_rem) * BITSINBYTE - crc->n, crc->n, &(msg->remBits), 0, remBits);
+        if (crc->resultLSF)
+            bitSlice(0, crc->n, &(msg->remBits), 0, remBits);
+        else
+            bitSlice(sizeof(msg->validation_rem) * BITSINBYTE - crc->n, crc->n, &(msg->remBits), 0, remBits);
 
         // Write 
         for (int i = msg->paddedBitLen - crc->n, j = 0; j < crc->n; i++, j++) 
             msg->msgBits[i] = remBits[j];
-        if(PROG.verbose) { printf("\nrem: %#llX  ", msg->validation_rem);  printf("msgBits (remBits written to backpad): "); i82p(msg->msgBits, msg->paddedBitLen, 0, 0, 1); }
+
+        if(PROG.verbose)
+         { printf("\nrem: %#llX  ", msg->validation_rem);  printf("msgBits (remBits written to backpad): "); i82p(msg->msgBits, msg->paddedBitLen, 0, 0, 1); }
     }
 }
 

@@ -117,7 +117,7 @@ void int2bitsLSF(size_t const size, void const * const ptr, uint8_t out[], bool 
         }
 }
 
-void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool extraBit) {
+void int2bitsMSF(size_t const bytes, void const * const ptr, uint8_t out[], bool extraBit) {
     int  byte_index, 
          bit_index,
          byte_write_index = 0,
@@ -130,12 +130,13 @@ void int2bitsMSF(size_t const size, void const * const ptr, uint8_t out[], bool 
     // used for CRC generators with implicit leading 1.
     uint8_t displace = extraBit ? 1 : 0;
 
-    for (byte_index = size-1; byte_index >= 0; byte_index--) {   //MSF
+    for (byte_index = bytes-1; byte_index >= 0; byte_index--) {   //MSF
         bit_write_index = 0;
         for (bit_index = 7; bit_index >= 0; bit_index--) {         // MSF
             bit = (byte[byte_index] >> bit_index) & 1;
             out[byte_write_index * 8 + bit_write_index++ + displace] = 
             bit ? 1 : 0;
+            // printf("Wrote %u to bit[%d] byte[%d] to out[%d]\n", bit, bit_index, byte_index, byte_write_index);
         }
         byte_write_index++;
     }
