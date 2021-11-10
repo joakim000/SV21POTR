@@ -134,25 +134,25 @@ bool validate(crc_t* crc, msg_t* msg);
   @brief Print results of validation
   @return  
 */
-void validPrint(uint8_t msg[], size_t msgSize, bool valid);
+void ValidPrint(uint8_t msg[], size_t msgSize, bool valid);
 
 /**
   @brief Load CRC definition
   @return  
 */
-void loadDef(crcdef_t zoo[], size_t index, crc_t* out);
+void LoadDef(crcdef_t zoo[], size_t index, crc_t* out);
 
 /**
-  @brief Wrapper for loadDef, prints info and performs value check test when loading 
+  @brief Wrapper for LoadDef, prints info and performs value check test when loading 
   @return  
 */
-void loadDefWrapper(crcdef_t zoo[], size_t index, crc_t* out, bool compact);
+void LoadDefWrapper(crcdef_t zoo[], size_t index, crc_t* out, bool compact);
 
 /**
   @brief Print CRC inventory
   @return  
 */
-void zooTour(crcdef_t zoo[], size_t zoo_size);
+void ZooTour(crcdef_t zoo[], size_t zoo_size);
 
 
 #define HELPTEXT1 "\
@@ -196,7 +196,7 @@ static short allocCheck(void* p);
   @brief Convert direct init value to non-direct
   @return  Converted value
 */
-uint64_t convertInit(uint64_t poly, uint64_t init, uint8_t width);
+uint64_t ConvertInit(uint64_t poly, uint64_t init, uint8_t width);
 
 
 /**
@@ -236,10 +236,10 @@ uint64_t ValueCheckTest(crc_t* crc, uint8_t type, uint8_t output);
  * @param msg 
  * @return implTest_t 
  */
-implTest_t TestImplemenation(crc_t* crc);
+implTest_t ImplValid(crc_t* crc);
 
 
-implTest_t PerfImplemenation(crc_t* crc, uint64_t set_size);
+implTest_t ImplPerf(crc_t* crc, uint64_t set_size);
 
 uint64_t GetRemInternal(crc_t* crc, msg_t* msg, uint64_t check);
 

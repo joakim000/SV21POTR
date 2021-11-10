@@ -31,7 +31,7 @@ void main(int argc, char* argv[] )
         // Load CRC spec 
         crc_t enc_crc;
         crc = &enc_crc;
-        loadDefWrapper(zoo, CRC15CAN_INDEX, crc, false); 
+        LoadDefWrapper(zoo, CRC15CAN_INDEX, crc, false); 
 
         // Prepare message 
         msg_t encode_msg = {
@@ -87,7 +87,7 @@ void main(int argc, char* argv[] )
         // Print result        
         puts("\tValidate");
         printf("Validation checksum:\t%#X\n", msg->rem);
-        validPrint(msg->msg, msg->len, valid);
+        ValidPrint(msg->msg, msg->len, valid);
     }
 
     // Redo validation with changed message as per assignment

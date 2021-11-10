@@ -153,9 +153,9 @@ uint64_t bits2intLSF(size_t const size, uint8_t* bits) {
             // AND with NOT of bit at index means 0
             r &= ~(1ULL << (bit_index) );
 
-        // printf("i:%2d b:%u r:%#llX\n", bit_index, bits[bit_index], r, r);
+        // printf("i:%2d b:%u r:%#llx\n", bit_index, bits[bit_index], r, r);
     }
-    // printf("bits2intLSF returns %#0llX from %d bits: ", r, size);
+    // printf("bits2intLSF returns %#0llx from %d bits: ", r, size);
     // for EACH printf("%d%s", bits[i], (i+1)%4==0 ? " " : "" );     puts("");
     return r; 
 }
@@ -170,7 +170,7 @@ uint64_t bits2intMSF(size_t const size, uint8_t* bits) {
             r |= 1ULL << (--bit_write_index);
         else    
             r &= ~(1ULL << (--bit_write_index) );
-        // printf("i:%2d bwi: %d  b:%u   r:%#llX\n", bit_index, bit_write_index, bits[bit_index], r, r);
+        // printf("i:%2d bwi: %d  b:%u   r:%#llx\n", bit_index, bit_write_index, bits[bit_index], r, r);
     }
     return r; 
 }

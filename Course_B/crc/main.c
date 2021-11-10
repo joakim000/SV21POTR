@@ -93,7 +93,7 @@ void main(int argc, char* argv[] )
 
     // Commmand: Show CRC inventory
     if (ca.zoo) {
-        zooTour(zoo, COUNT_OF(zoo));
+        ZooTour(zoo, COUNT_OF(zoo));
         exit(EXIT_SUCCESS);
     }
 
@@ -101,22 +101,22 @@ void main(int argc, char* argv[] )
       // Load CRC definition 
         crc_t enc_crc;
         crc = &enc_crc;
-        loadDefWrapper(zoo, ca.crc_spec, &enc_crc, false); 
+        LoadDefWrapper(zoo, ca.crc_spec, &enc_crc, false); 
 
     // The two tests may be run within one execution    
     // Commmand: Test implementation
     if (ca.impl_test) {
-        TestImplemenation(crc);
+        ImplValid(crc);
 
         if (!ca.perf_test)
             exit(EXIT_SUCCESS);
     }
     // Commmand: Test implementation
     if (ca.perf_test) {
-        PerfImplemenation(crc, 0x10000);
-        PerfImplemenation(crc, 0x100000);
-        PerfImplemenation(crc, 0x1000000);
-        // PerfImplemenation(crc, 0x8000000);
+        ImplPerf(crc, 0x10000);
+        ImplPerf(crc, 0x100000);
+        ImplPerf(crc, 0x1000000);
+        // ImplPerf(crc, 0x8000000);
 
         exit(EXIT_SUCCESS);
     }
@@ -162,13 +162,13 @@ void main(int argc, char* argv[] )
             else
                 printf("Message:\t[%llu characters]\n", msg->len);
         }
-        printf("Checksum:\t%#llX\n", msg->rem);
+        printf("Checksum:\t%#llx\n", msg->rem);
         double elapsed = TIMING(timer_start, timer_end);
         if (ca.timing) printf("%d chars in %5.3f seconds, %5.3f MiB/s.\n", msg->len, elapsed, msg->len / elapsed / 0x100000);
 
         // Compare result with a expected value
         if ( msg->expected && (msg->rem != msg->expected || PROG.verbose) ) {
-            printf("Expected:\t%#llX\n", msg->expected);
+            printf("Expected:\t%#llx\n", msg->expected);
             if (PROG.verbose) {                                   // Print bits of result and expected for analysis
                 uint8_t checksumBits[sizeof(msg->rem) * 8];
                 int2bitsMSF(sizeof(msg->rem), &msg->rem, checksumBits, false);
@@ -184,7 +184,7 @@ void main(int argc, char* argv[] )
         
         // Open file for writing result      
         char csStr[100];
-        sprintf(csStr, "[%#llX]", msg->rem); 
+        sprintf(csStr, "[%#llx]", msg->rem); 
         char outStr[strlen(msg->msgStr) + strlen(csStr)];
         sprintf(outStr, "%s%s", csStr, msg->msgStr); 
         // puts(outStr);
@@ -218,7 +218,7 @@ void main(int argc, char* argv[] )
             checksum = strtol(remaining + 1, end, 16); // 0 if no valid conversion
         }
         if (checksum > 0) {
-            if (PROG.verbose) printf("Checksum in message: %#llX\n", checksum);
+            if (PROG.verbose) printf("Checksum in message: %#llx\n", checksum);
             // Remove from message-string
             remaining = strchr(message, ']');
             if (remaining) {
@@ -242,7 +242,7 @@ void main(int argc, char* argv[] )
         msg->validation_rem = checksum;
 
        // if (PROG.verbose) 
-        printf("Checksum:\t\t%#llX\n", msg->validation_rem);
+        printf("Checksum:\t\t%#llx\n", msg->validation_rem);
 
          // Calculate remainder with engine pointed to, also start and stop timer
         timer_start = clock();
@@ -254,7 +254,7 @@ void main(int argc, char* argv[] )
         msg->valid = validate(crc, msg);
         
         // Print result        
-        validPrint(msg->msgStr, msg->len, msg->valid);
+        ValidPrint(msg->msgStr, msg->len, msg->valid);
 
         // Free allocations
         // if (msg->msgStr != (char*)ca.msg && msg->msgStr != NULL) free(msg->msgStr);    

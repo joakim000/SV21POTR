@@ -41,7 +41,7 @@ void ArrangeMsg(crc_t* crc, msg_t* msg) {
         if(PROG.verbose) { printf("\ninitpad: %d  ", msg->initPad);  printf("msgBits (initBits written to frontpad): "); i82p(msg->msgBits, msg->paddedBitLen, 0, 0, 1); }
     }
 
-    if (PROG.verbose) {printf("ArrangeMsg validation rem: %#llX", msg->validation_rem);}
+    if (PROG.verbose) {printf("ArrangeMsg validation rem: %#llx", msg->validation_rem);}
 
     if (msg->validation_rem != 0) {
     // Write check bits to padding
@@ -63,7 +63,7 @@ void ArrangeMsg(crc_t* crc, msg_t* msg) {
             msg->msgBits[i] = remBits[j];
 
         if(PROG.verbose)
-         { printf("\nrem: %#llX  ", msg->validation_rem);  printf("msgBits (remBits written to backpad): "); i82p(msg->msgBits, msg->paddedBitLen, 0, 0, 1); }
+         { printf("\nrem: %#llx  ", msg->validation_rem);  printf("msgBits (remBits written to backpad): "); i82p(msg->msgBits, msg->paddedBitLen, 0, 0, 1); }
     }
 }
 
@@ -145,7 +145,7 @@ uint64_t PolyDivision(crc_t* crc, msg_t* msg) {
     else
         rem = (uint64_t)bits2intMSF(COUNT_OF(remBits), remBits);
 
-    if (PROG.verbose) printf("Remainder: %#llX\n", rem);
+    if (PROG.verbose) printf("Remainder: %#llx\n", rem);
     return rem;
 }
 
@@ -163,11 +163,11 @@ void messageLengthCheck(size_t len) {
 
 bool validate(crc_t* crc, msg_t* msg) {
 
-    if (PROG.verbose) printf("Remainder: %#llX\n", msg->rem);
+    if (PROG.verbose) printf("Remainder: %#llx\n", msg->rem);
     return msg->rem == 0 ? true : false;
 }
 
-void validPrint(uint8_t msg[], size_t msgSize, bool valid) {
+void ValidPrint(uint8_t msg[], size_t msgSize, bool valid) {
     if (PRINTMSG) {
         // char msgStr[msgSize + 1];
         // charArrayToString(msg, msgSize, msgStr);
@@ -182,7 +182,7 @@ void validPrint(uint8_t msg[], size_t msgSize, bool valid) {
         printf("\e[1;31m%s\e[m\n", "The data is not OK"); // red
 }
 
-void loadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
+void LoadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
         // 0 n   1 Gen    2 IL1  3 Init  4 Nondir. 5 RefIn 6 RefOut 7 XorOut   8 Residue 9 Check      10 "AB"
         strcpy((crc)->description, zoo[index].name);
         crc->n =         zoo[index].specs[0];
@@ -203,7 +203,7 @@ void loadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
 
     // If needed, convert direct init to non-direct
     crc->init_conv = (crc->init && !crc->nondirect) ?
-        convertInit(crc->g, crc->init, crc->n) : crc->init;
+        ConvertInit(crc->g, crc->init, crc->n) : crc->init;
 
     // Convert init and final xor to array of bit values  
     int2bitsMSF(sizeof(crc->init_conv), &crc->init_conv, crc->initBits, 0 );    
@@ -211,29 +211,29 @@ void loadDef(crcdef_t zoo[], size_t index, crc_t* crc) {
 
 }
 
-void loadDefWrapper(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
-    loadDef(zoo, index, crc);  
+void LoadDefWrapper(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
+    LoadDef(zoo, index, crc);  
     
     if (table) {
     // Oneline print for zoo-list
-        char prt_init[18] = " ";  if (crc->init) sprintf(prt_init, "%#18llX", crc->init);
-        char prt_xor[18] = " ";  if (crc->xor) sprintf(prt_xor, "%#18llX", crc->xor);
+        char prt_init[18] = " ";  if (crc->init) sprintf(prt_init, "%#18llx", crc->init);
+        char prt_xor[18] = " ";  if (crc->xor) sprintf(prt_xor, "%#18llx", crc->xor);
         char* prt_nondirect = crc->nondirect ? "X" : " "; 
         char* prt_refIn = crc->inputLSF ? "X" : " "; 
         char* prt_refOut = crc->resultLSF ? "X" : " "; 
         printf("\e[1;1m%16s\e[m ", crc->description);
-        printf("%#18llX %#18s  %-3s ",  crc->g, prt_init, prt_nondirect);
+        printf("%#18llx %#18s  %-3s ",  crc->g, prt_init, prt_nondirect);
         printf("%#18s    %-2s    %-3s ", prt_xor, prt_refIn, prt_refOut);
     }
     else {
     // Verbose print for normal execution
-        char prt_init[18] = "No";  if (crc->init) sprintf(prt_init, "%#llX", crc->init);
-        char prt_xor[18] = "No";  if (crc->xor) sprintf(prt_xor, "%#llX", crc->xor);
+        char prt_init[18] = "No";  if (crc->init) sprintf(prt_init, "%#llx", crc->init);
+        char prt_xor[18] = "No";  if (crc->xor) sprintf(prt_xor, "%#llx", crc->xor);
         char* prt_nondirect = crc->nondirect ? "Yes" : "No"; 
         char* prt_refIn = crc->inputLSF ? "Yes" : "No"; 
         char* prt_refOut = crc->resultLSF ? "Yes" : "No"; 
         printf("\e[1;53m\e[1;7m%s\e[1;27m   ", crc->description);
-        printf("Poly:%#llX   Init:%s   NDI:%s   ",  crc->g, prt_init, prt_nondirect);
+        printf("Poly:%#llx   Init:%s   NDI:%s   ",  crc->g, prt_init, prt_nondirect);
         printf("XorOut:%s   RefIn:%s   RefOut:%s   \e[1;55m\n", prt_xor, prt_refIn, prt_refOut);
     }    
 
@@ -255,12 +255,12 @@ void loadDefWrapper(crcdef_t zoo[], size_t index, crc_t* crc, bool table) {
     PROG.printSteps = tmp_printSteps; // Reset printSteps flag
 }
 
-void zooTour(crcdef_t zoo[], size_t zoo_size) {
+void ZooTour(crcdef_t zoo[], size_t zoo_size) {
     printf("\e[1;3m\e[1;4m%5s %16s %18s %18s %4s %18s %5s %6s %6s\e[m\n", "Index", "Spec", "Poly", "Init", "NDI", "XorOut", "RefIn", "RefOut", "Check value");
     for (int i = 0; i < zoo_size; i++) {
         crc_t zooItem;
         printf("%5d ", i);
-        loadDefWrapper(zoo, i, &zooItem, true);
+        LoadDefWrapper(zoo, i, &zooItem, true);
     }
 }
 
@@ -279,7 +279,7 @@ static short allocCheck(void* p) {
         return 0;
 }
 
-uint64_t convertInit(uint64_t poly, uint64_t init, uint8_t width) {
+uint64_t ConvertInit(uint64_t poly, uint64_t init, uint8_t width) {
     uint64_t next = 2;
     for (int i = 1; i < width - 1; i++) next *= 2;  // pow() funkar inte under linux, saknar math.h
 
@@ -300,29 +300,29 @@ uint64_t convertInit(uint64_t poly, uint64_t init, uint8_t width) {
 uint64_t conv_poly = 0x1021;
     uint64_t conv_init = 0xFFFF;
     uint8_t conv_width = 16;
-    printf("poly: %#llX direct: %#llX  indirect: %#llX\n",
-    conv_poly, conv_init, convertInit(conv_poly, conv_init, conv_width) );
+    printf("poly: %#llx direct: %#llx  indirect: %#llx\n",
+    conv_poly, conv_init, ConvertInit(conv_poly, conv_init, conv_width) );
 
     conv_poly = 0x9b;
     conv_init = 0xFF;
     conv_width = 8;
-    printf("poly: %#llX direct: %#llX  indirect: %#llX\n",
-    conv_poly, conv_init, convertInit(conv_poly, conv_init, conv_width) );
+    printf("poly: %#llx direct: %#llx  indirect: %#llx\n",
+    conv_poly, conv_init, ConvertInit(conv_poly, conv_init, conv_width) );
 
     conv_poly = 0x4C11DB7;
     conv_init = 0xFFFFFFFF;
     conv_width = 32;
-    printf("poly: %#llX direct: %#llX  indirect: %#llX\n",
-    conv_poly, conv_init, convertInit(conv_poly, conv_init, conv_width) );
+    printf("poly: %#llx direct: %#llx  indirect: %#llx\n",
+    conv_poly, conv_init, ConvertInit(conv_poly, conv_init, conv_width) );
 
     conv_poly = 0x42f0e1eba9ea3693;
     conv_init = 0xffffffffffffffff;
     conv_width = 64;
-    printf("poly: %#llX direct: %#llX  indirect: %#llX\n",
-    conv_poly, conv_init, convertInit(conv_poly, conv_init, conv_width) );
+    printf("poly: %#llx direct: %#llx  indirect: %#llx\n",
+    conv_poly, conv_init, ConvertInit(conv_poly, conv_init, conv_width) );
 */
 
-implTest_t TestImplemenation(crc_t* crc) {
+implTest_t ImplValid(crc_t* crc) {
     implTest_t test;
 
     uint64_t res;
@@ -332,16 +332,16 @@ implTest_t TestImplemenation(crc_t* crc) {
     res = ValueCheckTest(crc, 1, 0); 
     test.passed_validate_check = res == 0 ? true : false;
     test.passed_validate_check ? printf("\e[1;32mPassed\e[m") : printf("\e[1;31mFailed\e[m");
-    printf(" check value validation; \"123456789\" with CRC value %#llX => %#llX\n", crc->check, res);
+    printf(" check value validation; \"123456789\" with CRC value %#llx => %#llx\n", crc->check, res);
 
     res = ValueCheckTest(crc, 2, 0); 
     test.passed_changed_check =  res != 0 ? true : false;
     test.passed_changed_check ? printf("\e[1;32mPassed\e[m") : printf("\e[1;31mFailed\e[m");
-    printf(" changed message; \"1b3456789\" with CRC value %#llX => %#llX\n", crc->check, res);
+    printf(" changed message; \"1b3456789\" with CRC value %#llx => %#llx\n", crc->check, res);
 
 }
 
-implTest_t PerfImplemenation(crc_t* crc, uint64_t set_size) {
+implTest_t ImplPerf(crc_t* crc, uint64_t set_size) {
     implTest_t test;
     uint64_t res;
 
@@ -412,14 +412,14 @@ uint64_t ValueCheckTest(crc_t* crc, uint8_t type, uint8_t output) {
     // Print check value test result
     if (valid && output == 1) 
         // printf("\e[1;32mPassed\e[m\n");                                       // Short
-        printf("\e[1;32mPassed\e[m %#0llX\n", test_msg->rem, crc->check);         // Show value
+        printf("\e[1;32mPassed\e[m %#0llx\n", test_msg->rem, crc->check);         // Show value
     if (valid && output == 2) 
-            printf("\e[1;32mPassed check value-test for %s;\e[m matching %#llX\n", crc->description, crc->check);
+            printf("\e[1;32mPassed check value-test for %s;\e[m matching %#llx\n", crc->description, crc->check);
     if (!valid && output == 1) 
         // printf("\e[1;31mFailed\e[m\n");                                            // Short
-        printf("\e[1;31mFailed\e[m %#0llX != %#0llX\n", test_msg->rem, crc->check);      // Show values                                    
+        printf("\e[1;31mFailed\e[m %#0llx != %#0llx\n", test_msg->rem, crc->check);      // Show values                                    
     if (!valid && output == 2) 
-        printf("\e[1;31m\e[1;5mFailed\e[1;25m check value-test for %s;\e[m result %#0llX != check %#0llX\n", crc->description, test_msg->rem, crc->check); 
+        printf("\e[1;31m\e[1;5mFailed\e[1;25m check value-test for %s;\e[m result %#0llx != check %#0llx\n", crc->description, test_msg->rem, crc->check); 
     // Free allocation for msg struct
     if (test_msg != NULL) free(test_msg);
     // Return result
