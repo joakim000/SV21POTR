@@ -37,7 +37,7 @@ void main(int argc, char* argv[] )
         msg_t encode_msg = {
             .msgStr =         message,
             .len =            strlen(message),
-            .originalBitLen = strlen(message) * BITSINBYTE,
+            .msgBitLen = strlen(message) * BITSINBYTE,
             .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + SPECIALWIDTH,     // Special
             // .paddedBitLen =   strlen(message) * sizeof(uint8_t) * BITSINBYTE + crc->n,       // Normal
         }; msg = &encode_msg;
@@ -52,7 +52,7 @@ void main(int argc, char* argv[] )
         if (PRINTMSG) printf("Message:\t\t%s\n", msg->msgStr);
 
         /* Calculate the CRC. For example the CRCs of "Hello World!" is 0xB35 and "AB" is 0x54FB */
-        msg->rem = PolyDivision(msg->msgBits, msg->paddedBitLen, msg->originalBitLen, crc);
+        msg->rem = PolyDivision(msg->msgBits, msg->paddedBitLen, msg->msgBitLen, crc);
         printf("Calculated checksum:\t%#X\n", msg->rem);
     }
 
@@ -82,7 +82,7 @@ void main(int argc, char* argv[] )
         /* Validate the messsage.
         If the remainder is zero print "The data is OK\n"; otherwise print "The data is not OK\n" */
         bool valid;
-        valid = validate(msg->csmsgBits, msg->paddedBitLen, msg->originalBitLen, crc);
+        valid = validate(msg->csmsgBits, msg->paddedBitLen, msg->msgBitLen, crc);
         
         // Print result        
         puts("\tValidate");
