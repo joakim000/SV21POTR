@@ -16,49 +16,42 @@
  * 
  */
 
-#include "../lib/unity/unity.h"
+#include <unity.h>
 #include "cbuffer.h"
+
 
 #ifndef I2
 #define I2(x) (int i = 0; i < x; i++) 
 #endif
 
+/**
+ * @brief Test functions
+ *          cbuffer_clear        X
+ *          cbuffer_isfull       T F      
+ *          cbuffer_peek         X 
+ *          cbuffer_read         X 
+ *          cbuffer_available    0 - 8  
+ * 
+ *       Test special cases
+ *          read empty           X
+ *          peek empty           X   
+ *          write overflow       X
+ */
+
+// Test utils
 void cbuffer_status();
-void setUp()
-{
-    
-   
-
-}
-
-void tearDown()
-{
-}
-
 void WriteChars(char start, char end) {
     // Write some chars
     for (char i = start; i < end; i++)
         cbuffer_write(i);
 }
 
-void Test_cbuffer_clear() {
-    WriteChars('A', 'D');   // Write some chars
-    cbuffer_status();       // Print status
-    cbuffer_clear();        // Call function
-
-    // Should be clear
-    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_available());
-    TEST_ASSERT_EQUAL(false, cbuffer_isfull());
-}
-
-void Test_cbuffer_isfull() {
-    WriteChars('A', 'Q');
-    TEST_ASSERT_EQUAL(true, cbuffer_isfull());
-
-}
+// Unity
+void setUp() {}
+void tearDown() {}
 
 
-void TestBasics() {
+void Test_write_peek_read() {
     // Should be clear
     TEST_ASSERT_EQUAL_UINT8(0, cbuffer_available());
     TEST_ASSERT_EQUAL(false, cbuffer_isfull());
@@ -85,15 +78,89 @@ void TestBasics() {
 
 }
 
+void Test_cbuffer_clear() {
+    WriteChars('A', 'D');   // Write some chars
+    cbuffer_status();       // Print status
+    cbuffer_clear();        // Call function
+
+    // Should be clear
+    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_available());
+    TEST_ASSERT_EQUAL(false, cbuffer_isfull());
+}
+
+void Test_cbuffer_isfull() {
+    WriteChars('A', 'Q');
+    cbuffer_status();
+    TEST_ASSERT_EQUAL(true, cbuffer_isfull());
+    cbuffer_read();
+    TEST_ASSERT_EQUAL(false, cbuffer_isfull());
+}
+
+void Test_cbuffer_available() { 
+    cbuffer_clear();
+    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_available());
+
+
+    puts("available write");
+    for (char i = 0; i < 8; i++) {
+        TEST_ASSERT_EQUAL_UINT8(i, cbuffer_available());
+        cbuffer_write(i+65); // Printable chars
+        cbuffer_status();
+
+    }
+    puts("available read");
+    for (char i = 8; i >= 0; i--) {
+        cbuffer_status();
+        TEST_ASSERT_EQUAL_UINT8(i, cbuffer_available());
+        cbuffer_read();
+    }
+
+    // Read empty
+    cbuffer_read();
+    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_available());
+
+}
+
+void Test_case_empty() {
+    cbuffer_clear();
+    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_available());
+
+    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_peek());
+    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_peek());
+
+    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_read());
+    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_read());
+
+}
+
+void Test_case_write_overflow() {
+    cbuffer_clear(); 
+    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_available());
+
+    WriteChars('A', 'I'); // Fill buf exactly
+    cbuffer_status();
+    TEST_ASSERT_EQUAL(true, cbuffer_isfull());
+
+    cbuffer_write('I'); // One more write should evict first write (A)
+    cbuffer_status();
+    TEST_ASSERT_EQUAL_CHAR('B', cbuffer_read()); // Next read should then be B
+
+}
+
+
 int main(void)
 {
     UNITY_BEGIN();
     setUp();
     cbuffer_status();
 
-    RUN_TEST(TestBasics);
+    RUN_TEST(Test_write_peek_read);
     RUN_TEST(Test_cbuffer_clear);
     RUN_TEST(Test_cbuffer_isfull);
+    RUN_TEST(Test_cbuffer_available);
+    RUN_TEST(Test_case_empty);
+    RUN_TEST(Test_case_write_overflow);
+
 
 
 
