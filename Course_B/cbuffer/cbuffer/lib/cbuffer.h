@@ -50,6 +50,4 @@ uint8_t cbuffer_available(void);
 void cbuffer_write(uint8_t value);
 
 
-void cbuffer_print();   // Remove later
-
 #endif /* CBUFFER_H */

@@ -1,3 +1,8 @@
+/** 
+ * @brief SV21POTR Course B - C assignment 2
+ * @author Joakim Odermalm
+ */
+
 /**
  * @file test.c
  * @author Faroch Mehri (faroch.mehri@ya.se)
@@ -19,10 +24,6 @@
 #include <unity.h>
 #include "cbuffer.h"
 
-
-#ifndef I2
-#define I2(x) (int i = 0; i < x; i++) 
-#endif
 
 /**
  * @brief Test functions
@@ -53,28 +54,28 @@ void tearDown() {}
 
 void Test_write_peek_read() {
     // Should be clear
-    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_available());
-    TEST_ASSERT_EQUAL(false, cbuffer_isfull());
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, cbuffer_available(), "Init: cbuffer_available()");
+    TEST_ASSERT_EQUAL_MESSAGE(false, cbuffer_isfull(), "Init: cbuffer_isfull()");
     
     // Write some chars
     WriteChars('A', 'I');
-    TEST_ASSERT_EQUAL_UINT64('I'-'A', cbuffer_available());
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE('I'-'A', cbuffer_available(), "Write done: cbuffer_available()");
     cbuffer_status();
 
     // Peek a char
-    TEST_ASSERT_EQUAL_CHAR('A', cbuffer_peek());
+    TEST_ASSERT_EQUAL_CHAR_MESSAGE('A', cbuffer_peek(), "Once: cbuffer_peek()");
     // Peek again, should be same
-    TEST_ASSERT_EQUAL_CHAR('A', cbuffer_peek());
+    TEST_ASSERT_EQUAL_CHAR_MESSAGE('A', cbuffer_peek(), "Again: cbuffer_peek()");
 
     // Read some chars
     int i;
     char c;
     for (i = 'A'; i < 'I'; i++) {
         c = cbuffer_read();
-        TEST_ASSERT_EQUAL_CHAR(i, c);
+        TEST_ASSERT_EQUAL_CHAR_MESSAGE(i, c, "cbuffer_read()");
     }
     cbuffer_status();
-    TEST_ASSERT_EQUAL_UINT64(0, cbuffer_available());
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, cbuffer_available(), "All read: cbuffer_available()");
 
 }
 
@@ -98,26 +99,23 @@ void Test_cbuffer_isfull() {
 
 void Test_cbuffer_available() { 
     cbuffer_clear();
-    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_available());
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, cbuffer_available(), "Init");
 
-
-    puts("available write");
     for (char i = 0; i < 8; i++) {
-        TEST_ASSERT_EQUAL_UINT8(i, cbuffer_available());
+        TEST_ASSERT_EQUAL_UINT8_MESSAGE(i, cbuffer_available(), "Writing");
         cbuffer_write(i+65); // Printable chars
         cbuffer_status();
 
     }
-    puts("available read");
     for (char i = 8; i >= 0; i--) {
         cbuffer_status();
-        TEST_ASSERT_EQUAL_UINT8(i, cbuffer_available());
+        TEST_ASSERT_EQUAL_UINT8_MESSAGE(i, cbuffer_available(), "Reading");
         cbuffer_read();
     }
 
     // Read empty
     cbuffer_read();
-    TEST_ASSERT_EQUAL_UINT8(0, cbuffer_available());
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, cbuffer_available(), "Exit");
 
 }
 
@@ -141,10 +139,11 @@ void Test_case_write_overflow() {
     cbuffer_status();
     TEST_ASSERT_EQUAL(true, cbuffer_isfull());
 
-    cbuffer_write('I'); // One more write should evict first write (A)
+    // One more write should evict first write (A)
+    cbuffer_write('I'); 
     cbuffer_status();
-    TEST_ASSERT_EQUAL_CHAR('B', cbuffer_read()); // Next read should then be B
-
+    // Next read should then be B
+    TEST_ASSERT_EQUAL_CHAR_MESSAGE('B', cbuffer_read(), "A should be evicted"); 
 }
 
 
@@ -160,13 +159,6 @@ int main(void)
     RUN_TEST(Test_cbuffer_available);
     RUN_TEST(Test_case_empty);
     RUN_TEST(Test_case_write_overflow);
-
-
-
-
-
-    
-    
 
     return UNITY_END();
 }

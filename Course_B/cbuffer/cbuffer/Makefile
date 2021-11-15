@@ -1,9 +1,10 @@
-$(info $(SHELL))
+# $(info $(SHELL))
 # $(info $(PATH))
 
 .DELETE_ON_ERROR :
 
 SRC = src/
+TEST = test/
 BUILD = build/
 LIB = lib/
 UNITY = lib/unity/
@@ -20,17 +21,17 @@ CFLAGS = -std=c11 -O3
 endif
 endif
 
-objects = $(BUILD)test.o $(BUILD)cbuffer.o $(BUILD)unity.o
+objects = $(BUILD)test_cbuffer.o $(BUILD)cbuffer.o $(BUILD)unity.o
 
 
-cbuffer : $(objects)
-	cc $(LFLAGS) -o test $(objects)
+test_cbuffer : $(objects)
+	cc $(LFLAGS) -o bin/test_cbuffer $(objects)
 
-# Test exe
-$(BUILD)test.o : $(SRC)test.c $(LIB)cbuffer.h  
-	cc -c $(CFLAGS) $(SRC)test.c -o $(@D)/test.o -I$(LIB) -I$(UNITY)	
+# Cbuffer test 
+$(BUILD)test_cbuffer.o : $(TEST)test_cbuffer.c $(LIB)cbuffer.h  
+	cc -c $(CFLAGS) $(TEST)test_cbuffer.c -o $(@D)/test_cbuffer.o -I$(LIB) -I$(UNITY)	
 
-# Lib
+# Cbuffer lib
 $(BUILD)cbuffer.o : $(LIB)cbuffer.c $(LIB)cbuffer.h
 	cc -c $(CFLAGS) $(LIB)cbuffer.c -o $(@D)/cbuffer.o -I$(LIB)
 
