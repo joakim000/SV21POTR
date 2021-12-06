@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define CBUFFER_SIZE (8U) // Size of the buffer
+#define CBUFFER_SIZE (8U) // Size of the buffer 
 
 /**
  * @brief This function is used to reset the required variables like head and tail of the buffer.
