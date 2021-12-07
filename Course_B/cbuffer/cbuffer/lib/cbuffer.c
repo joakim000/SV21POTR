@@ -21,7 +21,6 @@
 #error CBUFFER_SIZE should be an integer between 8 and 32   // Passed tests with 2 - 127
 #endif
 
-static bool full = false;
 static uint8_t head = INDEXINIT;
 static uint8_t tail = INDEXINIT;
 static uint8_t buffer[CBUFFER_SIZE] = {0};
