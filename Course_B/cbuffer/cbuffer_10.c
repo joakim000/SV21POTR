@@ -42,7 +42,7 @@ void cbuffer_write(uint8_t value)
 */
 uint8_t cbuffer_read(void)
 {
-    if (count <= 0)
+    if (count == 0)
     {
         // fprintf(stderr, "Read from empty buffer, returned 0.\n");
         return 0;
