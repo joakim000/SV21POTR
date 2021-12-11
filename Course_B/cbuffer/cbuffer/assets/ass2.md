@@ -23,16 +23,7 @@ Implement a circular buffer according to the requirements below. Download the zi
 
 3-7. The phrasing "It shall be possible to have a" does not appear in RFC2119 nor any other standards document I have been able to find. How does this phrasing relate to phrasing in req 2? Should the functions be implemented or should I just leave the header declarations? Even without any code it's very possible to have those functions. I decided to just implement them anyway because whatever.
 
-8. Fulfilled, although the requirement precludes any kind of reasonable error checking.
-    * Can't use any error checking library.
-    * Can't allow caller to provide pointer to error code variable.
-    * Can't even return a negative value for caller to check for.
-
-    Because of this, when reading or peeking empty buffer it simply returns 0. Therefore the buffer cannot safely be used to store the value 0, because then there is no way for caller to know if value 0 really was in buffer or the result of an empty buffer.
-
-
-
-Reqs 3-7: "It shall be possible to have a function to"
-
+8. Fulfilled, although the requirement precludes any kind of error checking.
+  
 Test req 5: "when the buffer is not empty and full"
 

@@ -1,28 +1,31 @@
 /** 
  * @brief SV21POTR Course B - C assignment 2
  * @author Joakim Odermalm
+ * @version 0.2
  */
 
-// #define DEBUG
-#define CLOCKWISE
+// #define DEBUG             // Debug messages 
 
 #include "cbuffer.h"
-#include <stdio.h>       // Error messages disabled by requirement     
+#ifdef DEBUG
+#include <stdio.h>      
+#endif
 
-#ifdef CLOCKWISE
+#if CLOCKWISE == true
 #define DIR +
-#define INDEXINIT 0U 
 #else
-#define DIR -
-#define INDEXINIT CBUFFER_SIZE - 1
+#define DIR + CBUFFER_SIZE -
 #endif
 
-#if ((CBUFFER_SIZE < 8U) || (CBUFFER_SIZE > 32U))
-#error CBUFFER_SIZE should be an integer between 8 and 32   // Passed tests with 2 - 127
+#if ((CBUFFER_SIZE < 2U) || (CBUFFER_SIZE > 127U))
+#error CBUFFER_SIZE should be an integer between 2 and 127   // Passed tests with 2 - 127. Size 1 fails write overflow test in expected way. Size >127 fails because of testing with chars.
 #endif
 
-static uint8_t head = INDEXINIT;
-static uint8_t tail = INDEXINIT;
+#if ((INDEXINIT < 0) || (INDEXINIT > CBUFFER_SIZE-1))
+#error INDEXINIT should be an between 0 and (buffer size - 1)   
+#endif
+
+static uint8_t head, tail = INDEXINIT;
 static uint8_t buffer[CBUFFER_SIZE] = {0};
 static uint8_t count = 0;
 
@@ -43,7 +46,7 @@ void cbuffer_write(uint8_t value) {
 }
 
 uint8_t cbuffer_read(void) {
-    if (count <= 0) {
+    if (count == 0) {            
         #ifdef DEBUG
         fprintf(stderr, "Read from empty buffer, returned 0.\n");
         #endif
@@ -52,8 +55,7 @@ uint8_t cbuffer_read(void) {
     else {    
         uint8_t r = buffer[head];
         head = (head DIR 1) % CBUFFER_SIZE;
-        if (count > 0) 
-            count--;
+        count--;
         return r;
     }
 }
