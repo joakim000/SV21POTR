@@ -6,6 +6,10 @@
 
 // #define DEBUG             // Debug messages 
 
+/* These are here instead of in .h for demo purposes */
+#define CLOCKWISE false      // Buffer direction
+#define INDEXINIT (5U)       // Buffer starting index
+
 #include "cbuffer.h"
 #ifdef DEBUG
 #include <stdio.h>      
