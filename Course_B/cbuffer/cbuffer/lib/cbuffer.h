@@ -5,9 +5,8 @@
 #include <stdbool.h>
 
 #define CBUFFER_SIZE (10U)   // Size of the buffer 
-/* Following two lines moves to cbuffer.c for demo purposes */
-// #define CLOCKWISE false      // Buffer direction
-// #define INDEXINIT (5U)       // Buffer starting index
+#define INDEXINIT (5U)       // Buffer starting index
+#define CLOCKWISE false      // Buffer direction
 
 /**
  * @brief This function is used to reset the required variables like head and tail of the buffer.

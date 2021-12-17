@@ -4,16 +4,11 @@
  * @version 0.2
  */
 
-// #define DEBUG             // Debug messages 
-
-/* These are here instead of in .h for demo purposes */
-#define CLOCKWISE false      // Buffer direction
-#define INDEXINIT (5U)       // Buffer starting index
-
+#include <stddef.h>
 #include "cbuffer.h"
-#ifdef DEBUG
-#include <stdio.h>      
-#endif
+
+// #define DEBUG             // Debug messages 
+#define TESTING              // Testing functions
 
 #if CLOCKWISE == true
 #define DIR +
@@ -24,9 +19,8 @@
 #if ((CBUFFER_SIZE < 2U) || (CBUFFER_SIZE > 127U))
 #error CBUFFER_SIZE should be an integer between 2 and 127   // Passed tests with 2 - 127. Size 1 fails write overflow test in expected way. Size >127 fails because of testing with chars.
 #endif
-
 #if ((INDEXINIT < 0) || (INDEXINIT > CBUFFER_SIZE-1))
-#error INDEXINIT should be an between 0 and (buffer size - 1)   
+#error INDEXINIT should be between 0 and buffer size less one   
 #endif
 
 static uint8_t head, tail = INDEXINIT;
@@ -83,17 +77,22 @@ uint8_t cbuffer_available(void) {
     return count;
 }
 
-void cbuffer_status() {
-    #ifdef DEBUG
-    printf("|");
-    for (int i = 0; i < CBUFFER_SIZE; i++)
-        printf("%c", buffer[i]);
-    printf("| ");
-    printf("head:%llu tail:%llu count:%llu\n", head, tail, count);
-    #endif
-}
-
+#ifdef TESTING
 void cbuffer_harderase() {
     for (int i = 0; i < CBUFFER_SIZE; i++)
         buffer[i] = 0; 
 }
+
+void cbuffer_getconfig(size_t* config) {
+    config[0] = CBUFFER_SIZE; 
+    config[1] = INDEXINIT;
+    config[2] = CLOCKWISE;
+}
+
+void cbuffer_getstatus(uint8_t** status) {
+    status[0] = &head; 
+    status[1] = &tail;
+    status[2] = &count;
+    status[3] = &(*buffer);
+}
+#endif
