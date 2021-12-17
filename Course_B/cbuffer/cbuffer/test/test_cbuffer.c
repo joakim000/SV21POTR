@@ -94,17 +94,16 @@ void Test_cbuffer_write() {
     print_status(true);
 
     char c = *((status[3]) + config[1]);
-    char* msg;
     for (int i = 0; i < num_chars; i++) {
         if ( config[2] ) 
             c = *((status[3]) + ( (config[1] + i) % CBUFFER_SIZE ) );
         else 
             c = *((status[3]) + ( (config[1] + CBUFFER_SIZE - i) % CBUFFER_SIZE ) );
-        sprintf(msg, "Writecheck: %c", 'A' + i);
+        
         #ifdef DEBUG
         printf("Writecheck expected:%c  c:%c\n", 'A' + i, c);
         #endif
-        TEST_ASSERT_EQUAL_UINT8_MESSAGE('A' + i, c, msg);
+        TEST_ASSERT_EQUAL_CHAR('A' + i, c);
     }
 }
 
