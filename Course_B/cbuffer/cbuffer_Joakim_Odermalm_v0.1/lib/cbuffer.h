@@ -4,9 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define CBUFFER_SIZE (10U)   // Size of the buffer 
-#define INDEXINIT (5U)       // Buffer starting index
-#define CLOCKWISE false      // Buffer direction
+#define CBUFFER_SIZE (8U) // Size of the buffer
 
 /**
  * @brief This function is used to reset the required variables like head and tail of the buffer.

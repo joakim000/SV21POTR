@@ -23,7 +23,7 @@
 #error INDEXINIT should be between 0 and buffer size less one   
 #endif
 
-static uint8_t head, tail = INDEXINIT;
+static uint8_t head = INDEXINIT, tail = INDEXINIT;
 static uint8_t buffer[CBUFFER_SIZE] = {0};
 static uint8_t count = 0;
 
