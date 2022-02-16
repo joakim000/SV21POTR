@@ -27,12 +27,12 @@ Though dev and main testing has been on Windows, it at least compiles without wa
 ## Main functions
 
 ### Main processing 
-Polynomic division is performed by function `getRem` in the file *crc.c*. `msgBits` are the bits of the message and `gBits` are the bits of the generator polynomial. `originalMsgSize` is the length of the message before padding.
+Polynomic division is performed by function `getRem` in the file *crc.c*. `msgBits` are the bits of the message and `generatorBits` are the bits of the generator polynomial. `originalMsg_size` is the length of the message before padding.
 ```c
-for (int i = 0; i < originalMsgSize; i++)  
+for (int i = 0; i < originalMsg_size; i++)  
     if (msgBits[i]) 
-        for (int j = 0, k = i; j < gBits_size; j++, k++) 
-            msgBits[k] ^= gBits[j];
+        for (int j = 0, k = i; j < generatorBits_size; j++, k++) 
+            msgBits[k] ^= generatorBits[j];
 ```
 
 ### Bit ordering and conversion
