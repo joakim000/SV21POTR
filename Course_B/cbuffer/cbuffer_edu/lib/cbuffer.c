@@ -16,7 +16,7 @@
 #define DIR + CBUFFER_SIZE -
 #endif
 
-#if ((CBUFFER_SIZE < 2U) || (CBUFFER_SIZE > 127U))
+#if ((CBUFFER_SIZE < 2U) || (CBUFFER_SIZE > 255U))
 #error CBUFFER_SIZE should be an integer between 2 and 127   // Passed tests with 2 - 127. Size 1 fails write overflow test in expected way. Size >127 fails because of testing with chars.
 #endif
 #if ((INDEXINIT < 0) || (INDEXINIT > CBUFFER_SIZE-1))
@@ -35,10 +35,9 @@ void cbuffer_clear(void) {
 
 void cbuffer_write(uint8_t value) {
     buffer[tail] = value;
-    if (count < CBUFFER_SIZE) {
-        tail = (tail DIR 1) % CBUFFER_SIZE;
+    tail = (tail DIR 1) % CBUFFER_SIZE;   // Always move tail, even when full
+    if (count < CBUFFER_SIZE) 
         count++;
-    }
     else
         head = (head DIR 1) % CBUFFER_SIZE;
 }
